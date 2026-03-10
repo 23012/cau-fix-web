@@ -1,0 +1,34 @@
+/* 모바일 (최대 768px) */
+@media (max-width: 768px) {
+    /* 모바일용 스타일: 작은 화면에 맞춰 레이아웃 조정 */
+    body {
+        font-size: 14px;
+    }
+    .container {
+        padding: 10px;
+    }
+}
+
+/* 태블릿 (769px ~ 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* 태블릿용 스타일: 중간 크기 화면에 맞춰 조정 */
+    body {
+        font-size: 16px;
+    }
+    .container {
+        padding: 20px;
+    }
+}
+
+/* PC (1025px 이상) */
+@media (min-width: 1025px) {
+    /* PC용 스타일: 큰 화면에 맞춰 레이아웃 확장 */
+    body {
+        font-size: 18px;
+    }
+    .container {
+        padding: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}

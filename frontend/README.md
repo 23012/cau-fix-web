@@ -142,7 +142,6 @@ React의 **Custom Hook**을 관리하는 폴더입니다.
 예시
 
 * global.css (전체 공통 스타일)
-* reset.css (브라우저 기본 스타일 초기화)
 * variables.css (색상, 폰트 등 CSS 변수)
 * responsive.css (반응형 media query)
 
