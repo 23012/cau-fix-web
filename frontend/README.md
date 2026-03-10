@@ -1,70 +1,169 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
+## 실행 방법
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+개발 모드로 React 애플리케이션을 실행합니다.
+터미널에서 `npm start`를 실행하면 개발 서버가 시작됩니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+브라우저에서 아래 주소로 접속하면 실행 중인 웹 애플리케이션을 확인할 수 있습니다.
 
-### `npm test`
+http://localhost:3000
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+코드를 수정하면 페이지가 자동으로 새로고침되며 변경 사항이 바로 반영됩니다.
 
-### `npm run build`
+나가기 : ctrl + c
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Frontend 구조
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`src` 폴더에는 React 애플리케이션의 주요 코드가 들어있습니다.
+각 폴더의 역할은 다음과 같습니다.
 
-### `npm run eject`
+```
+src
+ ├ components
+ ├ pages
+ ├ hooks
+ ├ api
+ ├ styles
+ ├ assets
+ ├ utils
+ ├ App.js
+ └ index.js
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### index.js
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+React 애플리케이션의 **시작 파일(entry point)** 입니다.
+React를 HTML의 `root` 요소에 렌더링하여 앱을 실행하는 역할을 합니다.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+앱이 실행될 때 가장 먼저 실행되는 파일이며, `App.js` 컴포넌트를 브라우저에 표시합니다.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+### App.js
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+React 애플리케이션의 **메인 컴포넌트**입니다.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+전체 웹 페이지의 기본 구조를 구성하며 보통 다음과 같은 요소들을 포함합니다.
 
-### Code Splitting
+* Header
+* Navigation
+* 각 페이지 컴포넌트
+* Router
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+즉, 실제 화면의 기본 레이아웃을 담당하는 파일입니다.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 폴더
 
-### Making a Progressive Web App
+* `components` - UI 컴포넌트
+* `pages` - 페이지 화면
+* `api` - api 통신
+* `hooks` - 재사용 로직
+* `styles` - 전역 스타일
+* `assets` - 정적 리소스
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+### components
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+여러 페이지에서 **재사용 가능한 UI 컴포넌트**를 저장하는 폴더입니다.
 
-### Deployment
+예시
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+* Header
+* Footer
+* Navbar
+* Button
 
-### `npm run build` fails to minify
+각 컴포넌트는 보통 다음과 같은 구조로 관리합니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+components
+ └ Header
+     ├ Header.js
+     └ Header.css
+```
+
+---
+
+### pages
+
+웹사이트의 **페이지 단위 컴포넌트**가 들어있는 폴더입니다.
+
+예시
+
+* Home
+* Login
+* Signup
+* Dashboard
+
+페이지는 여러 `components`를 조합하여 하나의 화면을 구성합니다.
+
+---
+
+### hooks
+
+React의 **Custom Hook**을 관리하는 폴더입니다.
+
+여러 컴포넌트에서 공통적으로 사용하는 로직을 Hook으로 만들어 재사용할 수 있습니다.
+
+예시
+
+* useAuth.js
+* useFetch.js
+* useWindowSize.js
+* useLocalStorage.js
+
+---
+
+### api
+
+백엔드 서버와 통신하는 **API 요청 코드**를 관리하는 폴더입니다.
+
+보통 axios 또는 fetch를 사용하여 API 요청을 분리해 관리합니다.
+
+예시
+
+* axios.js (axios 설정)
+* authApi.js
+* userApi.js
+* postApi.js
+
+---
+
+### styles
+
+프로젝트 전체에서 사용하는 **전역 스타일 파일**을 관리하는 폴더입니다.
+
+예시
+
+* global.css (전체 공통 스타일)
+* reset.css (브라우저 기본 스타일 초기화)
+* variables.css (색상, 폰트 등 CSS 변수)
+* responsive.css (반응형 media query)
+
+---
+
+### assets
+
+프로젝트에서 사용하는 **정적 파일**을 저장하는 폴더입니다.
+
+예시
+
+* 이미지
+* 아이콘
+* 폰트
+* 로고
+
+```
+assets
+ ├ images
+ ├ icons
+ └ fonts
+```
+
+---
