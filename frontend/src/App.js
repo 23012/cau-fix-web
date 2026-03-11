@@ -6,6 +6,7 @@ import './styles/responsive.css';
 import './styles/variables.css';
 import Main from "./pages/main/main";
 import Login from "./pages/login/login";
+import Signup from "./pages/signup/signup";
 
 function App() {
   const cursorRef = useRef(null);
@@ -52,6 +53,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </Router>
   );
