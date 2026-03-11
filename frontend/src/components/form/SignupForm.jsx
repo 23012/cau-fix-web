@@ -1,17 +1,24 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Form.css";
 
 
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {
   const navigate = useNavigate();
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+
+  const handleSubmit = (e) => {
+    // forward the confirm value along with the event
+    onSubmit(e, passwordConfirm);
+  };
 
   return (
-    <form onSubmit={onSubmit} className="list-form">
+    <form onSubmit={handleSubmit} className="list-form">
       <div className="signup-field-row">
         <input
           type="text"
           name="id"
-          placeholder="아이디 (내선번호)"
+          placeholder="아이디"
           value={formData.id}
           onChange={onChange}
           disabled={loading}
@@ -23,7 +30,15 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
       </div>
 
       <input type="password" name="password" placeholder="비밀번호" value={formData.password} onChange={onChange} disabled={loading} className="input" />
-      <input type="password" name="passwordConfirm" placeholder="비밀번호 확인" value={formData.passwordConfirm} onChange={onChange} disabled={loading} className="input" />
+      <input
+        type="password"
+        name="passwordConfirm"
+        placeholder="비밀번호 확인"
+        value={passwordConfirm}
+        onChange={(e) => setPasswordConfirm(e.target.value)}
+        disabled={loading}
+        className="input"
+      />
 
       <div className="signup-role-row">
         <span className="signup-role-label">권한</span>
@@ -39,6 +54,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
 
       <input type="text" name="name" placeholder="이름" value={formData.name} onChange={onChange} disabled={loading} className="input" />
       <input type="text" name="department" placeholder="부서" value={formData.department} onChange={onChange} disabled={loading} className="input" />
+      <input type="text" name="deptNumber" placeholder="내선번호" value={formData.deptNumber} onChange={onChange} disabled={loading} className="input" />
       <input type="email" name="email" placeholder="이메일" value={formData.email} onChange={onChange} disabled={loading} className="input" />
       <input type="tel" name="phone" placeholder="전화번호 ('-' 없이 입력)" value={formData.phone} onChange={onChange} disabled={loading} className="input" />
 

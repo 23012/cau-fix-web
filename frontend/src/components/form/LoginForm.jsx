@@ -38,6 +38,10 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
       >
         회원 가입
       </button>
+      <div className="login-divider">
+      <span>
+        비밀번호를 분실하신 경우, <u><strong>관리자</strong></u>에게 문의 바랍니다.</span>
+      </div>
     </form>
   );
 };
