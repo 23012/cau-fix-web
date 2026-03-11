@@ -16,8 +16,6 @@ const Signup = () => {
     role: "", // "user" or "manager"
     name: "",
     department: "",
-    deptNumber: "",
-    email: "",
     phone: "",
   });
   const [error, setError] = useState("");
