@@ -9,7 +9,7 @@ import "../../styles/global.css";
 const Signup = () => {
   const navigate = useNavigate();
 
-  //member 변수 생성
+  //member 데이터 생성
   const [formData, setFormData] = useState({
     id: "",
     password: "",

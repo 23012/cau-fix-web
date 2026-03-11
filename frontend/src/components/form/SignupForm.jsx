@@ -8,7 +8,6 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const handleSubmit = (e) => {
-    // forward the confirm value along with the event
     onSubmit(e, passwordConfirm);
   };
 
@@ -18,7 +17,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
         <input
           type="text"
           name="id"
-          placeholder="아이디"
+          placeholder="아이디 (사번)"
           value={formData.id}
           onChange={onChange}
           disabled={loading}
@@ -30,6 +29,9 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
       </div>
 
       <input type="password" name="password" placeholder="비밀번호" value={formData.password} onChange={onChange} disabled={loading} className="input" />
+      <p className="signup-policy-text">
+        ※ 영어 소문자 및 숫자 포함 10자 이상
+      </p>
       <input
         type="password"
         name="passwordConfirm"
@@ -54,9 +56,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
 
       <input type="text" name="name" placeholder="이름" value={formData.name} onChange={onChange} disabled={loading} className="input" />
       <input type="text" name="department" placeholder="부서" value={formData.department} onChange={onChange} disabled={loading} className="input" />
-      <input type="text" name="deptNumber" placeholder="내선번호" value={formData.deptNumber} onChange={onChange} disabled={loading} className="input" />
-      <input type="email" name="email" placeholder="이메일" value={formData.email} onChange={onChange} disabled={loading} className="input" />
-      <input type="tel" name="phone" placeholder="전화번호 ('-' 없이 입력)" value={formData.phone} onChange={onChange} disabled={loading} className="input" />
+      <input type="tel" name="phone" placeholder="전화번호" value={formData.phone} onChange={onChange} disabled={loading} className="input" />
 
       {error && <p className="signup-error-message">{error}</p>}
 
