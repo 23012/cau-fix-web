@@ -9,7 +9,7 @@ function Main() {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate('/login');
-    }, 5000); // 5초 후 login으로 이동
+    }, 2000); // 5초 후 login으로 이동
 
     return () => clearTimeout(timer);
   }, [navigate]);

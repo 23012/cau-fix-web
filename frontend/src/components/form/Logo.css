@@ -1,0 +1,20 @@
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.login-logo img {
+  height: 64px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .login-logo img { height: 52px; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .login-logo img { height: 60px; }
+}
+@media (min-width: 1025px) {
+  .login-logo img { height: 72px; }
+}

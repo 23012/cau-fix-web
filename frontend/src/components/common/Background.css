@@ -1,0 +1,12 @@
+.bg-cover-full {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}

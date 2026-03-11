@@ -23,12 +23,12 @@
   margin-top: 40px;
   text-align: center;
   font-size: 26px;
-  color: #8c8c8c;
+  color: var(--back-color-2);
   line-height: 1.6;
 }
 
 .animate {
-  animation: growAndFade 5s ease-in-out forwards;
+  animation: growAndFade 2s ease-in-out forwards;
 }
 
 @keyframes growAndFade {
