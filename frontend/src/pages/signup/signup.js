@@ -71,7 +71,6 @@ const Signup = () => {
       !passwordConfirm.trim() ||
       !name.trim() ||
       !department.trim() ||
-      !email.trim() ||
       !phone.trim()
     ) {
       setError("모든 항목을 입력해주세요");
