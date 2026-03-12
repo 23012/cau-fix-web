@@ -45,3 +45,13 @@
     padding: 48px;
   }
 }
+
+.temporary-button{
+  padding : 10px 12px;
+  background-color: var(--yellow);
+  color : black;
+  font-size: 0.8rem;
+  font-weight: 900;
+  border : 1px solid var(--yellow);
+  margin : 10px;
+}

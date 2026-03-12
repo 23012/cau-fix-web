@@ -7,6 +7,7 @@ import './styles/variables.css';
 import Main from "./pages/main/main";
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
+import ComplainDashboard from "./pages/complain-dashboard/complain-dshboard";
 
 function App() {
   const cursorRef = useRef(null);
@@ -54,6 +55,7 @@ function App() {
         <Route path="/" element={<Main />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/complain-dashboard" element={<ComplainDashboard />} />
       </Routes>
     </Router>
   );

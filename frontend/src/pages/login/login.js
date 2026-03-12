@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Background from "../../components/common/Background";
 import Logo from "../../components/form/Logo";
 import LoginForm from "../../components/form/LoginForm";
@@ -7,6 +8,7 @@ import "./login.css";
 import "../../styles/global.css";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ id: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,6 +48,7 @@ const Login = () => {
           onChange={handleChange}
           onSubmit={handleSubmit}
         />
+        <button className="temporary-button" onClick={() => navigate('/complain-dashboard')}>대시보드 확인</button>
       </div>
     </div>
   );
