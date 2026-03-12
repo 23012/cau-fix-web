@@ -7,7 +7,7 @@ import './styles/variables.css';
 import Main from "./pages/main/main";
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
-import ComplainDashboard from "./pages/complain-dashboard/complain-dshboard";
+import ComplainDashboard from "./pages/complain-dashboard/complain-dashboard";
 
 function App() {
   const cursorRef = useRef(null);

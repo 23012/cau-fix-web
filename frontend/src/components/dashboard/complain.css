@@ -1,0 +1,290 @@
+.dashboard {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* HEADER */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.header h1 {
+  font-size: 36px;
+  font-weight: 1000;
+  color: black;
+}
+
+/* ICON BUTTON */
+
+.icon-btn {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: hsl(var(--muted));
+}
+
+/* TOOLBAR */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+}
+
+.dropdown {
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.dropdown:hover {
+  border-color: #ccc;
+}
+
+.dropdown:focus {
+  border-color: var(--main-color);
+}
+
+.badge {
+  padding: 6px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+/* CONTROLS */
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-dropdown {
+  min-width: 100px;
+}
+
+.sort {
+  color: var(--back-color-2);
+}
+
+/* MAIN GRID */
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* CHART CARD */
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0.75rem;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  padding: 1rem;
+}
+
+.chart {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 260px;
+}
+
+/* LEGEND */
+
+.legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 280px;
+  justify-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--back-color-2);
+  font-size: 14px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-value {
+  font-weight: 600;
+  color: #666;
+  margin-left: 4px;
+  font-size: 15px;
+}
+
+/* TABLE */
+
+.table-wrapper {
+  border-radius: 0.75rem;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  background-color: white;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: var(--back-color);
+  padding: 14px 10px;
+  font-weight: 700;
+  color: #000;
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.title {
+  font-weight: 500;
+}
+
+/* STATUS */
+
+.status {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.pending {
+  background-color: rgba(158, 158, 158, 0.15);
+  color: #666;
+  border-color: rgba(158, 158, 158, 0.3);
+}
+
+.received {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #FFC107;
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.progress {
+  background-color: rgba(99, 190, 123, 0.15);
+  color: #63BE7B;
+  border-color: rgba(99, 190, 123, 0.3);
+}
+
+.done {
+  background-color: rgba(0, 110, 183, 0.15);
+  color: #006EB7;
+  border-color: rgba(0, 110, 183, 0.3);
+}
+
+/* FAB */
+
+.fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+}
+
+.fab button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--main-color));
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* ===== 모바일 ===== */
+
+@media (max-width: 768px) {
+
+  .dashboard {
+    padding: 1rem 10px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .main {
+    grid-template-columns: 1fr;
+  }
+
+  .chart {
+    max-width: 220px;
+  }
+
+  .fab {
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+/* ===== 태블릿 ===== */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .main {
+    grid-template-columns: 2fr 3fr;
+  }
+
+  .chart {
+    max-width: 240px;
+  }
+}
+
+/* ===== PC ===== */
+
+@media (min-width: 1025px) {
+
+  .main {
+    grid-template-columns: 2fr 3fr;
+  }
+
+  .chart {
+    max-width: 280px;
+  }
+}

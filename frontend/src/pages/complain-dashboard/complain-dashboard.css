@@ -1,0 +1,65 @@
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dashboard-header-menubar {
+  flex: 1;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.dashboard-content h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* 모바일 (최대 768px) - 세로 배치 */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    border-bottom: none;
+  }
+  
+  .dashboard-header-menubar {
+    display: none;
+  }
+  
+  .dashboard-container > .menubar {
+    display: flex;
+  }
+  
+  .dashboard-content {
+    padding-bottom: 80px;
+  }
+}
+
+/* 태블릿 이상 (769px 이상) - 가로 배치 */
+@media (min-width: 769px) {
+  .dashboard-header {
+    flex-direction: row;
+  }
+  
+  .dashboard-header-menubar {
+    display: block;
+  }
+  
+  .dashboard-container > .menubar {
+    display: none;
+  }
+}

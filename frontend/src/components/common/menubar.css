@@ -1,0 +1,153 @@
+.menubar {
+  display: flex;
+  align-items: center;
+  margin-left: 0;
+  margin-top: 0;
+  width: 100%;
+  background-color: transparent;
+}
+
+.menubar__list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 20px;
+}
+
+.menubar__item {
+  position: relative;
+}
+
+.menubar__button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #333;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  padding: 18px 30px;
+  font-size: 22px;
+}
+
+.menubar__icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: none;
+}
+
+.menubar__text {
+  display: inline;
+}
+
+.menubar__button:hover {
+  color: var(--main-color);
+  border-bottom-color: var(--main-color);
+}
+
+.menubar__button--active {
+  color: var(--main-color);
+  border-bottom-color: var(--main-color);
+}
+
+/* 모바일 (최대 768px) - 하단 고정 + 아이콘만 표시 */
+@media (max-width: 768px) {
+  .menubar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-left: 0;
+    padding: 10px 0;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fff;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  
+  .menubar__list {
+    gap: 0;
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  .menubar__button {
+    flex-direction: column;
+    padding: 8px 16px;
+    font-size: 12px;
+    gap: 4px;
+    border-bottom: none;
+  }
+  
+  .menubar__icon {
+    display: block;
+    width: 28px;
+    height: 28px;
+  }
+  
+  .menubar__text {
+    display: none;
+  }
+}
+
+/* 태블릿 (769px ~ 1024px) - 기존 스타일 유지 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .menubar {
+    margin-left: 30px;
+    margin-top: 0;
+  }
+  
+  .menubar__list {
+    gap: 15px;
+  }
+  
+  .menubar__item {
+    order: 0 !important;
+  }
+  
+  .menubar__button {
+    padding: 14px 24px;
+    font-size: 19px;
+  }
+  
+  .menubar__icon {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* PC (1025px 이상) - 기존 스타일 유지 */
+@media (min-width: 1025px) {
+  .menubar {
+    margin-left: 50px;
+    margin-top: 0;
+  }
+  
+  .menubar__list {
+    gap: 25px;
+  }
+  
+  .menubar__item {
+    order: 0 !important;
+  }
+  
+  .menubar__button {
+    padding: 20px 35px;
+    font-size: 24px;
+  }
+  
+  .menubar__icon {
+    width: 24px;
+    height: 24px;
+  }
+}
