@@ -1,0 +1,160 @@
+.filter-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  width: 320px;
+  z-index: 100;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-section:last-of-type {
+  margin-bottom: 16px;
+}
+
+.filter-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.filter-checkboxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.filter-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--back-color-2);
+}
+
+.filter-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--back-color);
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  background-color: white;
+}
+
+.filter-select:focus {
+  border-color: var(--main-color);
+}
+
+.filter-date-range {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-date-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+}
+
+.filter-date-input:focus {
+  border-color: var(--main-color);
+}
+
+.filter-date-separator {
+  font-size: 14px;
+  color: var(--back-color-2);
+  margin: 0 4px;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.filter-reset-btn,
+.filter-apply-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-reset-btn {
+  background: white;
+  border: 1px solid var(--back-color);
+  color: var(--back-color-2);
+}
+
+.filter-reset-btn:hover {
+  background: #f5f5f5;
+}
+
+.filter-apply-btn {
+  background: var(--main-color);
+  border: none;
+  color: white;
+}
+
+.filter-apply-btn:hover {
+  opacity: 0.9;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .filter-panel {
+    width: 280px;
+    padding: 16px;
+  }
+
+  .filter-date-input {
+    width: 50px;
+    padding: 5px 6px;
+    font-size: 13px;
+  }
+}

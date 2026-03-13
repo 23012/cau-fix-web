@@ -1,10 +1,11 @@
 import "./complain.css";
 import { useState, useEffect } from "react";
-import { Filter, Plus } from "lucide-react";
+import { Filter as FilterIcon, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assests/files/sample.xlsx";
 import Search from "../common/search";
+import Filter from "../common/filter";
 
 const statusClass = (status) => {
   switch (status) {
@@ -42,6 +43,13 @@ const Complain = () => {
   const [selectedMonth, setSelectedMonth] = useState("전체");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterOptions, setFilterOptions] = useState({
+    statuses: [],
+    category: "",
+    startDate: { year: "", month: "", day: "" },
+    endDate: { year: "", month: "", day: "" },
+  });
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -63,7 +71,7 @@ const Complain = () => {
           result: row["처리 내용"],
           location: row["장소"],
           status: row["상태"],
-          date: row["접수시간"]?.toString() || "",
+          date: row["접수시간"], // 원본 그대로 저장 (숫자 또는 문자열)
         }));
 
         setTableData(parsed);
@@ -75,19 +83,168 @@ const Complain = () => {
     loadExcel();
   }, []);
 
-  const chartData = getChartData(tableData);
+  // 날짜 필터링 함수
+  const filterByDate = (data) => {
+    console.log("=== 필터링 시작 ===");
+    console.log("선택된 연도:", selectedYear, "선택된 월:", selectedMonth);
+    
+    const result = data.filter((row, index) => {
+      // 전체 선택 시 모두 통과
+      if (selectedYear === "전체" && selectedMonth === "전체") {
+        return true;
+      }
+
+      // date가 없으면 제외
+      if (!row.date) {
+        if (index < 3) console.log(`Row ${row.id}: 날짜 없음`);
+        return false;
+      }
+
+      let dateObj;
+      
+      // Excel 숫자 형식인지 확인 (46082.375 같은 형식)
+      if (typeof row.date === 'number' || !isNaN(parseFloat(row.date))) {
+        // Excel 날짜를 JavaScript Date로 변환
+        // Excel은 1900년 1월 1일을 1로 시작 (실제로는 1899년 12월 30일)
+        const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
+        dateObj = new Date((excelDate - 25569) * 86400 * 1000);
+        
+        if (index < 3) {
+          console.log(`Row ${row.id}: Excel 숫자="${row.date}" → 변환="${dateObj.toISOString()}"`);
+        }
+      } else {
+        // 문자열 형식 처리
+        const dateStr = row.date.toString().trim();
+        if (index < 3) console.log(`Row ${row.id}: 문자열="${dateStr}"`);
+        
+        const datePart = dateStr.split(' ')[0];
+        dateObj = new Date(datePart);
+      }
+
+      // 유효한 날짜인지 확인
+      if (isNaN(dateObj.getTime())) {
+        if (index < 3) console.log(`Row ${row.id}: 유효하지 않은 날짜`);
+        return false;
+      }
+
+      const year = dateObj.getFullYear().toString();
+      const month = (dateObj.getMonth() + 1).toString();
+      
+      if (index < 3) console.log(`Row ${row.id}: year="${year}", month="${month}"`);
+
+      // 연도 필터
+      if (selectedYear !== "전체" && year !== selectedYear) {
+        if (index < 3) console.log(`Row ${row.id}: 연도 불일치`);
+        return false;
+      }
+
+      // 월 필터
+      if (selectedMonth !== "전체" && month !== selectedMonth) {
+        if (index < 3) console.log(`Row ${row.id}: 월 불일치`);
+        return false;
+      }
+
+      if (index < 3) console.log(`Row ${row.id}: 통과!`);
+      return true;
+    });
+    
+    console.log("필터링 결과:", result.length, "개");
+    return result;
+  };
+
+  // 날짜 필터링 적용
+  const dateFilteredData = filterByDate(tableData);
+  console.log("날짜 필터링 후:", dateFilteredData.length, "개");
 
   // 검색 필터링
-  const filteredData = tableData.filter((row) => {
+  const searchFilteredData = dateFilteredData.filter((row) => {
     if (searchQuery.trim() === "") return true;
     return row.title.toLowerCase().includes(searchQuery.toLowerCase());
   });
+  console.log("검색 필터링 후:", searchFilteredData.length, "개");
+
+  // 추가 필터 적용 (상태, 분류, 기간)
+  const additionalFilteredData = searchFilteredData.filter((row) => {
+    // 상태 필터
+    if (filterOptions.statuses.length > 0 && !filterOptions.statuses.includes(row.status)) {
+      return false;
+    }
+
+    // 분류 필터
+    if (filterOptions.category && row.category !== filterOptions.category) {
+      return false;
+    }
+
+    // 기간 필터
+    const { startDate, endDate } = filterOptions;
+    if (startDate.year && startDate.month && startDate.day) {
+      const start = new Date(startDate.year, startDate.month - 1, startDate.day);
+      const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
+      const rowDate = new Date((excelDate - 25569) * 86400 * 1000);
+      
+      if (rowDate < start) return false;
+    }
+
+    if (endDate.year && endDate.month && endDate.day) {
+      const end = new Date(endDate.year, endDate.month - 1, endDate.day, 23, 59, 59);
+      const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
+      const rowDate = new Date((excelDate - 25569) * 86400 * 1000);
+      
+      if (rowDate > end) return false;
+    }
+
+    return true;
+  });
+
+  // 정렬 함수
+  const sortData = (data) => {
+    const sorted = [...data]; // 원본 배열 복사
+
+    switch (sortOrder) {
+      case "번호순":
+        return sorted.sort((a, b) => a.id - b.id);
+      
+      case "최신순":
+        return sorted.sort((a, b) => {
+          // Excel 숫자 형식 비교
+          const dateA = typeof a.date === 'number' ? a.date : parseFloat(a.date);
+          const dateB = typeof b.date === 'number' ? b.date : parseFloat(b.date);
+          return dateB - dateA; // 내림차순 (최신이 위)
+        });
+      
+      case "오래된순":
+        return sorted.sort((a, b) => {
+          const dateA = typeof a.date === 'number' ? a.date : parseFloat(a.date);
+          const dateB = typeof b.date === 'number' ? b.date : parseFloat(b.date);
+          return dateA - dateB; // 오름차순 (오래된 것이 위)
+        });
+      
+      case "상태순":
+        // 접수전(0), 접수(1), 진행중(2), 완료(3) 순서
+        const statusOrder = { "접수전": 0, "접수": 1, "진행중": 2, "완료": 3 };
+        return sorted.sort((a, b) => {
+          const orderA = statusOrder[a.status] ?? 999;
+          const orderB = statusOrder[b.status] ?? 999;
+          return orderA - orderB;
+        });
+      
+      default:
+        return sorted;
+    }
+  };
+
+  // 정렬 적용
+  const filteredData = sortData(additionalFilteredData);
+
+  // 차트 데이터는 필터링된 데이터 기준
+  const chartData = getChartData(filteredData);
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = filteredData.slice(startIndex, endIndex);
+  console.log("현재 페이지 데이터:", currentData.length, "개");
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -103,6 +260,21 @@ const Complain = () => {
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleYearChange = (e) => {
+    setSelectedYear(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleMonthChange = (e) => {
+    setSelectedMonth(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterApply = (options) => {
+    setFilterOptions(options);
     setCurrentPage(1);
   };
 
@@ -124,7 +296,7 @@ const Complain = () => {
           <select 
             className="dropdown"
             value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            onChange={handleYearChange}
           >
             <option value="전체">전체</option>
             <option value="2026">2026년</option>
@@ -139,7 +311,7 @@ const Complain = () => {
           <select 
             className="dropdown"
             value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
+            onChange={handleMonthChange}
           >
             <option value="전체">전체</option>
             <option value="1">1월</option>
@@ -158,9 +330,16 @@ const Complain = () => {
         </div>
 
         <div className="controls">
-          <button className="icon-btn">
-            <Filter size={18} />
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button className="icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
+              <FilterIcon size={18} />
+            </button>
+            <Filter
+              isOpen={filterOpen}
+              onClose={() => setFilterOpen(false)}
+              onApply={handleFilterApply}
+            />
+          </div>
           
           <select 
             className="dropdown sort-dropdown"

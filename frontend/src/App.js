@@ -1,4 +1,3 @@
-//import React from 'react';
 import React, { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/global.css';
@@ -8,6 +7,9 @@ import Main from "./pages/main/main";
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
 import ComplainDashboard from "./pages/complain-dashboard/complain-dashboard";
+import Notice from "./pages/notice/notice";
+import AlarmList from "./pages/alarm-list/alarm-list";
+import MyInfo from "./pages/myinfo/myinfo";
 
 function App() {
   const cursorRef = useRef(null);
@@ -56,6 +58,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/complain-dashboard" element={<ComplainDashboard />} />
+        <Route path="/notice" element={<Notice />} />
+        <Route path="/alarm-list" element={<AlarmList />} />
+        <Route path="/myinfo" element={<MyInfo />} />
       </Routes>
     </Router>
   );

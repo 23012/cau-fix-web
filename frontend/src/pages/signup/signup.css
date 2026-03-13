@@ -10,12 +10,7 @@
   padding: 30px;
 }
 
-/* Signup 페이지의 page-container 중앙 정렬 */
-.signup-page .page-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 
 .signup-title {
   text-align: center;
