@@ -1,9 +1,10 @@
 import "./complain.css";
 import { useState, useEffect } from "react";
-import { Search, Filter, Plus } from "lucide-react";
+import { Filter, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assests/files/sample.xlsx";
+import Search from "../common/search";
 
 const statusClass = (status) => {
   switch (status) {
@@ -40,6 +41,7 @@ const Complain = () => {
   const [selectedYear, setSelectedYear] = useState("전체");
   const [selectedMonth, setSelectedMonth] = useState("전체");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -75,11 +77,17 @@ const Complain = () => {
 
   const chartData = getChartData(tableData);
 
+  // 검색 필터링
+  const filteredData = tableData.filter((row) => {
+    if (searchQuery.trim() === "") return true;
+    return row.title.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   // 페이지네이션 계산
-  const totalPages = Math.ceil(tableData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = tableData.slice(startIndex, endIndex);
+  const currentData = filteredData.slice(startIndex, endIndex);
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -93,6 +101,11 @@ const Complain = () => {
     }
   };
 
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
   //DB 연결 작업 필요
   
   return (
@@ -101,10 +114,7 @@ const Complain = () => {
       {/* HEADER */}
       <div className="header">
         <h1>내 민원</h1>
-
-        <button className="icon-btn">
-          <Search size={24} />
-        </button>
+        <Search onSearchChange={handleSearchChange} />
       </div>
 
       {/* TOOLBAR */}

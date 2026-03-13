@@ -18,28 +18,19 @@
   flex: 1;
 }
 
+.dashboard-container > .menubar {
+    display : none;
+}
+
 .dashboard-content {
   flex: 1;
   padding: 20px;
-}
-
-.dashboard-content h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
 }
 
 /* 모바일 (최대 768px) - 세로 배치 */
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
-    border-bottom: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 998;
-    background-color: #fff;
   }
   
   .dashboard-header-menubar {
@@ -51,21 +42,13 @@
   }
   
   .dashboard-content {
-    padding-top: 0;
-    padding-bottom: 100px;
-    overflow-y: auto;
+    padding-top : 10px;
   }
 }
 
 /* 태블릿 (769px ~ 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
   .dashboard-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 998;
-    background-color: #fff;
     flex-direction: row;
   }
   
@@ -78,22 +61,18 @@
   }
   
   .dashboard-content {
-    padding-top: 0;
+    margin-top: 86px;
     padding-bottom: 20px;
   }
 }
 
-/* 태블릿 이상 (769px 이상) - 가로 배치 */
-@media (min-width: 769px) {
+/* PC (1025px 이상) - 가로 배치 */
+@media (min-width: 1025px) {
   .dashboard-header {
     flex-direction: row;
   }
   
-  .dashboard-header-menubar {
-    display: block;
-  }
-  
-  .dashboard-container > .menubar {
-    display: none;
+  .dashboard-content {
+    padding: 20px;
   }
 }

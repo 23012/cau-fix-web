@@ -44,6 +44,14 @@ body {
   height: 100vh;
 }
 
+.page-container-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+
 /* 커스텀 마우스 커서 */
 * {
   cursor: none;
@@ -86,7 +94,4 @@ input[type="submit"],
   position: relative;
   width: 100%;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }

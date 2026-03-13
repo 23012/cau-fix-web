@@ -1,8 +1,6 @@
 .topbar {
-  display: flex;
-  align-items: center;
-  width: auto;
-}
+    width : 100%;
+  }
 
 .topbar_logo {
     display: flex;
@@ -24,22 +22,13 @@
 
 /* 모바일 (최대 768px) */
 @media (max-width: 768px) {
-  .topbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 999;
-    background-color: #fff;
-  }
   
   .topbar_logo {
     justify-content: center;
     padding: 10px 0;
     width: 100%;
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 0;
   }
+
   .topbar_logo img {
     height: 35px;
     max-width: 180px;
@@ -48,19 +37,11 @@
 
 /* 태블릿 (769px ~ 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .topbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 999;
-    background-color: #fff;
-  }
-  
+
   .topbar_logo {
     padding: 18px 25px;
-    border-bottom: 1px solid #e0e0e0;
   }
+
   .topbar_logo img {
     height: 50px;
     max-width: 250px;
@@ -72,6 +53,7 @@
   .topbar_logo {
     padding: 20px 40px;
   }
+
   .topbar_logo img {
     height: 65px;
     max-width: 350px;

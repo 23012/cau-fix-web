@@ -37,7 +37,7 @@ const Login = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container-center">
       <Background image={hospitalBg} />
       <div className="login-container">
         <Logo alt="중앙대학교 광명병원" />

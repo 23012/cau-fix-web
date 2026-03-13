@@ -20,21 +20,6 @@
   color: black;
 }
 
-/* ICON BUTTON */
-
-.icon-btn {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: var(--back-color-2) 0.2s;
-}
-
-.icon-btn:hover {
-  background-color: hsl(var(--muted));
-}
-
 /* TOOLBAR */
 
 .toolbar {
@@ -285,12 +270,12 @@
 
   .dashboard {
     padding: 1rem 10px;
-    padding-top: 400px;
     padding-bottom: 30px;
   }
 
   .header {
     margin-top: 0;
+    margin-bottom: 1.5rem;
   }
 
   .header h1 {
@@ -322,7 +307,7 @@
 @media (min-width: 769px) and (max-width: 1024px) {
 
   .dashboard {
-    padding-top: 110px;
+    padding-bottom: 20px;
   }
 
   .header {

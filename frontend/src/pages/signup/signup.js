@@ -95,7 +95,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container-center">
       <Background image={hospitalBg} />
       <div className="signup-container">
         <h1 className="signup-title">회원가입</h1>

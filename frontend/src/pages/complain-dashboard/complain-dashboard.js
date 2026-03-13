@@ -16,7 +16,9 @@ const ComplainDashboard = () => {
           </div>
         </div>
         <MenuBar />
-        <Complain />
+        <div className="dashboard-content">
+          <Complain />
+        </div>
       </div>
     </div>
   );
