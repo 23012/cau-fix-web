@@ -28,7 +28,7 @@ const Login = () => {
 
         const parsed = rows.map((row) => ({
           id: row["id"]?.toString() || "",
-          password: row["pw"]?.toString() || "",
+          password: row["password"]?.toString() || "",
         }));
 
         setLoginData(parsed);

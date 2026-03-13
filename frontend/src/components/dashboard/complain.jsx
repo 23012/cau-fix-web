@@ -1,26 +1,13 @@
 import "./complain.css";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Filter as FilterIcon, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assets/files/sample.xlsx";
 import Search from "../common/search";
 import Filter from "../common/filter";
-
-const statusClass = (status) => {
-  switch (status) {
-    case "접수전":
-      return "status pending";
-    case "접수":
-      return "status received";
-    case "진행중":
-      return "status progress";
-    case "완료":
-      return "status done";
-    default:
-      return "status";
-  }
-};
+import Status from "../common/Status";
 
 const getChartData = (data) => {
   const counts = data.reduce((acc, row) => {
@@ -37,6 +24,7 @@ const getChartData = (data) => {
 };
 
 const Complain = () => {
+  const navigate = useNavigate();
   const [tableData, setTableData] = useState([]);
   const [sortOrder, setSortOrder] = useState("번호순");
   const [selectedYear, setSelectedYear] = useState("전체");
@@ -72,6 +60,7 @@ const Complain = () => {
           location: row["장소"],
           status: row["상태"],
           date: row["접수시간"], // 원본 그대로 저장 (숫자 또는 문자열)
+          image: row["사진"], // 사진 파일명 (확장자 포함)
         }));
 
         setTableData(parsed);
@@ -278,6 +267,10 @@ const Complain = () => {
     setCurrentPage(1);
   };
 
+  const handleRowClick = (row) => {
+    navigate('/complain-detail', { state: { data: row } });
+  };
+
   //DB 연결 작업 필요
   
   return (
@@ -285,7 +278,12 @@ const Complain = () => {
 
       {/* HEADER */}
       <div className="header">
-        <h1>내 민원</h1>
+        <div className="header-left">
+          <h1>내 민원</h1>
+          <button className="add-complain-btn-pc" onClick={() => console.log("민원 등록")}>
+            <Plus size={20} />
+          </button>
+        </div>
         <Search onSearchChange={handleSearchChange} />
       </div>
 
@@ -425,7 +423,7 @@ const Complain = () => {
             <tbody>
 
               {currentData.map((row) => (
-                <tr key={row.id}>
+                <tr key={row.id} onClick={() => handleRowClick(row)} style={{ cursor: 'pointer' }}>
 
                   <td>{row.id}</td>
 
@@ -434,9 +432,7 @@ const Complain = () => {
                   </td>
 
                   <td>
-                    <span className={statusClass(row.status)}>
-                      {row.status}
-                    </span>
+                    <Status status={row.status} />
                   </td>
 
                 </tr>
@@ -479,7 +475,7 @@ const Complain = () => {
       <div className="fab">
 
         <button className="fab-btn">
-          <Plus size={26} />
+          <Plus size={40} />
         </button>
 
       </div>

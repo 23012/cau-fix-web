@@ -14,10 +14,37 @@
   margin-bottom: 1rem;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .header h1 {
   font-size: 36px;
   font-weight: 1000;
   color: black;
+}
+
+.add-complain-btn-pc {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--main-color);
+  background: white;
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left : 5px;
+  margin-top : 5px;
+}
+
+.add-complain-btn-pc:hover {
+  background: var(--main-color);
+  color: white;
 }
 
 /* TOOLBAR */
@@ -169,41 +196,6 @@
   font-weight: 500;
 }
 
-/* STATUS */
-
-.status {
-  display: inline-block;
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid;
-}
-
-.pending {
-  background-color: rgba(158, 158, 158, 0.15);
-  color: #666;
-  border-color: rgba(158, 158, 158, 0.3);
-}
-
-.received {
-  background-color: rgba(255, 193, 7, 0.15);
-  color: #FFC107;
-  border-color: rgba(255, 193, 7, 0.3);
-}
-
-.progress {
-  background-color: rgba(99, 190, 123, 0.15);
-  color: #63BE7B;
-  border-color: rgba(99, 190, 123, 0.3);
-}
-
-.done {
-  background-color: rgba(0, 110, 183, 0.15);
-  color: #006EB7;
-  border-color: rgba(0, 110, 183, 0.3);
-}
-
 /* PAGINATION */
 
 .pagination {
@@ -254,14 +246,27 @@
 }
 
 .fab button {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: none;
-  background: hsl(var(--main-color));
+  background: var(--main-color);
   color: white;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab button:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.fab button:active {
+  transform: scale(0.95);
 }
 
 /* ===== 모바일 ===== */
@@ -280,6 +285,10 @@
 
   .header h1 {
     font-size: 22px;
+  }
+
+  .add-complain-btn-pc {
+    display: none;
   }
 
   .main {
@@ -307,7 +316,7 @@
 @media (min-width: 769px) and (max-width: 1024px) {
 
   .dashboard {
-    padding-bottom: 20px;
+    padding-bottom: 10px;
   }
 
   .header {
@@ -327,6 +336,9 @@
     bottom: 30px;
     right: 30px;
   }
+  .add-complain-btn-pc {
+    display: none;
+  }
 }
 
 /* ===== PC ===== */
@@ -339,5 +351,9 @@
 
   .chart {
     max-width: 280px;
+  }
+
+  .fab{
+    display : none;
   }
 }
