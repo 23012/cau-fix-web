@@ -28,7 +28,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: var(--back-color-2) 0.2s;
 }
 
 .icon-btn:hover {
@@ -164,6 +164,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom : -5px;
 }
 
 .table th {
@@ -218,6 +219,47 @@
   border-color: rgba(0, 110, 183, 0.3);
 }
 
+/* PAGINATION */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+  border-top: 1px solid white;
+}
+
+.pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 36px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--back-color);
+  border-color: var(--main-color);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+
 /* FAB */
 
 .fab {
@@ -243,6 +285,12 @@
 
   .dashboard {
     padding: 1rem 10px;
+    padding-top: 400px;
+    padding-bottom: 30px;
+  }
+
+  .header {
+    margin-top: 0;
   }
 
   .header h1 {
@@ -251,6 +299,8 @@
 
   .main {
     grid-template-columns: 1fr;
+    margin-bottom: 20px;
+    margin-top: 10px;
   }
 
   .chart {
@@ -258,8 +308,12 @@
   }
 
   .fab {
-    bottom: 20px;
+    bottom: 100px;
     right: 20px;
+  }
+  
+  .table-wrapper {
+    margin-bottom: 20px;
   }
 }
 
@@ -267,12 +321,26 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
 
+  .dashboard {
+    padding-top: 110px;
+  }
+
+  .header {
+    margin-top: 0;
+  }
+
   .main {
     grid-template-columns: 2fr 3fr;
+    margin-top: 10px;
   }
 
   .chart {
     max-width: 240px;
+  }
+  
+  .fab {
+    bottom: 30px;
+    right: 30px;
   }
 }
 

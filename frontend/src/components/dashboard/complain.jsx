@@ -39,6 +39,8 @@ const Complain = () => {
   const [sortOrder, setSortOrder] = useState("번호순");
   const [selectedYear, setSelectedYear] = useState("전체");
   const [selectedMonth, setSelectedMonth] = useState("전체");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const loadExcel = async () => {
@@ -65,14 +67,6 @@ const Complain = () => {
         setTableData(parsed);
       } catch (error) {
         console.error("Excel 로드 실패:", error);
-        // 더미 데이터
-        setTableData([
-          { id: 1, title: "출입문 지지대 제목 요청", status: "접수전", date: "2026-03-01" },
-          { id: 2, title: "에어컨 고장", status: "접수", date: "2026-03-02" },
-          { id: 3, title: "화장실 수건 걸이 발견", status: "진행중", date: "2026-03-03" },
-          { id: 4, title: "자동문 센서 고장", status: "완료", date: "2026-03-04" },
-          { id: 5, title: "정수기 온수 장치 교체", status: "완료", date: "2026-03-05" },
-        ]);
       }
     };
 
@@ -81,6 +75,26 @@ const Complain = () => {
 
   const chartData = getChartData(tableData);
 
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(tableData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = tableData.slice(startIndex, endIndex);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  //DB 연결 작업 필요
+  
   return (
     <div className="dashboard">
 
@@ -221,7 +235,7 @@ const Complain = () => {
 
             <tbody>
 
-              {tableData.map((row) => (
+              {currentData.map((row) => (
                 <tr key={row.id}>
 
                   <td>{row.id}</td>
@@ -242,6 +256,31 @@ const Complain = () => {
             </tbody>
 
           </table>
+
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button 
+                className="pagination-btn"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                &lt;
+              </button>
+              
+              <span className="pagination-info">
+                {currentPage} / {totalPages}
+              </span>
+              
+              <button 
+                className="pagination-btn"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                &gt;
+              </button>
+            </div>
+          )}
 
         </div>
 

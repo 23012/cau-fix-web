@@ -24,6 +24,15 @@
 
 /* 모바일 (최대 768px) */
 @media (max-width: 768px) {
+  .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background-color: #fff;
+  }
+  
   .topbar_logo {
     justify-content: center;
     padding: 10px 0;
@@ -39,8 +48,18 @@
 
 /* 태블릿 (769px ~ 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
+  .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background-color: #fff;
+  }
+  
   .topbar_logo {
     padding: 18px 25px;
+    border-bottom: 1px solid #e0e0e0;
   }
   .topbar_logo img {
     height: 50px;

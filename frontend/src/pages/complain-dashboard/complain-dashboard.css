@@ -34,6 +34,12 @@
   .dashboard-header {
     flex-direction: column;
     border-bottom: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 998;
+    background-color: #fff;
   }
   
   .dashboard-header-menubar {
@@ -45,7 +51,35 @@
   }
   
   .dashboard-content {
-    padding-bottom: 80px;
+    padding-top: 0;
+    padding-bottom: 100px;
+    overflow-y: auto;
+  }
+}
+
+/* 태블릿 (769px ~ 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 998;
+    background-color: #fff;
+    flex-direction: row;
+  }
+  
+  .dashboard-header-menubar {
+    display: block;
+  }
+  
+  .dashboard-container > .menubar {
+    display: none;
+  }
+  
+  .dashboard-content {
+    padding-top: 0;
+    padding-bottom: 20px;
   }
 }
 
