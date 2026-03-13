@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Background from "../../components/common/Background";
 import SignupForm from "../../components/form/SignupForm";
-import hospitalBg from "../../assests/images/background-img.png";
+import hospitalBg from "../../assets/images/background-img.png";
 import "./signup.css";
 import "../../styles/global.css";
 

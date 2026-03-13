@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./main.css";
-import logo from "../../assests/images/main-logo.svg";
+import logo from "../../assets/images/main-logo.svg";
 
 function Main() {
   const navigate = useNavigate();

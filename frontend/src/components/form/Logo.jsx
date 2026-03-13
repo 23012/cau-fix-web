@@ -1,4 +1,4 @@
-import logo from "../../assests/images/logo.svg";
+import logo from "../../assets/images/logo.svg";
 import "./Logo.css";
 
 const LoginLogo = () => (

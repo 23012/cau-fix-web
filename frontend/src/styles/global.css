@@ -8,7 +8,7 @@
 /* 기본 폰트 */
 @font-face {
   font-family: "NotoSansKR";
-  src: url("C:\Users\user\Documents\유현\개발\내문서\cau-fix-web\frontend\src\assests\fonts\NotoSansKR-Regular.ttf") format("truetype");
+  src: url("C:\Users\user\Documents\유현\개발\내문서\cau-fix-web\frontend\src\assets\fonts\NotoSansKR-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }

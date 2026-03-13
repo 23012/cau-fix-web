@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Filter as FilterIcon, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
-import sampleFile from "../../assests/files/sample.xlsx";
+import sampleFile from "../../assets/files/sample.xlsx";
 import Search from "../common/search";
 import Filter from "../common/filter";
 

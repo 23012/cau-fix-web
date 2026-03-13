@@ -1,8 +1,10 @@
 import "./Form.css";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
   const navigate = useNavigate();
+  const [rememberMe, setRememberMe] = useState(false);
 
   return (
     <form onSubmit={onSubmit} className="list-form">
@@ -24,6 +26,19 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
         disabled={loading}
         className="input"
       />
+      
+      <div className="remember-me">
+        <label className="remember-me-label">
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="remember-me-checkbox"
+          />
+          <span>아이디 기억하기</span>
+        </label>
+      </div>
+
       {error && <p className="error-message">{error}</p>}
       <button type="submit" className="btn" disabled={loading}>
         {loading ? "로그인 중..." : "로그인"}

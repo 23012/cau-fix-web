@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./menubar.css";
-import homeIcon from "../../assests/icons/home.png";
-import homeClickIcon from "../../assests/icons/home-click.png";
-import noticeIcon from "../../assests/icons/notice.png";
-import noticeClickIcon from "../../assests/icons/notice-click.png";
-import alarmIcon from "../../assests/icons/alarm.png";
-import alarmClickIcon from "../../assests/icons/alarm-click.png";
-import profileIcon from "../../assests/icons/profile.png";
-import profileClickIcon from "../../assests/icons/profile-click.png";
+import homeIcon from "../../assets/icons/home.png";
+import homeClickIcon from "../../assets/icons/home-click.png";
+import noticeIcon from "../../assets/icons/notice.png";
+import noticeClickIcon from "../../assets/icons/notice-click.png";
+import alarmIcon from "../../assets/icons/alarm.png";
+import alarmClickIcon from "../../assets/icons/alarm-click.png";
+import profileIcon from "../../assets/icons/profile.png";
+import profileClickIcon from "../../assets/icons/profile-click.png";
 
 const menuItems = [
   { name: "내 민원", icon: homeIcon, activeIcon: homeClickIcon, order: 2, path: "/complain-dashboard" },
