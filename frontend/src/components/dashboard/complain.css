@@ -122,6 +122,7 @@
   border: 1px solid #e0e0e0;
   background-color: white;
   padding: 1rem;
+  min-height: 400px;
 }
 
 .chart {
@@ -171,12 +172,32 @@
   border: 1px solid #e0e0e0;
   overflow: hidden;
   background-color: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom : -5px;
+}
+
+.table thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.table tbody {
+  display: block;
+  height: 450px;
+  overflow-y: auto;
+}
+
+.table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .table th {
@@ -194,6 +215,10 @@
 
 .title {
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* PAGINATION */
