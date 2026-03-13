@@ -47,16 +47,34 @@ const Complain = () => {
         const buffer = await res.arrayBuffer();
 
         const workbook = XLSX.read(buffer, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
+        
+        // 민원 시트 읽기
+        const complainSheet = workbook.Sheets["민원"];
+        const complainRows = XLSX.utils.sheet_to_json(complainSheet);
+        
+        // 처리 시트 읽기
+        const resultSheet = workbook.Sheets["처리"];
+        const resultRows = XLSX.utils.sheet_to_json(resultSheet);
+        
+        // 처리 정보를 번호로 매핑
+        const resultMap = {};
+        resultRows.forEach((row) => {
+          resultMap[row["번호"]] = {
+            resultContent: row["처리 내용"],
+            resultPerson: row["처리자"],
+            resultDate: row["처리시간"]
+          };
+        });
 
-        const parsed = rows.map((row) => ({
+        const parsed = complainRows.map((row) => ({
           id: row["번호"],
           dept: row["부서"],
           category: row["분류"],
           title: row["제목"],
           content: row["민원 내용"],
-          result: row["처리 내용"],
+          result: resultMap[row["번호"]]?.resultContent || null,
+          resultPerson: resultMap[row["번호"]]?.resultPerson || null,
+          resultDate: resultMap[row["번호"]]?.resultDate || null,
           location: row["장소"],
           status: row["상태"],
           date: row["접수시간"], // 원본 그대로 저장 (숫자 또는 문자열)

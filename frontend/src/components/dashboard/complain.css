@@ -118,6 +118,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   border-radius: 0.75rem;
   border: 1px solid #e0e0e0;
   background-color: white;
@@ -323,7 +324,7 @@
   }
 
   .chart {
-    max-width: 220px;
+    max-width: 280px;
   }
 
   .fab {
@@ -354,7 +355,7 @@
   }
 
   .chart {
-    max-width: 240px;
+    max-width: 300px;
   }
   
   .fab {

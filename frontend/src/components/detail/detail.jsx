@@ -1,15 +1,15 @@
 import "./detail.css";
-import { X } from "lucide-react";
+import { X, MoreVertical } from "lucide-react";
 import Status from "../common/Status";
 import { useState } from "react";
 
 const Detail = ({ isOpen, onClose, data }) => {
-  const [activeTab, setActiveTab] = useState("content"); // "content" or "result"
+  const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (!isOpen || !data) return null;
 
-  // Excel 날짜를 JavaScript Date로 변환
   const formatDate = (excelDate) => {
     if (!excelDate) return "-";
     
@@ -34,23 +34,16 @@ const Detail = ({ isOpen, onClose, data }) => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-  // 이미지 경로 생성
   const getImagePath = (imageName) => {
     if (!imageName) return null;
-    console.log("이미지 파일명:", imageName);
     try {
-      const path = require(`../../assets/images/complain/${imageName}`);
-      console.log("이미지 경로:", path);
-      return path;
+      return require(`../../assets/images/complain/${imageName}`);
     } catch (error) {
-      console.error(`이미지를 찾을 수 없습니다: ${imageName}`, error);
       return null;
     }
   };
 
   const imagePath = data.image && !imageError ? getImagePath(data.image) : null;
-  console.log("data.image:", data.image);
-  console.log("imagePath:", imagePath);
 
   return (
     <div className="detail-overlay" onClick={onClose}>
@@ -60,7 +53,6 @@ const Detail = ({ isOpen, onClose, data }) => {
         </button>
         
         <div className="detail-content">
-          {/* 탭 헤더 */}
           <div className="detail-tabs">
             <button 
               className={`detail-tab ${activeTab === "content" ? "active" : ""}`}
@@ -76,59 +68,102 @@ const Detail = ({ isOpen, onClose, data }) => {
             </button>
           </div>
 
-          {/* 제목 헤더 */}
-          <div className="detail-header">
-            <div className="detail-header-left">
-              <h2 className="detail-title">{data.title || "-"}</h2>
-            </div>
-            <div className="detail-header-right">
-              <Status status={data.status} />
-            </div>
-          </div>
+          {activeTab === "content" ? (
+            <>
+              <div className="detail-header">
+                <div className="detail-header-left">
+                  <h2 className="detail-title">{data.title || "-"}</h2>
+                </div>
+                <div className="detail-header-right">
+                  <Status status={data.status} />
+                  <button 
+                    className="detail-menu-btn" 
+                    onClick={() => setMenuOpen(!menuOpen)}
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+                  {menuOpen && (
+                    <div className="detail-menu-popup">
+                      <button 
+                        className="detail-menu-item"
+                        onClick={() => {
+                          console.log("수정 클릭");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        수정
+                      </button>
+                      <button 
+                        className="detail-menu-item delete"
+                        onClick={() => {
+                          console.log("삭제 클릭");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          {/* 정보 행들 */}
-          <div className="detail-row">
-            <div className="detail-label">부서</div>
-            <div className="detail-value">{data.dept || "-"}</div>
-          </div>
+              <div className="detail-row">
+                <div className="detail-label">부서</div>
+                <div className="detail-value">{data.dept || "-"}</div>
+              </div>
 
-          <div className="detail-row">
-            <div className="detail-label">분류</div>
-            <div className="detail-value">{data.category || "-"}</div>
-          </div>
+              <div className="detail-row">
+                <div className="detail-label">분류</div>
+                <div className="detail-value">{data.category || "-"}</div>
+              </div>
 
-          <div className="detail-row">
-            <div className="detail-label">장소</div>
-            <div className="detail-value">{data.location || "-"}</div>
-          </div>
+              <div className="detail-row">
+                <div className="detail-label">장소</div>
+                <div className="detail-value">{data.location || "-"}</div>
+              </div>
 
-          <div className="detail-row">
-            <div className="detail-label">접수시간</div>
-            <div className="detail-value">{formatDate(data.date)}</div>
-          </div>
+              <div className="detail-row">
+                <div className="detail-label">접수 시간</div>
+                <div className="detail-value">{formatDate(data.date)}</div>
+              </div>
 
-          {/* 탭 컨텐츠 */}
-          <div className="detail-tab-content">
-            {activeTab === "content" ? (
-              <div className="detail-text-content">
-                <p>{data.content || "-"}</p>
-                {imagePath && (
-                  <div className="detail-image-container">
-                    <img 
-                      src={imagePath} 
-                      alt="민원 사진" 
-                      className="detail-image"
-                      onError={() => setImageError(true)}
-                    />
+              <div className="detail-tab-content">
+                <div className="detail-text-content">
+                  <p>{data.content || ""}</p>
+                  {imagePath && (
+                    <div className="detail-image-container">
+                      <img 
+                        src={imagePath} 
+                        alt="민원 사진" 
+                        className="detail-image"
+                        onError={() => setImageError(true)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            data.result && (
+              <>
+                <div className="detail-row">
+                  <div className="detail-label">처리자</div>
+                  <div className="detail-value">{data.resultPerson || "-"}</div>
+                </div>
+
+                <div className="detail-row">
+                  <div className="detail-label">처리 시간</div>
+                  <div className="detail-value">{formatDate(data.resultDate)}</div>
+                </div>
+
+                <div className="detail-tab-content">
+                  <div className="detail-text-content">
+                    <p>{data.result}</p>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="detail-text-content">
-                <p>{data.result || "-"}</p>
-              </div>
-            )}
-          </div>
+                </div>
+              </>
+            )
+          )}
         </div>
       </div>
     </div>

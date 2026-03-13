@@ -1,7 +1,7 @@
 .filter-panel {
   position: absolute;
   top: 100%;
-  right: 0;
+  right: -10px;
   margin-top: 8px;
   background: white;
   border: 1px solid #e0e0e0;
