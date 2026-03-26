@@ -37,28 +37,6 @@
   margin: 0;
 }
 
-.remember-me {
-  display: flex;
-  align-items: center;
-  margin-top: -8px;
-}
-
-.remember-me-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--back-color-2);
-}
-
-.remember-me-checkbox {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--main-color);
-}
-
 .btn {
   width: 100%;
   padding: 12px;

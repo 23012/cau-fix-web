@@ -8,6 +8,7 @@ import sampleFile from "../../assets/files/sample.xlsx";
 import Search from "../common/search";
 import Filter from "../common/filter";
 import Status from "../common/Status";
+import ComplainForm from "../form/ComplainForm";
 
 const getChartData = (data) => {
   const counts = data.reduce((acc, row) => {
@@ -32,6 +33,7 @@ const Complain = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [complainFormOpen, setComplainFormOpen] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     statuses: [],
     category: "",
@@ -298,7 +300,7 @@ const Complain = () => {
       <div className="header">
         <div className="header-left">
           <h1>내 민원</h1>
-          <button className="add-complain-btn-pc" onClick={() => console.log("민원 등록")}>
+          <button className="add-complain-btn-pc" onClick={() => setComplainFormOpen(true)}>
             <Plus size={20} />
           </button>
         </div>
@@ -492,11 +494,21 @@ const Complain = () => {
       {/* FAB */}
       <div className="fab">
 
-        <button className="fab-btn">
+        <button className="fab-btn" onClick={() => setComplainFormOpen(true)}>
           <Plus size={40} />
         </button>
 
       </div>
+
+      {/* 민원 접수 팝업 */}
+      <ComplainForm
+        isOpen={complainFormOpen}
+        onClose={() => setComplainFormOpen(false)}
+        onSubmit={(data) => {
+          console.log("민원 접수:", data);
+          setComplainFormOpen(false);
+        }}
+      />
 
     </div>
   );

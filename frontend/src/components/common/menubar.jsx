@@ -1,20 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { LayoutDashboard, Megaphone, Bell, User } from "lucide-react";
 import "./menubar.css";
-import homeIcon from "../../assets/icons/home.png";
-import homeClickIcon from "../../assets/icons/home-click.png";
-import noticeIcon from "../../assets/icons/notice.png";
-import noticeClickIcon from "../../assets/icons/notice-click.png";
-import alarmIcon from "../../assets/icons/alarm.png";
-import alarmClickIcon from "../../assets/icons/alarm-click.png";
-import profileIcon from "../../assets/icons/profile.png";
-import profileClickIcon from "../../assets/icons/profile-click.png";
 
 const menuItems = [
-  { name: "내 민원", icon: homeIcon, activeIcon: homeClickIcon, order: 2, path: "/complain-dashboard" },
-  { name: "공지사항", icon: noticeIcon, activeIcon: noticeClickIcon, order: 1, path: "/notice" },
-  { name: "알림", icon: alarmIcon, activeIcon: alarmClickIcon, order: 3, path: "/alarm-list" },
-  { name: "내 정보", icon: profileIcon, activeIcon: profileClickIcon, order: 4, path: "/myinfo" }
+  { name: "내 민원", Icon: LayoutDashboard, order: 2, path: "/complain-dashboard" },
+  { name: "공지사항", Icon: Megaphone, order: 1, path: "/notice" },
+  { name: "알림", Icon: Bell, order: 3, path: "/alarm-list" },
+  { name: "내 정보", Icon: User, order: 4, path: "/myinfo" }
 ];
 
 const MenuBar = () => {
@@ -56,10 +49,10 @@ const MenuBar = () => {
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <img 
-                  src={showActiveIcon ? item.activeIcon : item.icon} 
-                  alt={item.name}
+                <item.Icon 
+                  size={24}
                   className="menubar__icon"
+                  strokeWidth={showActiveIcon ? 2.5 : 1.5}
                 />
                 <span className="menubar__text">{item.name}</span>
               </button>

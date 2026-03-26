@@ -153,12 +153,12 @@ const Detail = ({ isOpen, onClose, data }) => {
 
                 <div className="detail-row">
                   <div className="detail-label">처리 시간</div>
-                  <div className="detail-value">{formatDate(data.resultDate)}</div>
+                  <div className="detail-value">{formatDate(data.resultDate) || "-"}</div>
                 </div>
 
                 <div className="detail-tab-content">
                   <div className="detail-text-content">
-                    <p>{data.result}</p>
+                    <p>{data.result || "-"}</p>
                   </div>
                 </div>
               </>

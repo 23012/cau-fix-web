@@ -1,0 +1,150 @@
+import { useState, useRef } from "react";
+import { ChevronRight, Camera } from "lucide-react";
+import FormPopup from "./FormPopup";
+
+const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화", "기타"];
+
+const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    category: "",
+    location: "",
+    content: "",
+  });
+  const [images, setImages] = useState([]);
+  const [showCategory, setShowCategory] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageAdd = (e) => {
+    const files = Array.from(e.target.files);
+    if (images.length + files.length > 10) {
+      alert("사진은 최대 10장까지 첨부할 수 있습니다.");
+      return;
+    }
+    const newImages = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setImages((prev) => [...prev, ...newImages]);
+  };
+
+  const handleImageRemove = (index) => {
+    setImages((prev) => {
+      const removed = prev[index];
+      URL.revokeObjectURL(removed.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleSubmit = () => {
+    if (!formData.title.trim()) {
+      alert("제목을 입력해주세요.");
+      return;
+    }
+    if (!formData.category) {
+      alert("구분을 선택해주세요.");
+      return;
+    }
+    onSubmit?.({ ...formData, date: dateStr, images });
+    setFormData({ title: "", category: "", location: "", content: "" });
+    setImages([]);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setFormData({ title: "", category: "", location: "", content: "" });
+    setImages([]);
+    setShowCategory(false);
+    onClose();
+  };
+
+  return (
+    <FormPopup isOpen={isOpen} onClose={handleClose} title="접수" onSubmit={handleSubmit}>
+      <div className="form-field">
+        <input
+          type="text"
+          className="form-input"
+          placeholder="제목"
+          value={formData.title}
+          onChange={(e) => handleChange("title", e.target.value)}
+        />
+      </div>
+
+      <div className="form-field form-field-select" onClick={() => setShowCategory(!showCategory)}>
+        <span className={formData.category ? "form-field-value" : "form-field-placeholder"}>
+          {formData.category || "구분"}
+        </span>
+        <ChevronRight size={20} className="form-field-arrow" />
+        {showCategory && (
+          <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                className={`form-dropdown-item ${formData.category === cat ? "active" : ""}`}
+                onClick={() => {
+                  handleChange("category", cat);
+                  setShowCategory(false);
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="form-field form-field-readonly">
+        <span className="form-field-value">{dateStr}</span>
+      </div>
+
+      <div className="form-field">
+        <input
+          type="text"
+          className="form-input"
+          placeholder="장소"
+          value={formData.location}
+          onChange={(e) => handleChange("location", e.target.value)}
+        />
+      </div>
+
+      <div className="form-field">
+        <textarea
+          className="form-textarea"
+          placeholder="접수 내용을 입력하세요"
+          value={formData.content}
+          onChange={(e) => handleChange("content", e.target.value)}
+        />
+      </div>
+
+      <div className="form-images">
+        <div className="form-image-upload" onClick={() => fileInputRef.current?.click()}>
+          <Camera size={32} color="#63C3D1" />
+          <span className="form-image-count">{images.length} / 10</span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={handleImageAdd}
+          />
+        </div>
+        {images.map((img, i) => (
+          <div key={i} className="form-image-preview">
+            <img src={img.preview} alt={`첨부 ${i + 1}`} />
+            <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
+          </div>
+        ))}
+      </div>
+    </FormPopup>
+  );
+};
+
+export default ComplainForm;
