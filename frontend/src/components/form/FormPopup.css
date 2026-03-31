@@ -271,3 +271,61 @@
     font-size: 15px;
   }
 }
+
+/* ===== 이미지 선택 메뉴 (모바일) ===== */
+.image-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 3000;
+  padding: 16px;
+}
+
+.image-menu-popup {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.image-menu-item {
+  width: 100%;
+  padding: 16px;
+  background: white;
+  border: none;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--main-color);
+  cursor: pointer;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.image-menu-item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.image-menu-item:nth-child(2) {
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.image-menu-cancel {
+  width: 100%;
+  padding: 16px;
+  background: white;
+  border: none;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--warning);
+  cursor: pointer;
+  text-align: center;
+  border-radius: 12px;
+}

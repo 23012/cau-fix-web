@@ -1,0 +1,63 @@
+.myinfo-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--profile-background-color);
+  border-radius: 16px;
+  padding: 24px 20px;
+  margin-bottom: 24px;
+}
+
+.myinfo-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.myinfo-avatar img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.myinfo-name-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.myinfo-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.myinfo-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.myinfo-suffix {
+  font-size: 17px;
+  font-weight: 400;
+  color: #333;
+  margin-left: 2px;
+}
+
+.myinfo-dept-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  background: white;
+  border-radius: 20px;
+  font-size: 14px;
+  color: var(--back-color-2);
+  font-weight: 500;
+  width: fit-content;
+}

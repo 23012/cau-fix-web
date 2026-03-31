@@ -3,6 +3,7 @@ import { MoreVertical, ChevronRight, Camera } from "lucide-react";
 import Status from "../common/Status";
 import FormPopup from "../form/FormPopup";
 import ProfilePopup from "./ProfilePopup";
+import ImagePreview from "../common/ImagePreview";
 import { useState, useRef } from "react";
 
 const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
@@ -17,6 +18,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
   const [editImages, setEditImages] = useState([]);
   const [showNoResultPopup, setShowNoResultPopup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
 
   if (!isOpen || !data) return null;
@@ -101,6 +103,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
       preview: URL.createObjectURL(file),
     }));
     setEditImages((prev) => [...prev, ...newImages]);
+    e.target.value = "";
   };
 
   const handleImageRemove = (index) => {
@@ -196,16 +199,18 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
           </div>
           {editImages.map((img, i) => (
             <div key={i} className="form-image-preview">
-              <img src={img.preview} alt={`첨부 ${i + 1}`} />
+              <img src={img.preview} alt={`첨부 ${i + 1}`} onClick={() => setPreviewImage(img.preview)} />
               <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
             </div>
           ))}
           {imagePath && (
             <div className="form-image-preview">
-              <img src={imagePath} alt="기존 사진" />
+              <img src={imagePath} alt="기존 사진" onClick={() => setPreviewImage(imagePath)} />
             </div>
           )}
         </div>
+
+        <ImagePreview src={previewImage} alt="첨부 사진" onClose={() => setPreviewImage(null)} />
       </FormPopup>
     );
   }
@@ -295,7 +300,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
                     src={imagePath}
                     alt="민원 사진"
                     className="detail-image"
+                    onClick={() => setPreviewImage(imagePath)}
                     onError={() => setImageError(true)}
+                    style={{ cursor: 'pointer' }}
                   />
                 </div>
               )}
@@ -347,6 +354,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
         dept={data.resultDept}
         phone={data.resultPhone}
       />
+
+      <ImagePreview src={previewImage} alt="민원 사진" onClose={() => setPreviewImage(null)} />
     </FormPopup>
   );
 };

@@ -59,6 +59,11 @@
   cursor: not-allowed;
 }
 
+.remember-me-label span{
+  font-size: 15px;
+  margin : 5px;
+}
+
 @media (max-width: 768px) {
   .input,.btn {
     padding: 10px 14px;

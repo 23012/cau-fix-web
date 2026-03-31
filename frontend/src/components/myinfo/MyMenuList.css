@@ -1,0 +1,181 @@
+.myinfo-menu-list {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.myinfo-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  background: white;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+  width: 100%;
+}
+
+.myinfo-menu-item:last-child {
+  border-bottom: none;
+}
+
+.myinfo-menu-item:hover {
+  background: #f9f9f9;
+}
+
+.myinfo-menu-logout span {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.myinfo-toggle {
+  width: 50px;
+  height: 30px;
+  border-radius: 15px;
+  background: #e0e0e0;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+
+.myinfo-toggle.on {
+  background: var(--main-color);
+}
+
+.myinfo-toggle-knob {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.myinfo-toggle.on .myinfo-toggle-knob {
+  transform: translateX(20px);
+}
+
+/* 회원 정보 수정 아코디언 */
+.myinfo-edit-section {
+  padding: 16px 20px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #fafafa;
+}
+
+.myinfo-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.myinfo-edit-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--back-color-2);
+}
+
+.myinfo-edit-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #333;
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.myinfo-edit-input:focus {
+  border-color: var(--main-color);
+}
+
+.myinfo-edit-input::placeholder {
+  color: #bbb;
+}
+
+.myinfo-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.myinfo-edit-submit {
+  padding: 10px 28px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.myinfo-edit-submit:hover {
+  opacity: 0.9;
+}
+
+/* 수정 완료 팝업 */
+.myinfo-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.myinfo-success-popup {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 24px;
+  max-width: 300px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.myinfo-success-popup p {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.myinfo-success-btn {
+  padding: 10px 40px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.myinfo-success-btn:hover {
+  opacity: 0.9;
+}

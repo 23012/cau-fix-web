@@ -1,9 +1,5 @@
 .myinfo-page {
   padding: 20px;
-}
-
-.myinfo-page h1 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 20px;
+  max-width: 600px;
+  margin: 0 auto;
 }

@@ -29,6 +29,10 @@ const Login = () => {
         const parsed = rows.map((row) => ({
           id: row["id"]?.toString() || "",
           password: row["password"]?.toString() || "",
+          name: row["name"]?.toString() || "",
+          department: row["department"]?.toString() || "",
+          phone: row["phone"]?.toString() || "",
+          role: row["role"]?.toString() || "",
         }));
 
         setLoginData(parsed);
@@ -64,6 +68,13 @@ const Login = () => {
 
       if (user) {
         // 로그인 성공
+        localStorage.setItem("user", JSON.stringify({
+          id: user.id,
+          name: user.name,
+          department: user.department,
+          phone: user.phone,
+          role: user.role,
+        }));
         console.log("로그인 성공:", formData.id);
         navigate("/complain-dashboard");
       } else {

@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { ChevronRight, Camera } from "lucide-react";
 import FormPopup from "./FormPopup";
+import ImagePreview from "../common/ImagePreview";
 
-const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화", "기타"];
+const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
 
 const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
   });
   const [images, setImages] = useState([]);
   const [showCategory, setShowCategory] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
 
   const now = new Date();
@@ -33,6 +35,7 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
       preview: URL.createObjectURL(file),
     }));
     setImages((prev) => [...prev, ...newImages]);
+    e.target.value = "";
   };
 
   const handleImageRemove = (index) => {
@@ -138,11 +141,17 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
         </div>
         {images.map((img, i) => (
           <div key={i} className="form-image-preview">
-            <img src={img.preview} alt={`첨부 ${i + 1}`} />
+            <img src={img.preview} alt={`첨부 ${i + 1}`} onClick={() => setPreviewImage(img.preview)} />
             <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
           </div>
         ))}
       </div>
+
+      <ImagePreview
+        src={previewImage}
+        alt="첨부 사진"
+        onClose={() => setPreviewImage(null)}
+      />
     </FormPopup>
   );
 };
