@@ -5,6 +5,7 @@ import { Filter as FilterIcon, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assets/files/sample.xlsx";
+import loginDataFile from "../../assets/files/logindata.xlsx";
 import Search from "../common/search";
 import Filter from "../common/filter";
 import Status from "../common/Status";
@@ -45,10 +46,29 @@ const Complain = () => {
   useEffect(() => {
     const loadExcel = async () => {
       try {
-        const res = await fetch(sampleFile);
-        const buffer = await res.arrayBuffer();
+        const [sampleRes, loginRes] = await Promise.all([
+          fetch(sampleFile),
+          fetch(loginDataFile)
+        ]);
+        const sampleBuffer = await sampleRes.arrayBuffer();
+        const loginBuffer = await loginRes.arrayBuffer();
 
-        const workbook = XLSX.read(buffer, { type: "array" });
+        // 직원 정보 매핑 (name → { department, phone })
+        const loginWorkbook = XLSX.read(loginBuffer, { type: "array" });
+        const loginSheet = loginWorkbook.Sheets[loginWorkbook.SheetNames[0]];
+        const loginRows = XLSX.utils.sheet_to_json(loginSheet);
+        const memberMap = {};
+        loginRows.forEach((row) => {
+          const name = row["name"]?.toString();
+          if (name) {
+            memberMap[name] = {
+              department: row["department"]?.toString() || null,
+              phone: row["phone"]?.toString() || null,
+            };
+          }
+        });
+
+        const workbook = XLSX.read(sampleBuffer, { type: "array" });
         
         // 민원 시트 읽기
         const complainSheet = workbook.Sheets["민원"];
@@ -77,6 +97,8 @@ const Complain = () => {
           result: resultMap[row["번호"]]?.resultContent || null,
           resultPerson: resultMap[row["번호"]]?.resultPerson || null,
           resultDate: resultMap[row["번호"]]?.resultDate || null,
+          resultDept: memberMap[resultMap[row["번호"]]?.resultPerson]?.department || null,
+          resultPhone: memberMap[resultMap[row["번호"]]?.resultPerson]?.phone || null,
           location: row["장소"],
           status: row["상태"],
           date: row["접수시간"], // 원본 그대로 저장 (숫자 또는 문자열)

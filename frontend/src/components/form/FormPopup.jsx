@@ -1,7 +1,7 @@
 import "./FormPopup.css";
 import { X } from "lucide-react";
 
-const FormPopup = ({ isOpen, onClose, title, children, onSubmit }) => {
+const FormPopup = ({ isOpen, onClose, title, children, onSubmit, submitLabel = "등록", hideSubmit = false }) => {
   if (!isOpen) return null;
 
   return (
@@ -12,15 +12,17 @@ const FormPopup = ({ isOpen, onClose, title, children, onSubmit }) => {
         </button>
 
         <div className="form-content">
-          <h2 className="form-title">{title}</h2>
+          {title && <h2 className="form-title">{title}</h2>}
 
           <div className="form-body">
             {children}
           </div>
 
-          <button className="form-submit-btn" onClick={onSubmit}>
-            등록
-          </button>
+          {!hideSubmit && (
+            <button className="form-submit-btn" onClick={onSubmit}>
+              {submitLabel}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,133 @@
+.profile-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.profile-popup {
+  width: 90%;
+  max-width: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.profile-popup-header {
+  background: var(--profile-background-color);
+  padding: 24px 20px 20px;
+  position: relative;
+}
+
+.profile-popup-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-popup-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.profile-popup-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-popup-avatar img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+
+.profile-popup-name-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-popup-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.profile-popup-name {
+  font-size: 24px;
+  font-weight: 1000;
+  color: #333;
+}
+
+.profile-popup-suffix {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-left: 2px;
+}
+
+.profile-popup-dept-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  background: white;
+  border-radius: 20px;
+  font-size: 14px;
+  color: var(--back-color-2);
+  font-weight: 500;
+  width: fit-content;
+}
+
+.profile-popup-body {
+  background: white;
+  padding: 10px 30px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.profile-popup-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-popup-row:last-child {
+  border-bottom: none;
+}
+
+.profile-popup-label {
+  width: 90px;
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--back-color-2);
+  font-weight: 500;
+}
+
+.profile-popup-value {
+  font-size: 18px;
+  color: #333;
+  font-weight: 800;
+}
