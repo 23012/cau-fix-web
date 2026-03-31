@@ -192,7 +192,7 @@
 .table tbody {
   display: block;
   height: 450px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .table tbody tr {
@@ -230,7 +230,6 @@
   justify-content: center;
   gap: 20px;
   padding: 16px;
-  border-top: 1px solid white;
 }
 
 .pagination-btn {
