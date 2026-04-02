@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Megaphone, Bell, User } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Bell, User } from "lucide-react";
 import "./menubar.css";
 
 const menuItems = [
   { name: "내 민원", Icon: LayoutDashboard, order: 2, path: "/complain-dashboard" },
-  { name: "공지사항", Icon: Megaphone, order: 1, path: "/notice" },
+  { name: "공지사항", Icon: ClipboardList, order: 1, path: "/notice" },
   { name: "알림", Icon: Bell, order: 3, path: "/alarm-list" },
   { name: "내 정보", Icon: User, order: 4, path: "/myinfo" }
 ];

@@ -1,10 +1,14 @@
-import React from 'react';
 import TopBar from '../../components/common/topbar';
 import MenuBar from '../../components/common/menubar';
+import NoticeList from '../../components/notice/NoticeList';
 import './notice.css';
-import "../../styles/global.css";
+import '../../styles/global.css';
 
 const Notice = () => {
+  const handleSelect = (notice) => {
+    console.log("공지사항 선택:", notice);
+  };
+
   return (
     <div className="page-container">
       <div className="dashboard-container">
@@ -16,10 +20,7 @@ const Notice = () => {
         </div>
         <MenuBar />
         <div className="dashboard-content">
-          <div className="notice-page">
-            <h1>공지사항</h1>
-            <p>공지사항 페이지입니다.</p>
-          </div>
+          <NoticeList onSelect={handleSelect} />
         </div>
       </div>
     </div>
