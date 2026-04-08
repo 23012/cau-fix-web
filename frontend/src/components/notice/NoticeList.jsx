@@ -4,7 +4,7 @@ import noticeDataFile from "../../assets/files/notice-data.xlsx";
 import Search from "../common/search";
 import "./NoticeList.css";
 
-const TABS = ["전체", "안내", "업데이트", "이벤트", "작업", "공고"];
+const TABS = ["전체", "안내", "업데이트", "이벤트", "점검"];
 
 const NoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);
@@ -28,12 +28,11 @@ const NoticeList = ({ onSelect }) => {
           content: row["내용"] || "",
           date: row["작성일자"] || "",
           author: row["작성자"] || "",
-          views: row["조회수"] || 0,
         }));
 
         setNotices(parsed);
       } catch (error) {
-        console.error("공지사항 로드 실패:", error);
+        // 공지사항 로드 실패 시 빈 목록 유지
       }
     };
     loadData();

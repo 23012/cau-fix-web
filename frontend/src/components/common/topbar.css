@@ -1,28 +1,70 @@
 .topbar {
-    width : 100%;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: auto;
+}
 
 .topbar_logo {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px 40px;
-    border-bottom: none;
-    margin: 0;
-    width: auto;
-    background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 40px;
+  border-bottom: none;
+  margin: 0;
+  width: auto;
+  background-color: #fff;
 }
 
 .topbar_logo img {
-    object-fit: contain;
-    height: 65px;
-    max-width: 350px;
-    width: auto;
+  object-fit: contain;
+  height: 65px;
+  max-width: 350px;
+  width: auto;
+}
+
+/* 우측 아이콘 메뉴 */
+.topbar_actions {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding-right: 40px;
+}
+
+.topbar_action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.topbar_action-btn:hover {
+  color: var(--main-color);
+  background-color: rgba(99, 195, 209, 0.08);
+}
+
+.topbar_action-btn--active {
+  color: var(--main-color);
+}
+
+.topbar_action-btn--logout:hover {
+  color: #e53935;
+  background-color: rgba(229, 57, 53, 0.08);
 }
 
 /* 모바일 (최대 768px) */
 @media (max-width: 768px) {
-  
+  .topbar {
+    justify-content: center;
+  }
+
   .topbar_logo {
     justify-content: center;
     padding: 10px 0;
@@ -33,11 +75,14 @@
     height: 35px;
     max-width: 180px;
   }
+
+  .topbar_actions {
+    display: none;
+  }
 }
 
 /* 태블릿 (769px ~ 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
-
   .topbar_logo {
     padding: 18px 25px;
   }
@@ -45,6 +90,11 @@
   .topbar_logo img {
     height: 50px;
     max-width: 250px;
+  }
+
+  .topbar_actions {
+    display: flex;
+    padding-right: 25px;
   }
 }
 
@@ -57,5 +107,10 @@
   .topbar_logo img {
     height: 65px;
     max-width: 350px;
+  }
+
+  .topbar_actions {
+    display: flex;
+    padding-right: 40px;
   }
 }

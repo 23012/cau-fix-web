@@ -107,7 +107,7 @@ const Complain = () => {
 
         setTableData(parsed);
       } catch (error) {
-        console.error("Excel 로드 실패:", error);
+        // Excel 로드 실패 시 빈 데이터 유지
       }
     };
 
@@ -116,83 +116,46 @@ const Complain = () => {
 
   // 날짜 필터링 함수
   const filterByDate = (data) => {
-    console.log("=== 필터링 시작 ===");
-    console.log("선택된 연도:", selectedYear, "선택된 월:", selectedMonth);
-    
-    const result = data.filter((row, index) => {
-      // 전체 선택 시 모두 통과
+    const result = data.filter((row) => {
       if (selectedYear === "전체" && selectedMonth === "전체") {
         return true;
       }
 
-      // date가 없으면 제외
-      if (!row.date) {
-        if (index < 3) console.log(`Row ${row.id}: 날짜 없음`);
-        return false;
-      }
+      if (!row.date) return false;
 
       let dateObj;
       
-      // Excel 숫자 형식인지 확인 (46082.375 같은 형식)
       if (typeof row.date === 'number' || !isNaN(parseFloat(row.date))) {
-        // Excel 날짜를 JavaScript Date로 변환
-        // Excel은 1900년 1월 1일을 1로 시작 (실제로는 1899년 12월 30일)
         const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
         dateObj = new Date((excelDate - 25569) * 86400 * 1000);
-        
-        if (index < 3) {
-          console.log(`Row ${row.id}: Excel 숫자="${row.date}" → 변환="${dateObj.toISOString()}"`);
-        }
       } else {
-        // 문자열 형식 처리
         const dateStr = row.date.toString().trim();
-        if (index < 3) console.log(`Row ${row.id}: 문자열="${dateStr}"`);
-        
         const datePart = dateStr.split(' ')[0];
         dateObj = new Date(datePart);
       }
 
-      // 유효한 날짜인지 확인
-      if (isNaN(dateObj.getTime())) {
-        if (index < 3) console.log(`Row ${row.id}: 유효하지 않은 날짜`);
-        return false;
-      }
+      if (isNaN(dateObj.getTime())) return false;
 
       const year = dateObj.getFullYear().toString();
       const month = (dateObj.getMonth() + 1).toString();
-      
-      if (index < 3) console.log(`Row ${row.id}: year="${year}", month="${month}"`);
 
-      // 연도 필터
-      if (selectedYear !== "전체" && year !== selectedYear) {
-        if (index < 3) console.log(`Row ${row.id}: 연도 불일치`);
-        return false;
-      }
+      if (selectedYear !== "전체" && year !== selectedYear) return false;
+      if (selectedMonth !== "전체" && month !== selectedMonth) return false;
 
-      // 월 필터
-      if (selectedMonth !== "전체" && month !== selectedMonth) {
-        if (index < 3) console.log(`Row ${row.id}: 월 불일치`);
-        return false;
-      }
-
-      if (index < 3) console.log(`Row ${row.id}: 통과!`);
       return true;
     });
     
-    console.log("필터링 결과:", result.length, "개");
     return result;
   };
 
   // 날짜 필터링 적용
   const dateFilteredData = filterByDate(tableData);
-  console.log("날짜 필터링 후:", dateFilteredData.length, "개");
 
   // 검색 필터링
   const searchFilteredData = dateFilteredData.filter((row) => {
     if (searchQuery.trim() === "") return true;
     return row.title.toLowerCase().includes(searchQuery.toLowerCase());
   });
-  console.log("검색 필터링 후:", searchFilteredData.length, "개");
 
   // 추가 필터 적용 (상태, 분류, 기간)
   const additionalFilteredData = searchFilteredData.filter((row) => {
@@ -275,7 +238,6 @@ const Complain = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = filteredData.slice(startIndex, endIndex);
-  console.log("현재 페이지 데이터:", currentData.length, "개");
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -312,8 +274,6 @@ const Complain = () => {
   const handleRowClick = (row) => {
     navigate('/complain-detail', { state: { data: row } });
   };
-
-  //DB 연결 작업 필요
   
   return (
     <div className="dashboard">
@@ -527,7 +487,7 @@ const Complain = () => {
         isOpen={complainFormOpen}
         onClose={() => setComplainFormOpen(false)}
         onSubmit={(data) => {
-          console.log("민원 접수:", data);
+          // TODO: DB 연결 후 민원 접수 API 호출
           setComplainFormOpen(false);
         }}
       />

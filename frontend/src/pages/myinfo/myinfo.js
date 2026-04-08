@@ -48,7 +48,7 @@ const MyInfo = () => {
             <MyMenuList
               pushEnabled={pushEnabled}
               onTogglePush={handleTogglePush}
-              onUpdateProfile={(updates) => console.log("프로필 수정:", updates)}
+              onUpdateProfile={(updates) => { /* TODO: 프로필 수정 API 호출 */ }}
               onLogout={handleLogout}
               user={user}
             />

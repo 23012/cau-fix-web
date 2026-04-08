@@ -6,7 +6,7 @@ import '../../styles/global.css';
 
 const Notice = () => {
   const handleSelect = (notice) => {
-    console.log("공지사항 선택:", notice);
+    // TODO: 공지사항 상세 페이지 이동
   };
 
   return (

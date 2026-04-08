@@ -1,4 +1,3 @@
-import React from 'react';
 import TopBar from '../../components/common/topbar';
 import MenuBar from '../../components/common/menubar';
 import Complain from '../../components/dashboard/complain.jsx';

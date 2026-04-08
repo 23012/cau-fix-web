@@ -260,7 +260,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
                   <button
                     className="detail-menu-item delete"
                     onClick={() => {
-                      console.log("삭제 클릭");
+                      // TODO: DB 연결 후 삭제 API 호출
                       setMenuOpen(false);
                     }}
                   >

@@ -6,8 +6,8 @@ import "./menubar.css";
 const menuItems = [
   { name: "내 민원", Icon: LayoutDashboard, order: 2, path: "/complain-dashboard" },
   { name: "공지사항", Icon: ClipboardList, order: 1, path: "/notice" },
-  { name: "알림", Icon: Bell, order: 3, path: "/alarm-list" },
-  { name: "내 정보", Icon: User, order: 4, path: "/myinfo" }
+  { name: "알림", Icon: Bell, order: 3, path: "/alarm-list", mobileOnly: true },
+  { name: "내 정보", Icon: User, order: 4, path: "/myinfo", mobileOnly: true }
 ];
 
 const MenuBar = () => {
@@ -40,7 +40,7 @@ const MenuBar = () => {
           return (
             <li 
               key={item.name} 
-              className="menubar__item"
+              className={`menubar__item ${item.mobileOnly ? "menubar__item--mobile-only" : ""}`}
               style={{ order: item.order }}
             >
               <button

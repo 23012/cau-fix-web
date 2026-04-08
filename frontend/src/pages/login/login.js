@@ -37,7 +37,7 @@ const Login = () => {
 
         setLoginData(parsed);
       } catch (err) {
-        console.error("로그인 데이터 로드 실패:", err);
+        setError("로그인 데이터를 불러올 수 없습니다");
       }
     };
 
@@ -75,7 +75,6 @@ const Login = () => {
           phone: user.phone,
           role: user.role,
         }));
-        console.log("로그인 성공:", formData.id);
         navigate("/complain-dashboard");
       } else {
         // 로그인 실패
@@ -85,7 +84,6 @@ const Login = () => {
       }
     } catch (err) {
       setError("로그인 중 오류가 발생했습니다");
-      console.error("로그인 에러:", err);
     } finally {
       setLoading(false);
     }

@@ -49,8 +49,9 @@ body {
 
 /* 공통 컨테이너 */
 .page-container {
+  position: relative;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .page-container-center {
@@ -96,10 +97,4 @@ input[type="submit"],
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-.page-container {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
 }

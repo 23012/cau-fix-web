@@ -81,7 +81,7 @@
 .notice-item-category {
   font-size: 14px;
   color: var(--back-color-2);
-  min-width: 60px;
+  min-width: 80px;
   flex-shrink: 0;
 }
 

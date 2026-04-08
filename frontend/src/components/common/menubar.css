@@ -114,6 +114,10 @@
   .menubar__item {
     order: 0 !important;
   }
+
+  .menubar__item--mobile-only {
+    display: none;
+  }
   
   .menubar__button {
     padding: 14px 24px;
@@ -139,6 +143,10 @@
   
   .menubar__item {
     order: 0 !important;
+  }
+
+  .menubar__item--mobile-only {
+    display: none;
   }
   
   .menubar__button {

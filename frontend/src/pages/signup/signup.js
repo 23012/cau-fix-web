@@ -36,8 +36,7 @@ const Signup = () => {
       setError("아이디를 입력해주세요");
       return;
     }
-    // DB api 연결 필요
-    console.log("중복 확인 요청:", formData.id);
+    // TODO: DB api 연결 필요
     const exists = false;
 
     if (exists) {
@@ -64,7 +63,7 @@ const Signup = () => {
       return;
     }
 
-    const { id, password, name, department, email, phone } = formData;
+    const { id, password, name, department, phone } = formData;
     if (
       !id.trim() ||
       !password.trim() ||
@@ -82,13 +81,11 @@ const Signup = () => {
     }
     setLoading(true);
     try {
-      console.log("회원가입 요청:", { ...formData, passwordConfirm });
-      // simulate server response – the real implementation would await API
+      // TODO: 실제 회원가입 API 호출
       alert("회원가입 요청이 접수되었습니다. 관리자 승인 후 로그인 가능합니다. (이음톡 확인 바람)");
       navigate("/login");
     } catch (err) {
       setError("회원가입 중 오류가 발생했습니다");
-      console.error("회원가입 에러:", err);
     } finally {
       setLoading(false);
     }
