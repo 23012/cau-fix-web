@@ -75,6 +75,13 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
         </div>
       </div>
 
+      {onLogout && (
+        <button className="myinfo-menu-item myinfo-menu-logout" onClick={onLogout}>
+          <span>로그아웃</span>
+          <ChevronRight size={20} color="#999" />
+        </button>
+      )}
+
       {showSuccess && (
         <div className="myinfo-success-overlay" onClick={() => setShowSuccess(false)}>
           <div className="myinfo-success-popup" onClick={(e) => e.stopPropagation()}>

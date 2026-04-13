@@ -37,6 +37,16 @@
   font-weight: 600;
 }
 
+.myinfo-menu-logout {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .myinfo-menu-logout {
+    display: flex;
+  }
+}
+
 .myinfo-toggle {
   width: 50px;
   height: 30px;

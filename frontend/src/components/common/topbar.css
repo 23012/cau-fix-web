@@ -23,14 +23,14 @@
   width: auto;
 }
 
-/* 우측 상단 아이콘+텍스트 메뉴 — 콘텐츠 영역(1200px) 오른쪽 끝 기준 */
+/* 우측 상단 아이콘+텍스트 메뉴 — 콘텐츠 영역(1100px) 오른쪽 끝 기준 */
 .topbar_actions {
   display: none;
   align-items: center;
   gap: 4px;
   position: absolute;
   top: 10px;
-  right: max(20px, calc((100vw - 1200px) / 2 + 20px));
+  right: max(20px, calc((100vw - 1100px) / 2 + 20px));
   z-index: 10;
 }
 

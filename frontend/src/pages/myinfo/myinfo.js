@@ -26,6 +26,13 @@ const MyInfo = () => {
   };
 
 
+  const handleLogout = () => {
+    if (window.confirm('로그아웃 하시겠습니까?')) {
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="page-container">
       <div className="dashboard-container">
@@ -43,6 +50,7 @@ const MyInfo = () => {
               pushEnabled={pushEnabled}
               onTogglePush={handleTogglePush}
               onUpdateProfile={(updates) => { /* TODO: 프로필 수정 API 호출 */ }}
+              onLogout={handleLogout}
               user={user}
             />
           </div>
