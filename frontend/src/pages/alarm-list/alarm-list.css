@@ -1,9 +1,63 @@
 .alarm-page {
+  max-width: 600px;
+  margin: 0 auto;
   padding: 20px;
 }
 
-.alarm-page h1 {
-  font-size: 28px;
+.alarm-page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.alarm-page-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #222;
+  margin: 0;
+}
+
+.alarm-back-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 4px;
+  color: #222;
+  cursor: pointer;
+}
+
+.alarm-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 15px;
+}
+
+.alarm-section {
+  margin-bottom: 8px;
+}
+
+.alarm-section-title {
+  font-size: 15px;
   font-weight: 700;
-  margin-bottom: 20px;
+  color: #222;
+  padding: 12px 0 8px;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .alarm-page {
+    padding: 16px 12px;
+  }
+
+  .alarm-back-btn {
+    display: flex;
+  }
+
+  .alarm-page-header h1 {
+    font-size: 20px;
+  }
 }

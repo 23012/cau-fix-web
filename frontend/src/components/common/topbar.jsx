@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Bell, User, LogOut } from "lucide-react";
 import MyProfileCard from "../myinfo/MyProfileCard";
 import MyMenuList from "../myinfo/MyMenuList";
+import AlarmPopup from "../alarm/AlarmPopup";
 import logo from "../../assets/images/logo.svg";
 import "./topbar.css";
 
@@ -10,8 +11,11 @@ const TopBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [myinfoOpen, setMyinfoOpen] = useState(false);
+  const [alarmOpen, setAlarmOpen] = useState(false);
   const popupRef = useRef(null);
   const btnRef = useRef(null);
+  const alarmPopupRef = useRef(null);
+  const alarmBtnRef = useRef(null);
 
   const [user, setUser] = useState(null);
   const [pushEnabled, setPushEnabled] = useState(() => {
@@ -35,10 +39,19 @@ const TopBar = () => {
       ) {
         setMyinfoOpen(false);
       }
+      if (
+        alarmOpen &&
+        alarmPopupRef.current &&
+        !alarmPopupRef.current.contains(e.target) &&
+        alarmBtnRef.current &&
+        !alarmBtnRef.current.contains(e.target)
+      ) {
+        setAlarmOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [myinfoOpen]);
+  }, [myinfoOpen, alarmOpen]);
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
@@ -59,18 +72,26 @@ const TopBar = () => {
         <img src={logo} alt="중앙대학교광명병원 로고" />
       </div>
       <div className="topbar_actions">
-        <button
-          className={`topbar_action-btn ${location.pathname === "/alarm-list" ? "topbar_action-btn--active" : ""}`}
-          onClick={() => navigate("/alarm-list")}
-        >
-          <Bell size={16} />
-          <span>알림</span>
-        </button>
+        <div className="topbar_action-wrapper">
+          <button
+            ref={alarmBtnRef}
+            className={`topbar_action-btn ${alarmOpen ? "topbar_action-btn--active" : ""}`}
+            onClick={() => { setAlarmOpen(!alarmOpen); setMyinfoOpen(false); }}
+          >
+            <Bell size={16} />
+            <span>알림</span>
+          </button>
+          {alarmOpen && (
+            <div ref={alarmPopupRef}>
+              <AlarmPopup onClose={() => setAlarmOpen(false)} />
+            </div>
+          )}
+        </div>
         <div className="topbar_action-wrapper">
           <button
             ref={btnRef}
             className={`topbar_action-btn ${myinfoOpen ? "topbar_action-btn--active" : ""}`}
-            onClick={() => setMyinfoOpen(!myinfoOpen)}
+            onClick={() => { setMyinfoOpen(!myinfoOpen); setAlarmOpen(false); }}
           >
             <User size={16} />
             <span>내 정보</span>

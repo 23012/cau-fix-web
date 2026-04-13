@@ -11,6 +11,8 @@ import Filter from "../common/filter";
 import Status from "../common/Status";
 import ComplainForm from "../form/ComplainForm";
 
+import Detail from "../detail/detail";
+
 const getChartData = (data) => {
   const counts = data.reduce((acc, row) => {
     acc[row.status] = (acc[row.status] || 0) + 1;
@@ -35,6 +37,7 @@ const Complain = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [complainFormOpen, setComplainFormOpen] = useState(false);
+  const [selectedComplain, setSelectedComplain] = useState(null);
   const [filterOptions, setFilterOptions] = useState({
     statuses: [],
     category: "",
@@ -272,7 +275,12 @@ const Complain = () => {
   };
 
   const handleRowClick = (row) => {
-    navigate('/complain-detail', { state: { data: row } });
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      navigate('/complain-detail', { state: { data: row } });
+    } else {
+      setSelectedComplain(row);
+    }
   };
   
   return (
@@ -489,6 +497,17 @@ const Complain = () => {
         onSubmit={(data) => {
           // TODO: DB 연결 후 민원 접수 API 호출
           setComplainFormOpen(false);
+        }}
+      />
+
+      {/* 민원 상세 팝업 (데스크톱) */}
+      <Detail
+        isOpen={!!selectedComplain}
+        onClose={() => setSelectedComplain(null)}
+        data={selectedComplain}
+        onUpdate={(updated) => {
+          setTableData((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+          setSelectedComplain(null);
         }}
       />
 

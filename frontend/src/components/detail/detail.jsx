@@ -4,11 +4,12 @@ import Status from "../common/Status";
 import FormPopup from "../form/FormPopup";
 import ProfilePopup from "./ProfilePopup";
 import ImagePreview from "../common/ImagePreview";
+import ProgressBar from "./ProgressBar";
 import { useState, useRef } from "react";
 
 const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
 
-const Detail = ({ isOpen, onClose, data, onUpdate }) => {
+const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
   const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -218,6 +219,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate }) => {
   // 읽기 모드
   return (
     <FormPopup isOpen={true} onClose={onClose} hideSubmit>
+      {showProgress && <ProgressBar status={data.status} />}
+
       <div className="detail-tabs">
         <button
           className={`detail-tab ${activeTab === "content" ? "active" : ""}`}
