@@ -1,13 +1,13 @@
+import { useState } from 'react';
 import TopBar from '../../components/common/topbar';
 import MenuBar from '../../components/common/menubar';
 import NoticeList from '../../components/notice/NoticeList';
+import NoticeDetail from '../../components/notice/NoticeDetail';
 import './notice.css';
 import '../../styles/global.css';
 
 const Notice = () => {
-  const handleSelect = (notice) => {
-    // TODO: 공지사항 상세 페이지 이동
-  };
+  const [selectedNotice, setSelectedNotice] = useState(null);
 
   return (
     <div className="page-container">
@@ -20,7 +20,14 @@ const Notice = () => {
         </div>
         <MenuBar />
         <div className="dashboard-content">
-          <NoticeList onSelect={handleSelect} />
+          {selectedNotice ? (
+            <NoticeDetail
+              data={selectedNotice}
+              onBack={() => setSelectedNotice(null)}
+            />
+          ) : (
+            <NoticeList onSelect={(notice) => setSelectedNotice(notice)} />
+          )}
         </div>
       </div>
     </div>

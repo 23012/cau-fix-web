@@ -1,17 +1,56 @@
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Bell, User, LogOut } from "lucide-react";
+import MyProfileCard from "../myinfo/MyProfileCard";
+import MyMenuList from "../myinfo/MyMenuList";
 import logo from "../../assets/images/logo.svg";
 import "./topbar.css";
 
 const TopBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [myinfoOpen, setMyinfoOpen] = useState(false);
+  const popupRef = useRef(null);
+  const btnRef = useRef(null);
+
+  const [user, setUser] = useState(null);
+  const [pushEnabled, setPushEnabled] = useState(() => {
+    return localStorage.getItem("pushEnabled") !== "false";
+  });
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
+
+  // 팝업 바깥 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        myinfoOpen &&
+        popupRef.current &&
+        !popupRef.current.contains(e.target) &&
+        btnRef.current &&
+        !btnRef.current.contains(e.target)
+      ) {
+        setMyinfoOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [myinfoOpen]);
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
       localStorage.removeItem("user");
       navigate("/login");
     }
+  };
+
+  const handleTogglePush = () => {
+    const next = !pushEnabled;
+    setPushEnabled(next);
+    localStorage.setItem("pushEnabled", next.toString());
   };
 
   return (
@@ -23,25 +62,41 @@ const TopBar = () => {
         <button
           className={`topbar_action-btn ${location.pathname === "/alarm-list" ? "topbar_action-btn--active" : ""}`}
           onClick={() => navigate("/alarm-list")}
-          title="알림"
         >
-          <Bell size={22} />
+          <Bell size={16} />
+          <span>알림</span>
         </button>
-        <button
-          className={`topbar_action-btn ${location.pathname === "/myinfo" ? "topbar_action-btn--active" : ""}`}
-          onClick={() => navigate("/myinfo")}
-          title="내 정보"
-        >
-          <User size={22} />
-        </button>
+        <div className="topbar_action-wrapper">
+          <button
+            ref={btnRef}
+            className={`topbar_action-btn ${myinfoOpen ? "topbar_action-btn--active" : ""}`}
+            onClick={() => setMyinfoOpen(!myinfoOpen)}
+          >
+            <User size={16} />
+            <span>내 정보</span>
+          </button>
+          {myinfoOpen && (
+            <div className="topbar_myinfo-popup" ref={popupRef}>
+              <MyProfileCard name={user?.name} department={user?.department} />
+              <MyMenuList
+                pushEnabled={pushEnabled}
+                onTogglePush={handleTogglePush}
+                onUpdateProfile={() => {}}
+                onLogout={handleLogout}
+                user={user}
+              />
+            </div>
+          )}
+        </div>
         <button
           className="topbar_action-btn topbar_action-btn--logout"
           onClick={handleLogout}
-          title="로그아웃"
         >
-          <LogOut size={22} />
+          <LogOut size={16} />
+          <span>로그아웃</span>
         </button>
       </div>
+
     </div>
   );
 };

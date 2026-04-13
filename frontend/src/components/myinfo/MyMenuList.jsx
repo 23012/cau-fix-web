@@ -74,9 +74,6 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
           <div className="myinfo-toggle-knob" />
         </div>
       </div>
-      <button className="myinfo-menu-item myinfo-menu-logout" onClick={onLogout}>
-        <span>로그아웃</span>
-      </button>
 
       {showSuccess && (
         <div className="myinfo-success-overlay" onClick={() => setShowSuccess(false)}>
