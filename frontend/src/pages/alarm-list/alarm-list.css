@@ -53,11 +53,7 @@
     padding: 16px 12px;
   }
 
-  .alarm-back-btn {
-    display: flex;
-  }
-
-  .alarm-page-header h1 {
-    font-size: 20px;
+  .alarm-page-header {
+    display: none;
   }
 }
