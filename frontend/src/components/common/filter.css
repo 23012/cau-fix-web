@@ -150,6 +150,7 @@
   .filter-panel {
     width: 280px;
     padding: 16px;
+    right: -50px;
   }
 
   .filter-date-input {
