@@ -4,7 +4,7 @@ import noticeDataFile from "../../assets/files/notice-data.xlsx";
 import Search from "../common/search";
 import "./NoticeList.css";
 
-const TABS = ["전체", "안내", "업데이트", "이벤트", "점검"];
+const TABS = ["전체", "안내", "업데이트", "점검"];
 
 const NoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);

@@ -11,6 +11,7 @@ import ComplainDetail from "./pages/complain-detail/complain-detail";
 import Notice from "./pages/notice/notice";
 import AlarmList from "./pages/alarm-list/alarm-list";
 import MyInfo from "./pages/myinfo/myinfo";
+import ComplainWrite from "./pages/complain-write/complain-write";
 
 function App() {
   const cursorRef = useRef(null);
@@ -59,6 +60,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/complain-dashboard" element={<ComplainDashboard />} />
+        <Route path="/complain-write" element={<ComplainWrite />} />
         <Route path="/complain-detail" element={<ComplainDetail />} />
         <Route path="/notice" element={<Notice />} />
         <Route path="/alarm-list" element={<AlarmList />} />

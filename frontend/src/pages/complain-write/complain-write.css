@@ -1,0 +1,92 @@
+.write-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.write-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.write-header-menubar {
+  flex: 1;
+}
+
+.write-container > .menubar {
+  display: none;
+}
+
+.write-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.write-form-wrapper {
+  width: 100%;
+  max-width: 600px;
+}
+
+.write-form-title {
+  font-size: 25px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 20px 5px;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .write-header {
+    flex-direction: column;
+  }
+
+  .write-header-menubar {
+    display: none;
+  }
+
+  .write-container > .menubar {
+    display: flex;
+  }
+
+  .write-content {
+    padding-top: 10px;
+  }
+
+  .write-form-title {
+    font-size: 20px;
+  }
+}
+
+/* 태블릿 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .write-header {
+    flex-direction: row;
+  }
+
+  .write-header-menubar {
+    display: block;
+  }
+
+  .write-container > .menubar {
+    display: none;
+  }
+}
+
+/* PC */
+@media (min-width: 1025px) {
+  .write-header {
+    flex-direction: row;
+  }
+
+  .write-content {
+    padding: 20px;
+  }
+}

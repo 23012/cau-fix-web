@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import "./Form.css";
+import "../form/FormPopup.css";
+
+const DEPARTMENTS = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
 
 
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {
   const navigate = useNavigate();
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [showDeptDropdown, setShowDeptDropdown] = useState(false);
 
   const handleSubmit = (e) => {
     onSubmit(e, passwordConfirm);
@@ -55,7 +60,33 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
       </div>
 
       <input type="text" name="name" placeholder="이름" value={formData.name} onChange={onChange} disabled={loading} className="input" />
-      <input type="text" name="department" placeholder="부서" value={formData.department} onChange={onChange} disabled={loading} className="input" />
+      {formData.role === "manager" ? (
+        <div className="form-field-select" onClick={() => setShowDeptDropdown(!showDeptDropdown)} style={{ padding: "12px 16px", border: "1px solid var(--back-color)", borderRadius: "8px", position: "relative", boxSizing: "border-box", fontSize: "1rem", lineHeight: "normal", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+          <span style={formData.dept ? { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 } : { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 }}>
+            {formData.dept || "부서"}
+          </span>
+          <ChevronRight size={20} className="form-field-arrow" />
+          {showDeptDropdown && (
+            <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
+              {DEPARTMENTS.map((dept) => (
+                <button
+                  key={dept}
+                  type="button"
+                  className={`form-dropdown-item ${formData.dept === dept ? "active" : ""}`}
+                  onClick={() => {
+                    onChange({ target: { name: "dept", value: dept } });
+                    setShowDeptDropdown(false);
+                  }}
+                >
+                  {dept}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <input type="text" name="dept" placeholder="부서" value={formData.dept} onChange={onChange} disabled={loading} className="input" />
+      )}
       <input type="tel" name="phone" placeholder="전화번호" value={formData.phone} onChange={onChange} disabled={loading} className="input" />
 
       {error && <p className="signup-error-message">{error}</p>}

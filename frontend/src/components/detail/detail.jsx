@@ -252,20 +252,18 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
               </button>
               {menuOpen && (
                 <div className="detail-menu-popup">
-                  {data.status === "접수전" && (
-                    <button
-                      className="detail-menu-item"
-                      onClick={handleEdit}
-                    >
-                      수정
-                    </button>
-                  )}
+                  <button
+                    className="detail-menu-item"
+                    onClick={data.status === "접수전" ? handleEdit : () => { alert("관리자 문의 바랍니다."); setMenuOpen(false); }}
+                  >
+                    수정
+                  </button>
                   <button
                     className="detail-menu-item delete"
-                    onClick={() => {
-                      // TODO: DB 연결 후 삭제 API 호출
-                      setMenuOpen(false);
-                    }}
+                    onClick={data.status === "접수전"
+                      ? () => { /* TODO: DB 연결 후 삭제 API 호출 */ setMenuOpen(false); }
+                      : () => { alert("관리자 문의 바랍니다."); setMenuOpen(false); }
+                    }
                   >
                     삭제
                   </button>
