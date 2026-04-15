@@ -1,7 +1,7 @@
 import logo from '../../assets/images/app.png';
 import './MyProfileCard.css';
 
-const MyProfileCard = ({ name, department }) => {
+const MyProfileCard = ({ name, dept }) => {
   return (
     <div className="myinfo-profile-card">
       <div className="myinfo-avatar">
@@ -12,7 +12,7 @@ const MyProfileCard = ({ name, department }) => {
           <span className="myinfo-name">{name || "-"}</span>
           <span className="myinfo-suffix">님</span>
         </div>
-        <div className="myinfo-dept-badge">{department || "-"}</div>
+        <div className="myinfo-dept-badge">{dept || "-"}</div>
       </div>
     </div>
   );

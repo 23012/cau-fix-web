@@ -45,7 +45,7 @@ const MyInfo = () => {
         <MenuBar />
         <div className="dashboard-content">
           <div className="myinfo-page">
-            <MyProfileCard name={user?.name} department={user?.department} />
+            <MyProfileCard name={user?.name} dept={user?.dept} />
             <MyMenuList
               pushEnabled={pushEnabled}
               onTogglePush={handleTogglePush}

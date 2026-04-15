@@ -15,7 +15,7 @@ const Signup = () => {
     password: "",
     role: "", // "user" or "manager"
     name: "",
-    department: "",
+    dept: "",
     phone: "",
   });
   const [error, setError] = useState("");
@@ -63,13 +63,13 @@ const Signup = () => {
       return;
     }
 
-    const { id, password, name, department, phone } = formData;
+    const { id, password, name, dept, phone } = formData;
     if (
       !id.trim() ||
       !password.trim() ||
       !passwordConfirm.trim() ||
       !name.trim() ||
-      !department.trim() ||
+      !dept.trim() ||
       !phone.trim()
     ) {
       setError("모든 항목을 입력해주세요");

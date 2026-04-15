@@ -30,7 +30,7 @@ const Login = () => {
           id: row["id"]?.toString() || "",
           password: row["password"]?.toString() || "",
           name: row["name"]?.toString() || "",
-          department: row["department"]?.toString() || "",
+          dept: row["dept"]?.toString() || "",
           phone: row["phone"]?.toString() || "",
           role: row["role"]?.toString() || "",
         }));
@@ -71,7 +71,7 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify({
           id: user.id,
           name: user.name,
-          department: user.department,
+          dept: user.dept,
           phone: user.phone,
           role: user.role,
         }));
