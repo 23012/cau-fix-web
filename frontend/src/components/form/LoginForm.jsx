@@ -55,7 +55,7 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
       </button>
       <div className="login-divider">
       <span>
-        비밀번호 재설정 문의 : 시설팀</span>
+        대표문의 : 9331</span>
       </div>
     </form>
   );

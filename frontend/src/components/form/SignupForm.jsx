@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 import "./Form.css";
 import "../form/FormPopup.css";
 
-const DEPARTMENTS = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
+const DEPARTMENTS = ["전체", "건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
 
 
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {
@@ -63,7 +63,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
       {formData.role === "manager" ? (
         <div className="form-field-select" onClick={() => setShowDeptDropdown(!showDeptDropdown)} style={{ padding: "12px 16px", border: "1px solid var(--back-color)", borderRadius: "8px", position: "relative", boxSizing: "border-box", fontSize: "1rem", lineHeight: "normal", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
           <span style={formData.dept ? { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 } : { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 }}>
-            {formData.dept || "부서"}
+            {formData.dept || "구분"}
           </span>
           <ChevronRight size={20} className="form-field-arrow" />
           {showDeptDropdown && (
