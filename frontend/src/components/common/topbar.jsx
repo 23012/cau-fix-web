@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Bell, User, LogOut } from "lucide-react";
 import MyProfileCard from "../myinfo/MyProfileCard";
 import MyMenuList from "../myinfo/MyMenuList";
@@ -9,7 +9,6 @@ import "./topbar.css";
 
 const TopBar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [myinfoOpen, setMyinfoOpen] = useState(false);
   const [alarmOpen, setAlarmOpen] = useState(false);
   const popupRef = useRef(null);
@@ -98,7 +97,7 @@ const TopBar = () => {
           </button>
           {myinfoOpen && (
             <div className="topbar_myinfo-popup" ref={popupRef}>
-              <MyProfileCard name={user?.name} department={user?.department} />
+              <MyProfileCard name={user?.name} dept={user?.dept} />
               <MyMenuList
                 pushEnabled={pushEnabled}
                 onTogglePush={handleTogglePush}

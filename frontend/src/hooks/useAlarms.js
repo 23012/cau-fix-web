@@ -54,7 +54,7 @@ const useAlarms = () => {
           const name = row["name"]?.toString();
           if (name) {
             memberMap[name] = {
-              department: row["department"]?.toString() || null,
+              department: row["dept"]?.toString() || null,
               phone: row["phone"]?.toString() || null,
             };
           }

@@ -1,65 +1,11 @@
 .dashboard {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px 30px 20px;
 }
 
-/* HEADER */
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header h1 {
-  font-size: 36px;
-  font-weight: 1000;
-  color: black;
-}
-
-.add-complain-btn-pc {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2px solid var(--main-color);
-  background: white;
-  color: var(--main-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left : 5px;
-  margin-top : 5px;
-}
-
-.add-complain-btn-pc:hover {
-  background: var(--main-color);
-  color: white;
-}
-
-/* TOOLBAR */
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.filters {
-  display: flex;
-  gap: 8px;
-}
+/* DROPDOWN */
 
 .dropdown {
   padding: 6px 12px;
@@ -80,13 +26,6 @@
   border-color: var(--main-color);
 }
 
-.badge {
-  padding: 6px 14px;
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
-  font-size: 14px;
-}
-
 /* CONTROLS */
 
 .controls {
@@ -99,8 +38,81 @@
   min-width: 100px;
 }
 
-.sort {
-  color: var(--back-color-2);
+/* MOBILE TOOLBAR - 기본 숨김 */
+
+.mobile-toolbar {
+  display: none;
+}
+
+/* CHART DATE FILTERS */
+
+.chart-date-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* CHART CONTAINER (도넛 + 중앙 라벨) */
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+}
+
+.chart {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.chart-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.chart-center-count {
+  font-size: 40px;
+  font-weight: 800;
+  color: #333;
+}
+
+.chart-center-unit {
+  font-size: 18px;
+  font-weight: 600;
+  color: #666;
+  margin-left: 1px;
+}
+
+/* REGISTER BUTTON */
+
+.register-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 240px;
+  padding: 12px 20px;
+  margin-top: 24px;
+  border: 2px solid var(--main-color);
+  border-radius: 10px;
+  background: white;
+  color: var(--main-color);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.register-btn:hover {
+  background: var(--main-color);
+  color: white;
 }
 
 /* MAIN GRID */
@@ -112,92 +124,122 @@
   align-items: start;
 }
 
-/* CHART CARD */
+/* CHART AREA (no box, vertical divider on right) */
 
-.chart-card {
+.chart-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  border: 1px solid #e0e0e0;
-  background-color: white;
-  padding: 1rem;
-  min-height: 400px;
+  padding: 0 1.5rem 0 0;
 }
 
-.chart {
+/* LEGEND BARS */
+
+.legend-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
   width: 100%;
-  aspect-ratio: 1;
-  max-width: 260px;
+  padding: 0;
 }
 
-/* LEGEND */
-
-.legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 20px;
-  margin-top: 16px;
-  width: 100%;
-  max-width: 280px;
-  justify-items: center;
-}
-
-.legend-item {
+.legend-bar-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--back-color-2);
-  font-size: 14px;
+  gap: 12px;
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+.legend-bar-label {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 42px;
   flex-shrink: 0;
 }
 
-.legend-value {
-  font-weight: 600;
-  color: #666;
-  margin-left: 4px;
+.legend-bar-track {
+  flex: 1;
+  height: 14px;
+  background: #f0f0f0;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.legend-bar-fill {
+  height: 100%;
+  border-radius: 7px;
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+
+/* TABLE SECTION */
+
+.table-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* STATUS TABS + TOOLBAR */
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 0;
+}
+
+.status-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+
+.status-tab {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
   font-size: 15px;
+  font-weight: 500;
+  color: var(--back-color-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.status-tab.active {
+  color: var(--main-color);
+  font-weight: 700;
+  border-bottom-color: var(--main-color);
+}
+
+.status-tab:hover {
+  color: var(--main-color);
+  border-bottom-color: var(--main-color);
 }
 
 /* TABLE */
 
 .table-wrapper {
-  border-radius: 0.75rem;
-  border: 1px solid #e0e0e0;
   overflow: hidden;
   background-color: white;
   display: flex;
   flex-direction: column;
+  margin-top: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.75rem;
+}
+
+.table-scroll {
+  overflow-y: auto;
+  max-height: 500px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom : -5px;
-}
-
-.table thead {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
-
-.table tbody {
-  display: block;
-  height: 450px;
-  overflow-y: scroll;
-}
-
-.table tbody tr {
-  display: table;
-  width: 100%;
   table-layout: fixed;
 }
 
@@ -206,20 +248,43 @@
   padding: 14px 10px;
   font-weight: 700;
   color: #000;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .table td {
-  padding: 10px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 10px;
+  border-bottom: 1px solid #f0f0f0;
   text-align: center;
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* 컬럼 너비 지정 */
+.table th:first-child,
+.table td:first-child {
+  width: 60px;
+}
+
+.table th:last-child,
+.table td:last-child {
+  width: 90px;
+}
+
+.col-category {
+  width: 80px;
 }
 
 .title {
   font-weight: 500;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
 }
 
 /* PAGINATION */
@@ -303,27 +368,54 @@
     padding-bottom: 30px;
   }
 
-  .header {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-  }
-
-  .header h1 {
-    font-size: 22px;
-  }
-
-  .add-complain-btn-pc {
-    display: none;
-  }
-
   .main {
     grid-template-columns: 1fr;
     margin-bottom: 20px;
     margin-top: 10px;
   }
 
-  .chart {
+  /* 모바일: 차트 영역 구분선 없음, 카드 스타일 */
+  .chart-area {
+    padding: 1rem;
+    border-right: none;
+    border-radius: 0.75rem;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* 모바일: 차트 내 날짜 필터 숨김 */
+  .chart-date-filters {
+    display: none;
+  }
+
+  /* 모바일: 등록 버튼 숨김 */
+  .register-btn {
+    display: none;
+  }
+
+  /* 모바일: 별도 toolbar 표시 */
+  .mobile-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .mobile-toolbar .filters {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* 모바일: 테이블 toolbar 내 필터/정렬 숨김 */
+  .table-toolbar .controls {
+    display: none;
+  }
+
+  .chart-container {
     max-width: 280px;
+  }
+
+  .chart-center-count {
+    font-size: 32px;
   }
 
   .fab {
@@ -333,6 +425,16 @@
   
   .table-wrapper {
     margin-bottom: 20px;
+  }
+
+  /* 모바일: 분류 컬럼 숨김 */
+  .col-category {
+    display: none;
+  }
+
+  .status-tab {
+    padding: 10px 14px;
+    font-size: 13px;
   }
 }
 
@@ -344,25 +446,26 @@
     padding-bottom: 10px;
   }
 
-  .header {
-    margin-top: 0;
-  }
-
   .main {
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: 1fr 2fr;
     margin-top: 10px;
   }
 
-  .chart {
-    max-width: 300px;
+  .chart-area {
+    border-right: 1px solid #e0e0e0;
+  }
+
+  .chart-container {
+    max-width: 200px;
+  }
+
+  .chart-center-count {
+    font-size: 32px;
   }
   
   .fab {
     bottom: 30px;
     right: 30px;
-  }
-  .add-complain-btn-pc {
-    display: none;
   }
 }
 
@@ -371,14 +474,18 @@
 @media (min-width: 1025px) {
 
   .main {
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: 1fr 2.5fr;
   }
 
-  .chart {
-    max-width: 280px;
+  .chart-area {
+    border-right: 1px solid #e0e0e0;
   }
 
-  .fab{
-    display : none;
+  .chart-container {
+    max-width: 240px;
+  }
+
+  .fab {
+    display: none;
   }
 }

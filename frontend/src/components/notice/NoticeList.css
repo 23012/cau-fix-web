@@ -6,9 +6,11 @@
 }
 
 .notice-list-title {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 1000;
   color: black;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .notice-list-header {
@@ -38,7 +40,7 @@
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 500;
   color: var(--back-color-2);
   cursor: pointer;
@@ -67,7 +69,7 @@
 .notice-item {
   display: flex;
   align-items: center;
-  padding: 20px 8px;
+  padding: 30px 8px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background 0.2s;
@@ -79,7 +81,7 @@
 }
 
 .notice-item-category {
-  font-size: 14px;
+  font-size: 17px;
   color: var(--back-color-2);
   min-width: 80px;
   flex-shrink: 0;
@@ -87,7 +89,7 @@
 
 .notice-item-title {
   flex: 1;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 500;
   color: #333;
   overflow: hidden;
@@ -96,7 +98,7 @@
 }
 
 .notice-item-date {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--back-color-2);
   flex-shrink: 0;
   white-space: nowrap;

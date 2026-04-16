@@ -190,10 +190,8 @@ frontend/
 │   ├── index.html                    # HTML 엔트리 포인트
 │   ├── manifest.json                 # PWA 매니페스트
 │   ├── service-worker.js             # 서비스 워커 (오프라인/캐싱)
-│   ├── favicon.ico
 │   ├── app-icon-192.png              # PWA 아이콘 (192x192)
-│   ├── app-icon-512.png              # PWA 아이콘 (512x512)
-│   └── robots.txt
+│   └── app-icon-512.png              # PWA 아이콘 (512x512)
 │
 ├── src/
 │   ├── index.js                      # React 엔트리 포인트
@@ -205,9 +203,8 @@ frontend/
 │   │   └── responsive.css            # 반응형 미디어 쿼리
 │   │
 │   ├── assets/                       # 정적 리소스
-│   │   ├── fonts/                    # 웹폰트 (NotoSansKR Bold/Regular/Light)
-│   │   ├── icons/                    # 하단 메뉴바 아이콘 (home, alarm, notice, profile, all)
-│   │   ├── images/                   # 로고, 배경 이미지, 민원 카테고리 이미지
+│   │   ├── fonts/                    # 웹폰트 (NotoSansKR-Regular)
+│   │   ├── images/                   # 로고, 배경 이미지
 │   │   └── files/                    # 엑셀 데이터 파일 (로그인, 알림, 공지 등)
 │   │
 │   ├── hooks/                        # 커스텀 훅

@@ -7,6 +7,7 @@ import MyMenuList from '../../components/myinfo/MyMenuList';
 import './myinfo.css';
 import '../../styles/global.css';
 
+
 const MyInfo = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -36,6 +37,7 @@ const MyInfo = () => {
   return (
     <div className="page-container">
       <div className="dashboard-container">
+        //데스크톱 화면에서 가장 위 상단바로 표시됨
         <div className="dashboard-header">
           <TopBar />
           <div className="dashboard-header-menubar">
@@ -44,6 +46,7 @@ const MyInfo = () => {
         </div>
         <MenuBar />
         <div className="dashboard-content">
+          //모바일 화면에서만 '내정보' 페이지 보임
           <div className="myinfo-page">
             <MyProfileCard name={user?.name} dept={user?.dept} />
             <MyMenuList
