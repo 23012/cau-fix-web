@@ -8,16 +8,11 @@
 }
 
 .search-input-wrapper {
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
   width: 0;
   overflow: hidden;
   transition: width 0.3s ease-in-out;
   display: flex;
   align-items: center;
-  margin-right: 4px;
 }
 
 .search-input-wrapper.open {
@@ -69,9 +64,9 @@
 
 /* ===== 모바일 ===== */
 
-@media (max-width: 768px) {
+@media (max-width: 200px) {
   .search-input-wrapper.open {
-    width: 200px;
+    width: 240px;
   }
 
   .search-input {

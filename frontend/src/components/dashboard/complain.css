@@ -108,7 +108,7 @@
   gap: 6px;
   width: 100%;
   padding: 12px 20px;
-  margin-top: 50px;
+  margin-top: 40px;
   border: 2px solid var(--main-color);
   border-radius: 10px;
   background: white;
@@ -242,8 +242,12 @@
   align-items: center;
   justify-content: space-between;
   height: 50px;
+  padding-bottom: 0px;
   border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 0;
+}
+
+.table-toolbar .search-container {
+  margin-bottom: 20px;
 }
 
 /* TABLE CONTROLS (필터/정렬) */
@@ -263,12 +267,12 @@
 }
 
 .status-tab {
-  padding: 0px 24px 18px;
+  padding: 0px 30px 18px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--back-color-2);
   cursor: pointer;
   white-space: nowrap;
@@ -301,6 +305,12 @@
 .table-scroll {
   overflow-y: auto;
   max-height: 550px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.table-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .table {
@@ -482,7 +492,7 @@
   }
 
   .mobile-header .search-input-wrapper.open {
-    width: calc(100% - 120px);
+    width: 180px;
   }
 
   /* 모바일: 검색은 상태 탭 줄에서 숨김 (모바일 헤더에 있으므로) */
