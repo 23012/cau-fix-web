@@ -468,27 +468,25 @@ const Complain = () => {
             </div>
 
             {/* 페이지네이션 */}
-            {totalPages > 1 && (
-              <div className="pagination">
-                <button 
-                  className="pagination-btn"
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1}
-                >
-                  &lt;
-                </button>
-                <span className="pagination-info">
-                  {currentPage} / {totalPages}
-                </span>
-                <button 
-                  className="pagination-btn"
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  &gt;
-                </button>
-              </div>
-            )}
+            <div className="pagination">
+              <button 
+                className="pagination-btn"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                &lt;
+              </button>
+              <span className="pagination-info">
+                {currentPage} / {totalPages || 1}
+              </span>
+              <button 
+                className="pagination-btn"
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages}
+              >
+                &gt;
+              </button>
+            </div>
           </div>
 
         </div>
