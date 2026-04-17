@@ -314,12 +314,6 @@ const Complain = () => {
             >
               <option value="전체">전체</option>
               <option value="2026">2026년</option>
-              <option value="2025">2025년</option>
-              <option value="2024">2024년</option>
-              <option value="2023">2023년</option>
-              <option value="2022">2022년</option>
-              <option value="2021">2021년</option>
-              <option value="2020">2020년</option>
             </select>
 
             <select 
@@ -395,8 +389,8 @@ const Complain = () => {
           </div>
 
           <button className="register-btn" onClick={() => setComplainFormOpen(true)}>
-            <Plus size={18} />
-            <span>등록하기</span>
+            <Plus size={20} strokeWidth={2.5} />
+            <span>민원 작성하기</span>
           </button>
 
         </div>

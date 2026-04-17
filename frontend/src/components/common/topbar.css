@@ -8,7 +8,7 @@
 .topbar_logo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 20px 0;
   border-bottom: none;
   margin: 0;
@@ -125,11 +125,11 @@
   position: relative;
 }
 
-/* 내 정보 팝업 — 버튼 왼쪽 변 기준 */
+/* 내 정보 팝업 — 버튼 기준 왼쪽으로 */
 .topbar_myinfo-popup {
   position: absolute;
   top: 40px;
-  left: 0;
+  right: 0;
   width: 320px;
   background: #fff;
   border-radius: 12px;
