@@ -8,19 +8,31 @@
 
 .dashboard-header {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
   align-items: center;
-  justify-content: flex-start;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 30px;
   border-bottom: 1px solid #e0e0e0;
 }
 
+.dashboard-header .topbar {
+  justify-content: center;
+}
+
 .dashboard-header-menubar {
-  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-header-menubar .menubar {
+  margin-left: 20px;
 }
 
 .dashboard-container > .menubar {
-    display : none;
+  display: none;
 }
 
 .dashboard-content {
@@ -31,7 +43,9 @@
 /* 모바일 (최대 768px) - 세로 배치 */
 @media (max-width: 768px) {
   .dashboard-header {
+    display: flex;
     flex-direction: column;
+    padding: 0;
   }
   
   .dashboard-header-menubar {
@@ -50,11 +64,11 @@
 /* 태블릿 (769px ~ 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
   .dashboard-header {
-    flex-direction: row;
+    grid-template-columns: 1fr 2fr;
   }
   
   .dashboard-header-menubar {
-    display: block;
+    display: flex;
   }
   
   .dashboard-container > .menubar {
@@ -66,10 +80,10 @@
   }
 }
 
-/* PC (1025px 이상) - 가로 배치 */
+/* PC (1025px 이상) */
 @media (min-width: 1025px) {
   .dashboard-header {
-    flex-direction: row;
+    grid-template-columns: 1fr 2fr;
   }
   
   .dashboard-content {

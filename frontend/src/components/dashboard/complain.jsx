@@ -366,19 +366,23 @@ const Complain = () => {
             </div>
           </div>
 
+          <hr className="chart-divider" />
+
           {/* LEGEND BARS */}
           <div className="legend-bars">
             {chartData.map((item) => {
               const total = chartData.reduce((sum, d) => sum + d.value, 0);
               const percent = total > 0 ? (item.value / total) * 100 : 0;
               return (
-                <div key={item.name} className="legend-bar-item">
+                <div key={item.name} className="legend-bar-item" title={`${item.name}: ${item.value}건`}>
                   <span className="legend-bar-label" style={{ color: item.color }}>{item.name}</span>
                   <div className="legend-bar-track">
                     <div
                       className="legend-bar-fill"
                       style={{ width: `${percent}%`, background: item.color }}
-                    />
+                    >
+                      <span className="legend-bar-tooltip">{item.value}건</span>
+                    </div>
                   </div>
                 </div>
               );
