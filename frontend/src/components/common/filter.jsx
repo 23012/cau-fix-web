@@ -2,25 +2,15 @@ import { useState } from "react";
 import "./filter.css";
 
 const Filter = ({ isOpen, onClose, onApply }) => {
-  const [selectedStatuses, setSelectedStatuses] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [startDate, setStartDate] = useState({ year: "", month: "", day: "" });
   const [endDate, setEndDate] = useState({ year: "", month: "", day: "" });
 
-  const statuses = ["접수전", "접수", "진행중", "완료"];
   const categories = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
-
-  const handleStatusToggle = (status) => {
-    if (selectedStatuses.includes(status)) {
-      setSelectedStatuses(selectedStatuses.filter((s) => s !== status));
-    } else {
-      setSelectedStatuses([...selectedStatuses, status]);
-    }
-  };
 
   const handleApply = () => {
     onApply({
-      statuses: selectedStatuses,
+      statuses: [],
       category: selectedCategory,
       startDate,
       endDate,
@@ -29,7 +19,6 @@ const Filter = ({ isOpen, onClose, onApply }) => {
   };
 
   const handleReset = () => {
-    setSelectedStatuses([]);
     setSelectedCategory("");
     setStartDate({ year: "", month: "", day: "" });
     setEndDate({ year: "", month: "", day: "" });
@@ -39,22 +28,6 @@ const Filter = ({ isOpen, onClose, onApply }) => {
 
   return (
     <div className="filter-panel">
-      <div className="filter-section">
-        <h3 className="filter-title">상태</h3>
-        <div className="filter-checkboxes">
-          {statuses.map((status) => (
-            <label key={status} className="filter-checkbox-label">
-              <input
-                type="checkbox"
-                checked={selectedStatuses.includes(status)}
-                onChange={() => handleStatusToggle(status)}
-              />
-              <span>{status}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
       <div className="filter-section">
         <h3 className="filter-title">분류</h3>
         <select

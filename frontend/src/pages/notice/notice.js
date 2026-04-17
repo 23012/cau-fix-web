@@ -12,10 +12,12 @@ const Notice = () => {
   return (
     <div className="page-container">
       <div className="dashboard-container">
-        <div className="dashboard-header">
-          <TopBar />
-          <div className="dashboard-header-menubar">
-            <MenuBar />
+        <div className="dashboard-header-wrapper">
+          <div className="dashboard-header">
+            <TopBar />
+            <div className="dashboard-header-menubar">
+              <MenuBar />
+            </div>
           </div>
         </div>
         <MenuBar />

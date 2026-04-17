@@ -294,6 +294,12 @@ const Complain = () => {
   return (
     <div className="dashboard">
 
+      {/* MOBILE: 내 민원 제목 + 검색 */}
+      <div className="mobile-header">
+        <h1 className="mobile-title">내 민원</h1>
+        <Search onSearchChange={handleSearchChange} />
+      </div>
+
       {/* MAIN */}
       <div className="main">
 
@@ -380,9 +386,8 @@ const Complain = () => {
                     <div
                       className="legend-bar-fill"
                       style={{ width: `${percent}%`, background: item.color }}
-                    >
-                      <span className="legend-bar-tooltip">{item.value}건</span>
-                    </div>
+                    />
+                    <span className="legend-bar-tooltip">{item.value}건</span>
                   </div>
                 </div>
               );
@@ -399,7 +404,7 @@ const Complain = () => {
         {/* RIGHT: TABLE SECTION */}
         <div className="table-section">
 
-          {/* 상태 탭 + 필터/정렬 */}
+          {/* 상태 탭 */}
           <div className="table-toolbar">
             <div className="status-tabs">
               {STATUS_TABS.map((tab) => (
@@ -412,8 +417,12 @@ const Complain = () => {
                 </button>
               ))}
             </div>
+            <Search onSearchChange={handleSearchChange} />
+          </div>
+
+          {/* 필터/정렬 */}
+          <div className="table-controls">
             <div className="controls">
-              <Search onSearchChange={handleSearchChange} />
               <div style={{ position: 'relative' }}>
                 <button className="icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
                   <FilterIcon size={18} />
@@ -490,62 +499,6 @@ const Complain = () => {
 
         </div>
 
-      </div>
-
-      {/* MOBILE TOOLBAR (년/월 + 필터/정렬) */}
-      <div className="mobile-toolbar">
-        <div className="filters">
-          <select 
-            className="dropdown"
-            value={selectedYear}
-            onChange={handleYearChange}
-          >
-            <option value="전체">전체</option>
-            <option value="2026">2026년</option>
-            <option value="2025">2025년</option>
-            <option value="2024">2024년</option>
-            <option value="2023">2023년</option>
-            <option value="2022">2022년</option>
-            <option value="2021">2021년</option>
-            <option value="2020">2020년</option>
-          </select>
-          <select 
-            className="dropdown"
-            value={selectedMonth}
-            onChange={handleMonthChange}
-          >
-            <option value="전체">전체</option>
-            <option value="1">1월</option>
-            <option value="2">2월</option>
-            <option value="3">3월</option>
-            <option value="4">4월</option>
-            <option value="5">5월</option>
-            <option value="6">6월</option>
-            <option value="7">7월</option>
-            <option value="8">8월</option>
-            <option value="9">9월</option>
-            <option value="10">10월</option>
-            <option value="11">11월</option>
-            <option value="12">12월</option>
-          </select>
-        </div>
-        <div className="controls">
-          <div style={{ position: 'relative' }}>
-            <button className="icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
-              <FilterIcon size={18} />
-            </button>
-          </div>
-          <select 
-            className="dropdown sort-dropdown"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="번호순">번호순</option>
-            <option value="최신순">최신순</option>
-            <option value="오래된순">오래된순</option>
-            <option value="상태순">상태순</option>
-          </select>
-        </div>
       </div>
 
       {/* FAB */}

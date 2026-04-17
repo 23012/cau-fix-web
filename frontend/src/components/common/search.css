@@ -1,18 +1,23 @@
 /* SEARCH */
 
 .search-container {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
   height: 48px;
 }
 
 .search-input-wrapper {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
   width: 0;
   overflow: hidden;
   transition: width 0.3s ease-in-out;
   display: flex;
   align-items: center;
+  margin-right: 4px;
 }
 
 .search-input-wrapper.open {

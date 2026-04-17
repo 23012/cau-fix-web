@@ -39,27 +39,6 @@
   margin-bottom: 12px;
 }
 
-.filter-checkboxes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.filter-checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--back-color-2);
-}
-
-.filter-checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
 .filter-select {
   width: 100%;
   padding: 8px 12px;

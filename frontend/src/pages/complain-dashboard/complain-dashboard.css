@@ -6,16 +6,20 @@
   background-color: #fff;
 }
 
+.dashboard-header-wrapper {
+  width: 100%;
+  border-bottom: 1px solid #e0e0e0;
+}
+
 .dashboard-header {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 2fr;
   align-items: center;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 30px;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 .dashboard-header .topbar {
