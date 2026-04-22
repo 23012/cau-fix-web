@@ -12,6 +12,8 @@ import Status from "../common/Status";
 import ComplainForm from "../form/ComplainForm";
 
 import Detail from "../detail/detail";
+import { STATUS_TABS, STATUS_ORDER, STATUS_COLORS } from "../../constants/status";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 
 const getChartData = (data) => {
   const counts = data.reduce((acc, row) => {
@@ -19,15 +21,12 @@ const getChartData = (data) => {
     return acc;
   }, {});
 
-  return [
-    { name: "접수전", value: counts["접수전"] || 0, color: "#9e9e9e" },
-    { name: "접수", value: counts["접수"] || 0, color: "#FFC107" },
-    { name: "진행중", value: counts["진행중"] || 0, color: "#63BE7B" },
-    { name: "완료", value: counts["완료"] || 0, color: "#006EB7" },
-  ];
+  return STATUS_TABS.filter(s => s !== "전체").map(name => ({
+    name,
+    value: counts[name] || 0,
+    color: STATUS_COLORS[name],
+  }));
 };
-
-const STATUS_TABS = ["전체", "접수전", "접수", "진행중", "완료"];
 
 const Complain = () => {
   const navigate = useNavigate();
@@ -118,36 +117,18 @@ const Complain = () => {
 
   // 날짜 필터링 함수
   const filterByDate = (data) => {
-    const result = data.filter((row) => {
-      if (selectedYear === "전체" && selectedMonth === "전체") {
-        return true;
-      }
-
-      if (!row.date) return false;
-
-      let dateObj;
-      
-      if (typeof row.date === 'number' || !isNaN(parseFloat(row.date))) {
-        const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
-        dateObj = new Date((excelDate - 25569) * 86400 * 1000);
-      } else {
-        const dateStr = row.date.toString().trim();
-        const datePart = dateStr.split(' ')[0];
-        dateObj = new Date(datePart);
-      }
-
-      if (isNaN(dateObj.getTime())) return false;
+    return data.filter((row) => {
+      if (selectedYear === "전체" && selectedMonth === "전체") return true;
+      const dateObj = parseExcelDate(row.date);
+      if (!dateObj) return false;
 
       const year = dateObj.getFullYear().toString();
       const month = (dateObj.getMonth() + 1).toString();
 
       if (selectedYear !== "전체" && year !== selectedYear) return false;
       if (selectedMonth !== "전체" && month !== selectedMonth) return false;
-
       return true;
     });
-    
-    return result;
   };
 
   // 날짜 필터링 적용
@@ -175,18 +156,14 @@ const Complain = () => {
     const { startDate, endDate } = filterOptions;
     if (startDate.year && startDate.month && startDate.day) {
       const start = new Date(startDate.year, startDate.month - 1, startDate.day);
-      const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
-      const rowDate = new Date((excelDate - 25569) * 86400 * 1000);
-      
-      if (rowDate < start) return false;
+      const rowDate = parseExcelDate(row.date);
+      if (rowDate && rowDate < start) return false;
     }
 
     if (endDate.year && endDate.month && endDate.day) {
       const end = new Date(endDate.year, endDate.month - 1, endDate.day, 23, 59, 59);
-      const excelDate = typeof row.date === 'number' ? row.date : parseFloat(row.date);
-      const rowDate = new Date((excelDate - 25569) * 86400 * 1000);
-      
-      if (rowDate > end) return false;
+      const rowDate = parseExcelDate(row.date);
+      if (rowDate && rowDate > end) return false;
     }
 
     return true;
@@ -221,10 +198,9 @@ const Complain = () => {
         });
       
       case "상태순":
-        const statusOrder = { "접수전": 0, "접수": 1, "진행중": 2, "완료": 3 };
         return sorted.sort((a, b) => {
-          const orderA = statusOrder[a.status] ?? 999;
-          const orderB = statusOrder[b.status] ?? 999;
+          const orderA = STATUS_ORDER[a.status] ?? 999;
+          const orderB = STATUS_ORDER[b.status] ?? 999;
           return orderA - orderB;
         });
       

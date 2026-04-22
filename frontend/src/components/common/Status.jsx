@@ -1,23 +1,11 @@
+import { STATUS_CLASS } from "../../constants/status";
 import "./Status.css";
 
 const Status = ({ status }) => {
-  const getStatusClass = () => {
-    switch (status) {
-      case "접수전":
-        return "status pending";
-      case "접수":
-        return "status received";
-      case "진행중":
-        return "status progress";
-      case "완료":
-        return "status done";
-      default:
-        return "status";
-    }
-  };
+  const className = STATUS_CLASS[status] || "";
 
   return (
-    <span className={getStatusClass()}>
+    <span className={`status ${className}`}>
       {status}
     </span>
   );

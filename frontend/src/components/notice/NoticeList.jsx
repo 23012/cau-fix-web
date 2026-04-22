@@ -22,12 +22,12 @@ const NoticeList = ({ onSelect }) => {
         const rows = XLSX.utils.sheet_to_json(sheet);
 
         const parsed = rows.map((row) => ({
-          id: row["NO"],
-          category: row["카테고리"] || "",
-          title: row["제목"] || "",
-          content: row["내용"] || "",
-          date: row["작성일자"] || "",
-          author: row["작성자"] || "",
+          id: row["notice_id"],
+          category: row["notice_category"] || "",
+          title: row["notice_title"] || "",
+          content: row["notice_content"] || "",
+          date: row["notice_at"] || "",
+          author: row["notice_by"] || "",
         }));
 
         setNotices(parsed);

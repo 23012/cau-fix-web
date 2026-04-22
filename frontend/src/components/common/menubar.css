@@ -26,7 +26,6 @@
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  font-family: 'Noto Sans KR', sans-serif;
   color: #333;
   background: transparent;
   border: none;
@@ -35,7 +34,7 @@
   border-bottom: 3px solid transparent;
   white-space: nowrap;
   padding: 18px 30px;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .menubar__icon {

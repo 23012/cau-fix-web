@@ -1,12 +1,11 @@
 import { useState } from "react";
+import { CATEGORIES } from "../../constants/categories";
 import "./filter.css";
 
 const Filter = ({ isOpen, onClose, onApply }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [startDate, setStartDate] = useState({ year: "", month: "", day: "" });
   const [endDate, setEndDate] = useState({ year: "", month: "", day: "" });
-
-  const categories = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
 
   const handleApply = () => {
     onApply({
@@ -36,7 +35,7 @@ const Filter = ({ isOpen, onClose, onApply }) => {
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value="">전체</option>
-          {categories.map((category) => (
+          {CATEGORIES.map((category) => (
             <option key={category} value={category}>
               {category}
             </option>

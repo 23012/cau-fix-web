@@ -296,3 +296,73 @@
 .detail-value-clickable:hover {
   opacity: 0.8;
 }
+
+/* 수정 완료 / 삭제 확인 팝업 */
+.detail-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.detail-confirm-popup {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 24px;
+  max-width: 300px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.detail-confirm-popup p {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.detail-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.detail-confirm-btn {
+  padding: 10px 40px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.detail-confirm-btn:hover {
+  opacity: 0.9;
+}
+
+.detail-confirm-btn.cancel {
+  background: #e0e0e0;
+  color: #555;
+}
+
+.detail-confirm-btn.cancel:hover {
+  background: #d0d0d0;
+}
+
+.detail-confirm-btn.delete {
+  background: #e53935;
+}
+
+.detail-confirm-btn.delete:hover {
+  opacity: 0.9;
+}

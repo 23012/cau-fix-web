@@ -2,8 +2,7 @@ import { useState, useRef } from "react";
 import { ChevronRight, Camera } from "lucide-react";
 import FormPopup from "./FormPopup";
 import ImagePreview from "../common/ImagePreview";
-
-const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
+import { CATEGORIES } from "../../constants/categories";
 
 const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({

@@ -9,6 +9,7 @@ const NoticeDetail = ({ data, onBack }) => {
       <span className="notice-detail-category">{data.category}</span>
       <h2 className="notice-detail-title">{data.title}</h2>
       <span className="notice-detail-date">{data.date}</span>
+      <span className="notice-detail-author">{data.author}</span>
 
       <div className="notice-detail-divider" />
 

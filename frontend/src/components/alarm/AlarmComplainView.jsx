@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import ProgressBar from "../detail/ProgressBar";
 import Status from "../common/Status";
 import ImagePreview from "../common/ImagePreview";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 import "./AlarmComplainView.css";
 
 const AlarmComplainView = ({ data, onBack }) => {
@@ -12,16 +13,10 @@ const AlarmComplainView = ({ data, onBack }) => {
 
   if (!data) return null;
 
-  const formatDate = (excelDate) => {
-    if (!excelDate) return "-";
-    let dateObj;
-    if (typeof excelDate === "number" || !isNaN(parseFloat(excelDate))) {
-      const num = typeof excelDate === "number" ? excelDate : parseFloat(excelDate);
-      dateObj = new Date((num - 25569) * 86400 * 1000);
-    } else {
-      dateObj = new Date(excelDate.toString().trim().split(" ")[0]);
-    }
-    if (isNaN(dateObj.getTime())) return "-";
+  const formatDate = (value) => {
+    if (!value) return "-";
+    const dateObj = parseExcelDate(value);
+    if (!dateObj) return "-";
     const y = dateObj.getFullYear();
     const m = String(dateObj.getMonth() + 1).padStart(2, "0");
     const d = String(dateObj.getDate()).padStart(2, "0");

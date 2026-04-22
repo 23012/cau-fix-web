@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import "./Form.css";
 import "../form/FormPopup.css";
-
-const DEPARTMENTS = ["전체", "건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
+import { DEPARTMENTS } from "../../constants/categories";
 
 
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {

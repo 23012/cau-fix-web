@@ -10,21 +10,28 @@
 
 .notice-detail-category {
   font-size: 18px;
-  color: #999;
+  color: var(--back-color-2);
 }
 
 .notice-detail-title {
   font-size: 36px;
   font-weight: 800;
   color: #222;
-  margin-top : 10px;
+  margin-top : 20px;
   margin-bottom : 30px;
   line-height: 1.4;
 }
 
 .notice-detail-date {
-  font-size: 14px;
-  color: #999;
+  font-size: 16px;
+  color: var(--back-color-2);
+  margin-bottom: 20px;
+}
+
+.notice-detail-author {
+  font-size: 16px;
+  color: var(--back-color-2);
+  font-weight: 500;
   margin-bottom : 50px;
 }
 
@@ -37,8 +44,8 @@
   margin-bottom : 50px;
   margin-top : 50px;
   flex: 1;
-  font-size: 15px;
-  color: #444;
+  font-size: 16px;
+  color: black;
   line-height: 1.9;
   white-space: pre-wrap;
 }

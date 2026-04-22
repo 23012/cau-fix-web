@@ -6,8 +6,8 @@ import ProfilePopup from "./ProfilePopup";
 import ImagePreview from "../common/ImagePreview";
 import ProgressBar from "./ProgressBar";
 import { useState, useRef } from "react";
-
-const CATEGORIES = ["건축영선", "장비(의료,PC)", "기계/소방", "전기/통신", "보안", "미화"];
+import { CATEGORIES } from "../../constants/categories";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 
 const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
   const [activeTab, setActiveTab] = useState("content");
@@ -20,22 +20,17 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
   const [showNoResultPopup, setShowNoResultPopup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [showEditSuccess, setShowEditSuccess] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const fileInputRef = useRef(null);
 
   if (!isOpen || !data) return null;
 
-  const formatDate = (excelDate) => {
-    if (!excelDate) return "-";
-    let dateObj;
-    if (typeof excelDate === 'number' || !isNaN(parseFloat(excelDate))) {
-      const excelNum = typeof excelDate === 'number' ? excelDate : parseFloat(excelDate);
-      dateObj = new Date((excelNum - 25569) * 86400 * 1000);
-    } else {
-      const dateStr = excelDate.toString().trim();
-      const datePart = dateStr.split(' ')[0];
-      dateObj = new Date(datePart);
-    }
-    if (isNaN(dateObj.getTime())) return "-";
+  const formatDate = (value) => {
+    if (!value) return "-";
+    const dateObj = parseExcelDate(value);
+    if (!dateObj) return "-";
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
@@ -76,8 +71,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
       alert("제목을 입력해주세요.");
       return;
     }
-    onUpdate?.({ ...data, ...editData, images: editImages });
     setEditMode(false);
+    setShowEditSuccess(true);
   };
 
   const handleResultTab = () => {
@@ -261,7 +256,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
                   <button
                     className="detail-menu-item delete"
                     onClick={data.status === "접수전"
-                      ? () => { /* TODO: DB 연결 후 삭제 API 호출 */ setMenuOpen(false); }
+                      ? () => { setShowDeleteConfirm(true); setMenuOpen(false); }
                       : () => { alert("관리자 문의 바랍니다."); setMenuOpen(false); }
                     }
                   >
@@ -357,6 +352,51 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false }) => {
       />
 
       <ImagePreview src={previewImage} alt="민원 사진" onClose={() => setPreviewImage(null)} />
+
+      {/* 수정 완료 팝업 */}
+      {showEditSuccess && (
+        <div className="detail-confirm-overlay" onClick={() => { onUpdate?.({ ...data, ...editData, images: editImages }); setShowEditSuccess(false); }}>
+          <div className="detail-confirm-popup" onClick={(e) => e.stopPropagation()}>
+            <p>수정이 완료되었습니다.</p>
+            <button className="detail-confirm-btn" onClick={() => { onUpdate?.({ ...data, ...editData, images: editImages }); setShowEditSuccess(false); }}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 팝업 */}
+      {showDeleteConfirm && (
+        <div className="detail-confirm-overlay" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="detail-confirm-popup" onClick={(e) => e.stopPropagation()}>
+            <p>삭제된 민원은 복구할 수 없습니다.<br />정말 삭제하시겠습니까?</p>
+            <div className="detail-confirm-actions">
+              <button className="detail-confirm-btn cancel" onClick={() => setShowDeleteConfirm(false)}>
+                취소
+              </button>
+              <button className="detail-confirm-btn delete" onClick={() => {
+                // TODO: DB 연결 후 삭제 API 호출
+                setShowDeleteConfirm(false);
+                setShowDeleteSuccess(true);
+              }}>
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 완료 팝업 */}
+      {showDeleteSuccess && (
+        <div className="detail-confirm-overlay" onClick={() => { setShowDeleteSuccess(false); onClose(); }}>
+          <div className="detail-confirm-popup" onClick={(e) => e.stopPropagation()}>
+            <p>삭제가 완료되었습니다.</p>
+            <button className="detail-confirm-btn" onClick={() => { setShowDeleteSuccess(false); onClose(); }}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </FormPopup>
   );
 };
