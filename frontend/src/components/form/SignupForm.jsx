@@ -21,7 +21,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
         <input
           type="text"
           name="id"
-          placeholder="아이디 (사번)"
+          placeholder="아이디"
           value={formData.id}
           onChange={onChange}
           disabled={loading}
@@ -31,6 +31,9 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
           중복 확인
         </button>
       </div>
+      <p className="signup-policy-text">
+        ※ 사번 입력
+      </p>
 
       <input type="password" name="password" placeholder="비밀번호" value={formData.password} onChange={onChange} disabled={loading} className="input" />
       <p className="signup-policy-text">
