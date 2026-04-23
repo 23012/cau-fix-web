@@ -1,7 +1,7 @@
 import "./complain.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Filter as FilterIcon, Plus } from "lucide-react";
+import { Filter as FilterIcon, Plus, FolderOpen } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assets/files/sample.xlsx";
@@ -12,7 +12,9 @@ import Status from "../common/Status";
 import ComplainForm from "../form/ComplainForm";
 
 import Detail from "../detail/detail";
-import { STATUS_TABS, STATUS_ORDER, STATUS_COLORS } from "../../constants/status";
+import MyStorage from "./MyStorage";
+import { STATUS_TABS, STATUS_ORDER, STATUS_COLORS, normalizeStatus } from "../../constants/status";
+import { normalizeCategory } from "../../constants/categories";
 import { parseExcelDate } from "../../utils/parseExcelDate";
 
 const getChartData = (data) => {
@@ -31,6 +33,7 @@ const getChartData = (data) => {
 const Complain = () => {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState([]);
+  const [user, setUser] = useState(null);
   const [sortOrder, setSortOrder] = useState("번호순");
   const [selectedYear, setSelectedYear] = useState("전체");
   const [selectedMonth, setSelectedMonth] = useState("전체");
@@ -39,7 +42,9 @@ const Complain = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [complainFormOpen, setComplainFormOpen] = useState(false);
+  const [myStorageOpen, setMyStorageOpen] = useState(false);
   const [selectedComplain, setSelectedComplain] = useState(null);
+  const [fromStorage, setFromStorage] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     statuses: [],
     category: "",
@@ -47,6 +52,11 @@ const Complain = () => {
     endDate: { year: "", month: "", day: "" },
   });
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
 
   useEffect(() => {
     const loadExcel = async () => {
@@ -62,11 +72,20 @@ const Complain = () => {
         const loginSheet = loginWorkbook.Sheets[loginWorkbook.SheetNames[0]];
         const loginRows = XLSX.utils.sheet_to_json(loginSheet);
         const memberMap = {};
+        const memberByIdMap = {};
         loginRows.forEach((row) => {
           const name = row["name"]?.toString();
+          const memberId = row["member_id"];
           if (name) {
             memberMap[name] = {
-              department: row["department"]?.toString() || null,
+              department: row["dept"]?.toString() || null,
+              phone: row["phone"]?.toString() || null,
+            };
+          }
+          if (memberId != null) {
+            memberByIdMap[String(memberId)] = {
+              name: name || null,
+              department: row["dept"]?.toString() || null,
               phone: row["phone"]?.toString() || null,
             };
           }
@@ -82,28 +101,32 @@ const Complain = () => {
         
         const resultMap = {};
         resultRows.forEach((row) => {
-          resultMap[row["번호"]] = {
-            resultContent: row["처리 내용"],
-            resultPerson: row["처리자"],
-            resultDate: row["처리시간"]
+          resultMap[row["complain_id"]] = {
+            resultContent: row["process_content"],
+            resultPersonId: row["process_by"],
+            resultPerson: memberByIdMap[String(row["process_by"])]?.name || null,
+            resultDate: row["process_at"]
           };
         });
 
         const parsed = complainRows.map((row) => ({
-          id: row["번호"],
-          dept: row["부서"],
-          category: row["분류"],
-          title: row["제목"],
-          content: row["민원 내용"],
-          result: resultMap[row["번호"]]?.resultContent || null,
-          resultPerson: resultMap[row["번호"]]?.resultPerson || null,
-          resultDate: resultMap[row["번호"]]?.resultDate || null,
-          resultDept: memberMap[resultMap[row["번호"]]?.resultPerson]?.department || null,
-          resultPhone: memberMap[resultMap[row["번호"]]?.resultPerson]?.phone || null,
-          location: row["장소"],
-          status: row["상태"],
-          date: row["접수시간"],
-          image: row["사진"],
+          id: row["complain_id"],
+          complainBy: row["complain_by"] || null,
+          reporterName: memberByIdMap[String(row["complain_by"])]?.name || null,
+          reporterPhone: memberByIdMap[String(row["complain_by"])]?.phone || null,
+          dept: memberByIdMap[String(row["complain_by"])]?.department || null,
+          category: normalizeCategory(row["category_id"]),
+          title: row["complain_title"],
+          content: row["complain_content"],
+          result: resultMap[row["complain_id"]]?.resultContent || null,
+          resultPerson: resultMap[row["complain_id"]]?.resultPerson || null,
+          resultPersonId: resultMap[row["complain_id"]]?.resultPersonId || null,
+          resultDate: resultMap[row["complain_id"]]?.resultDate || null,
+          resultDept: memberByIdMap[String(resultMap[row["complain_id"]]?.resultPersonId)]?.department || null,
+          resultPhone: memberByIdMap[String(resultMap[row["complain_id"]]?.resultPersonId)]?.phone || null,
+          location: row["location"],
+          status: normalizeStatus(row["state"]),
+          date: row["complain_at"],
         }));
 
         setTableData(parsed);
@@ -114,6 +137,18 @@ const Complain = () => {
 
     loadExcel();
   }, []);
+
+  // 역할 기반 필터링
+  const roleFilteredData = tableData.filter((row) => {
+    if (!user) return true;
+    const role = user.role; // 라벨값: 사용자, 처리자, 관리자
+    if (role === "관리자") return true;
+    if (role === "처리자") return row.category === user.dept;
+    if (role === "사용자") {
+      return String(row.complainBy) === String(user.id);
+    }
+    return true;
+  });
 
   // 날짜 필터링 함수
   const filterByDate = (data) => {
@@ -132,7 +167,7 @@ const Complain = () => {
   };
 
   // 날짜 필터링 적용
-  const dateFilteredData = filterByDate(tableData);
+  const dateFilteredData = filterByDate(roleFilteredData);
 
   // 검색 필터링
   const searchFilteredData = dateFilteredData.filter((row) => {
@@ -263,6 +298,7 @@ const Complain = () => {
     if (isMobile) {
       navigate('/complain-detail', { state: { data: row } });
     } else {
+      setFromStorage(false);
       setSelectedComplain(row);
     }
   };
@@ -272,7 +308,12 @@ const Complain = () => {
 
       {/* MOBILE: 내 민원 제목 + 검색 */}
       <div className="mobile-header">
-        <h1 className="mobile-title">내 민원</h1>
+        <div className="mobile-title-row">
+          <h1 className="mobile-title">내 민원</h1>
+          {user?.role === "처리자" && user?.dept && (
+            <span className="mobile-dept-badge">{user.dept}</span>
+          )}
+        </div>
         <Search onSearchChange={handleSearchChange} />
       </div>
 
@@ -364,10 +405,17 @@ const Complain = () => {
             })}
           </div>
 
-          <button className="register-btn" onClick={() => setComplainFormOpen(true)}>
-            <Plus size={20} strokeWidth={2.5} />
-            <span>민원 작성하기</span>
-          </button>
+          {user?.role === "처리자" ? (
+            <button className="register-btn" onClick={() => setMyStorageOpen(true)}>
+              <FolderOpen size={20} strokeWidth={2.5} />
+              <span>내 보관함</span>
+            </button>
+          ) : (
+            <button className="register-btn" onClick={() => setComplainFormOpen(true)}>
+              <Plus size={20} strokeWidth={2.5} />
+              <span>민원 작성하기</span>
+            </button>
+          )}
 
         </div>
 
@@ -423,7 +471,7 @@ const Complain = () => {
                 <thead>
                   <tr>
                     <th>번호</th>
-                    <th className="col-category">분류</th>
+                    {user?.role !== "처리자" && <th className="col-category">분류</th>}
                     <th>제목</th>
                     <th>상태</th>
                   </tr>
@@ -432,7 +480,7 @@ const Complain = () => {
                   {currentData.map((row) => (
                     <tr key={row.id} onClick={() => handleRowClick(row)} style={{ cursor: 'pointer' }}>
                       <td>{row.id}</td>
-                      <td className="col-category">{row.category}</td>
+                      {user?.role !== "처리자" && <td className="col-category">{row.category}</td>}
                       <td className="title">{row.title}</td>
                       <td>
                         <Status status={row.status} />
@@ -471,9 +519,15 @@ const Complain = () => {
 
       {/* FAB */}
       <div className="fab">
-        <button className="fab-btn" onClick={() => setComplainFormOpen(true)}>
-          <Plus size={40} />
-        </button>
+        {user?.role === "처리자" ? (
+          <button className="fab-btn" onClick={() => setMyStorageOpen(true)}>
+            <FolderOpen size={40} />
+          </button>
+        ) : (
+          <button className="fab-btn" onClick={() => setComplainFormOpen(true)}>
+            <Plus size={40} />
+          </button>
+        )}
       </div>
 
       {/* 민원 접수 팝업 */}
@@ -485,14 +539,26 @@ const Complain = () => {
         }}
       />
 
+      {/* 내 보관함 팝업 (처리자) */}
+      <MyStorage
+        isOpen={myStorageOpen}
+        onClose={() => setMyStorageOpen(false)}
+        data={tableData.filter((row) => String(row.resultPersonId) === String(user?.id))}
+        onSelect={(row) => {
+          setFromStorage(true);
+          setSelectedComplain(row);
+        }}
+      />
+
       {/* 민원 상세 팝업 (데스크톱) */}
       <Detail
         isOpen={!!selectedComplain}
         onClose={() => setSelectedComplain(null)}
         data={selectedComplain}
+        fromStorage={fromStorage}
         onUpdate={(updated) => {
           setTableData((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-          setSelectedComplain(null);
+          setSelectedComplain(updated);
         }}
       />
 

@@ -13,7 +13,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     id: "",
     password: "",
-    role: "", // "user" or "manager"
+    role: "", // "사용자" or "처리자"
     name: "",
     dept: "",
     phone: "",

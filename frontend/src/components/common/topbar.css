@@ -23,6 +23,17 @@
   width: auto;
 }
 
+.topbar_dept-badge {
+  margin-left: 90px;
+  padding: 10px 20px;
+  background-color: var(--main-color-2);
+  color: white;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* 우측 상단 아이콘+텍스트 메뉴 — 콘텐츠 영역(1100px) 오른쪽 끝 기준 */
 .topbar_actions {
   display: none;
@@ -80,6 +91,10 @@
   .topbar_logo img {
     height: 35px;
     max-width: 180px;
+  }
+
+  .topbar_dept-badge {
+    display: none;
   }
 
   .topbar_actions {

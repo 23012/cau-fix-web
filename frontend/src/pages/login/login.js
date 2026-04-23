@@ -6,6 +6,7 @@ import LoginForm from "../../components/form/LoginForm";
 import hospitalBg from "../../assets/images/background-img.png";
 import * as XLSX from "xlsx";
 import loginDataFile from "../../assets/files/logindata.xlsx";
+import { normalizeRole } from "../../constants/roles";
 import "./login.css";
 import "../../styles/global.css";
 
@@ -27,12 +28,15 @@ const Login = () => {
         const rows = XLSX.utils.sheet_to_json(sheet);
 
         const parsed = rows.map((row) => ({
-          id: row["id"]?.toString() || "",
+          id: row["member_id"]?.toString() || "",
           password: row["password"]?.toString() || "",
           name: row["name"]?.toString() || "",
           dept: row["dept"]?.toString() || "",
           phone: row["phone"]?.toString() || "",
-          role: row["role"]?.toString() || "",
+          role: normalizeRole(row["role"]?.toString() || ""),
+          isApproved: row["is_approved"],
+          createdAt: row["created_at"]?.toString() || "",
+          lastLoginAt: row["last_login_at"]?.toString() || "",
         }));
 
         setLoginData(parsed);

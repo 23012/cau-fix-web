@@ -366,3 +366,57 @@
 .detail-confirm-btn.delete:hover {
   opacity: 0.9;
 }
+
+/* 상태 변경 팝업 */
+.detail-status-popup {
+  max-width: 340px;
+}
+
+.detail-status-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #333;
+  background: #fff;
+  margin-bottom: 20px;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.detail-status-select:focus {
+  outline: none;
+  border-color: var(--main-color);
+}
+
+.detail-confirm-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 처리 내용 작성 팝업 */
+.detail-process-popup {
+  max-width: 400px;
+}
+
+.detail-process-popup p{
+  font-weight : 600;
+  font-size : 18px;
+}
+
+.detail-process-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.detail-process-textarea:focus {
+  outline: none;
+  border-color: var(--main-color);
+}

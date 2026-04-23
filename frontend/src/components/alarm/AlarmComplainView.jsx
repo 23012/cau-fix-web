@@ -67,6 +67,8 @@ const AlarmComplainView = ({ data, onBack }) => {
               <h3 className="acv-title">{data.title}</h3>
               <Status status={data.status} />
             </div>
+            <div className="acv-row"><span className="acv-label">신고자</span><span className="acv-value">{data.reporterName || "-"}</span></div>
+            <div className="acv-row"><span className="acv-label">부서</span><span className="acv-value">{data.dept || "-"}</span></div>
             <div className="acv-row"><span className="acv-label">구분</span><span className="acv-value">{data.category || "-"}</span></div>
             <div className="acv-row"><span className="acv-label">장소</span><span className="acv-value">{data.location || "-"}</span></div>
             <div className="acv-row"><span className="acv-label">시간</span><span className="acv-value">{formatDate(data.date)}</span></div>

@@ -3,6 +3,8 @@ import * as XLSX from "xlsx";
 import alarmDataFile from "../assets/files/alarm-data.xlsx";
 import sampleFile from "../assets/files/sample.xlsx";
 import loginDataFile from "../assets/files/logindata.xlsx";
+import { normalizeStatus } from "../constants/status";
+import { normalizeCategory } from "../constants/categories";
 
 const parseExcelTime = (value) => {
   if (typeof value === "string") {
@@ -32,12 +34,14 @@ const useAlarms = () => {
         const alarmRows = XLSX.utils.sheet_to_json(alarmSheet);
 
         const parsedAlarms = alarmRows.map((row) => ({
-          id: row["id"],
-          title: row["title"] || "",
-          desc: row["desc"] || "",
-          time: parseExcelTime(row["time"]),
-          read: row["read"] === true || row["read"] === "true",
-          complainId: row["번호"] || null,
+          id: row["push_id"],
+          memberId: row["member_id"] || null,
+          title: row["push_content"] || "",
+          desc: `${row["push_content"] || ""} 민원이 ${normalizeStatus(row["state"])} 처리되었습니다.`,
+          time: parseExcelTime(row["push_at"]),
+          read: row["is_read"] === true || row["is_read"] === "true",
+          complainId: row["complain_id"] || null,
+          state: normalizeStatus(row["state"]) || "",
         }));
         setAlarms(parsedAlarms);
 
@@ -50,10 +54,19 @@ const useAlarms = () => {
         const loginSheet = loginWb.Sheets[loginWb.SheetNames[0]];
         const loginRows = XLSX.utils.sheet_to_json(loginSheet);
         const memberMap = {};
+        const memberByIdMap = {};
         loginRows.forEach((row) => {
           const name = row["name"]?.toString();
+          const memberId = row["member_id"];
           if (name) {
             memberMap[name] = {
+              department: row["dept"]?.toString() || null,
+              phone: row["phone"]?.toString() || null,
+            };
+          }
+          if (memberId != null) {
+            memberByIdMap[String(memberId)] = {
+              name: name || null,
               department: row["dept"]?.toString() || null,
               phone: row["phone"]?.toString() || null,
             };
@@ -67,28 +80,31 @@ const useAlarms = () => {
 
         const resultMap = {};
         resultRows.forEach((row) => {
-          resultMap[row["번호"]] = {
-            resultContent: row["처리 내용"],
-            resultPerson: row["처리자"],
-            resultDate: row["처리시간"],
+          resultMap[row["complain_id"]] = {
+            resultContent: row["process_content"],
+            resultPersonId: row["process_by"],
+            resultPerson: memberByIdMap[String(row["process_by"])]?.name || null,
+            resultDate: row["process_at"],
           };
         });
 
         const parsedComplains = complainRows.map((row) => ({
-          id: row["번호"],
-          dept: row["부서"],
-          category: row["분류"],
-          title: row["제목"],
-          content: row["민원 내용"],
-          result: resultMap[row["번호"]]?.resultContent || null,
-          resultPerson: resultMap[row["번호"]]?.resultPerson || null,
-          resultDate: resultMap[row["번호"]]?.resultDate || null,
-          resultDept: memberMap[resultMap[row["번호"]]?.resultPerson]?.department || null,
-          resultPhone: memberMap[resultMap[row["번호"]]?.resultPerson]?.phone || null,
-          location: row["장소"],
-          status: row["상태"],
-          date: row["접수시간"],
-          image: row["사진"],
+          id: row["complain_id"],
+          complainBy: row["complain_by"] || null,
+          reporterName: memberByIdMap[String(row["complain_by"])]?.name || null,
+          reporterPhone: memberByIdMap[String(row["complain_by"])]?.phone || null,
+          dept: memberByIdMap[String(row["complain_by"])]?.department || null,
+          category: normalizeCategory(row["category_id"]),
+          title: row["complain_title"],
+          content: row["complain_content"],
+          result: resultMap[row["complain_id"]]?.resultContent || null,
+          resultPerson: resultMap[row["complain_id"]]?.resultPerson || null,
+          resultDate: resultMap[row["complain_id"]]?.resultDate || null,
+          resultDept: memberByIdMap[String(resultMap[row["complain_id"]]?.resultPersonId)]?.department || null,
+          resultPhone: memberByIdMap[String(resultMap[row["complain_id"]]?.resultPersonId)]?.phone || null,
+          location: row["location"],
+          status: normalizeStatus(row["state"]),
+          date: row["complain_at"],
         }));
         setComplains(parsedComplains);
       } catch (error) {
@@ -98,10 +114,17 @@ const useAlarms = () => {
     loadData();
   }, []);
 
+  const user = useMemo(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  }, []);
+
   const recentAlarms = useMemo(() => {
     const sevenDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
-    return alarms.filter((a) => a.time >= sevenDaysAgo);
-  }, [alarms]);
+    return alarms
+      .filter((a) => a.time >= sevenDaysAgo)
+      .filter((a) => !user || String(a.memberId) === String(user.id));
+  }, [alarms, user]);
 
   const todayAlarms = recentAlarms.filter((a) => a.time.toDateString() === new Date().toDateString());
   const earlierAlarms = recentAlarms.filter((a) => a.time.toDateString() !== new Date().toDateString());

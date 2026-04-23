@@ -1,11 +1,10 @@
 import "./ProgressBar.css";
 
-const STEPS = ["접수전", "진행중", "완료"];
+const STEPS = ["접수전", "접수중", "진행중", "완료"];
 
 const ProgressBar = ({ status }) => {
   const currentIndex = STEPS.indexOf(status);
-  // 접수 상태는 접수전과 같은 단계로 처리
-  const activeIndex = status === "접수" ? 0 : currentIndex === -1 ? 0 : currentIndex;
+  const activeIndex = currentIndex === -1 ? 0 : currentIndex;
 
   return (
     <div className="progress-bar">

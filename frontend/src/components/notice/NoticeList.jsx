@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import noticeDataFile from "../../assets/files/notice-data.xlsx";
 import Search from "../common/search";
+import { normalizeNoticeCategory } from "../../constants/noticeCategories";
 import "./NoticeList.css";
 
-const TABS = ["전체", "안내", "업데이트", "점검"];
+const TABS = ["전체", "공지", "업데이트", "점검"];
 
 const NoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);
@@ -23,11 +24,11 @@ const NoticeList = ({ onSelect }) => {
 
         const parsed = rows.map((row) => ({
           id: row["notice_id"],
-          category: row["notice_category"] || "",
+          category: normalizeNoticeCategory(row["notice_category"] || ""),
           title: row["notice_title"] || "",
           content: row["notice_content"] || "",
-          date: row["notice_at"] || "",
-          author: row["notice_by"] || "",
+          date: row["noticed_at"] || "",
+          author: row["noticed_by"] || "",
         }));
 
         setNotices(parsed);

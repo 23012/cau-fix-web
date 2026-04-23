@@ -52,17 +52,17 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
       <div className="signup-role-row">
         <span className="signup-role-label">권한</span>
         <label className="signup-radio">
-          <input type="radio" name="role" value="user" checked={formData.role === "user"} onChange={onChange} disabled={loading} />
-          <span>user</span>
+          <input type="radio" name="role" value="C" checked={formData.role === "C"} onChange={onChange} disabled={loading} />
+          <span>사용자</span>
         </label>
         <label className="signup-radio">
-          <input type="radio" name="role" value="manager" checked={formData.role === "manager"} onChange={onChange} disabled={loading} />
-          <span>manager</span>
+          <input type="radio" name="role" value="E" checked={formData.role === "E"} onChange={onChange} disabled={loading} />
+          <span>처리자</span>
         </label>
       </div>
 
       <input type="text" name="name" placeholder="이름" value={formData.name} onChange={onChange} disabled={loading} className="input" />
-      {formData.role === "manager" ? (
+      {formData.role === "E" ? (
         <div className="form-field-select" onClick={() => setShowDeptDropdown(!showDeptDropdown)} style={{ padding: "12px 16px", border: "1px solid var(--back-color)", borderRadius: "8px", position: "relative", boxSizing: "border-box", fontSize: "1rem", lineHeight: "normal", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
           <span style={formData.dept ? { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 } : { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 }}>
             {formData.dept || "구분"}
