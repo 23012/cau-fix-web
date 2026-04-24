@@ -10,6 +10,7 @@ const FormPopup = ({ isOpen, onClose, title, children, onSubmit, submitLabel = "
         <button className="form-close-btn" onClick={onClose}>
           <X size={24} />
         </button>
+        <hr className="form-divider" />
 
         <div className="form-content">
           {title && <h2 className="form-title">{title}</h2>}

@@ -78,6 +78,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
     <div className="my-storage-overlay" onClick={onClose}>
       <div className="my-storage-popup" onClick={(e) => e.stopPropagation()}>
         <button className="my-storage-close" onClick={onClose}><X size={22} /></button>
+        <hr className="my-storage-divider" />
 
         <div className="my-storage-header">
           <FolderOpen size={24} color="#63C3D1" />
@@ -98,55 +99,55 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
           </div>
         </div>
 
-        {/* 상태 탭 + 필터/정렬 */}
-        <div className="my-storage-toolbar">
-          <div className="my-storage-tabs">
-            {STATUS_TABS.map((tab) => (
-              <button
-                key={tab}
-                className={`my-storage-tab ${activeStatus === tab ? "active" : ""}`}
-                onClick={() => { setActiveStatus(tab); setCurrentPage(1); }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div className="my-storage-controls">
-            <div style={{ position: "relative" }}>
-              <button className="my-storage-icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
-                <FilterIcon size={16} />
-              </button>
-              {filterOpen && (
-                <div className="my-storage-filter-panel" onClick={(e) => e.stopPropagation()}>
-                  <h4 className="my-storage-filter-title">기간</h4>
-                  <div className="my-storage-filter-dates">
-                    <div className="my-storage-filter-date-row">
-                      <input type="text" placeholder="년" maxLength="4" value={startDate.year} onChange={(e) => setStartDate({ ...startDate, year: e.target.value })} className="my-storage-filter-input" />
-                      <span>/</span>
-                      <input type="text" placeholder="월" maxLength="2" value={startDate.month} onChange={(e) => setStartDate({ ...startDate, month: e.target.value })} className="my-storage-filter-input" />
-                      <span>/</span>
-                      <input type="text" placeholder="일" maxLength="2" value={startDate.day} onChange={(e) => setStartDate({ ...startDate, day: e.target.value })} className="my-storage-filter-input" />
-                    </div>
-                    <span className="my-storage-filter-sep">~</span>
-                    <div className="my-storage-filter-date-row">
-                      <input type="text" placeholder="년" maxLength="4" value={endDate.year} onChange={(e) => setEndDate({ ...endDate, year: e.target.value })} className="my-storage-filter-input" />
-                      <span>/</span>
-                      <input type="text" placeholder="월" maxLength="2" value={endDate.month} onChange={(e) => setEndDate({ ...endDate, month: e.target.value })} className="my-storage-filter-input" />
-                      <span>/</span>
-                      <input type="text" placeholder="일" maxLength="2" value={endDate.day} onChange={(e) => setEndDate({ ...endDate, day: e.target.value })} className="my-storage-filter-input" />
-                    </div>
+        {/* 상태 탭 */}
+        <div className="my-storage-tabs">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab}
+              className={`my-storage-tab ${activeStatus === tab ? "active" : ""}`}
+              onClick={() => { setActiveStatus(tab); setCurrentPage(1); }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* 필터/정렬 */}
+        <div className="my-storage-controls">
+          <div style={{ position: "relative" }}>
+            <button className="my-storage-icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
+              <FilterIcon size={18} />
+            </button>
+            {filterOpen && (
+              <div className="my-storage-filter-panel" onClick={(e) => e.stopPropagation()}>
+                <h4 className="my-storage-filter-title">기간</h4>
+                <div className="my-storage-filter-dates">
+                  <div className="my-storage-filter-date-row">
+                    <input type="text" placeholder="년" maxLength="4" value={startDate.year} onChange={(e) => setStartDate({ ...startDate, year: e.target.value })} className="my-storage-filter-input" />
+                    <span>/</span>
+                    <input type="text" placeholder="월" maxLength="2" value={startDate.month} onChange={(e) => setStartDate({ ...startDate, month: e.target.value })} className="my-storage-filter-input" />
+                    <span>/</span>
+                    <input type="text" placeholder="일" maxLength="2" value={startDate.day} onChange={(e) => setStartDate({ ...startDate, day: e.target.value })} className="my-storage-filter-input" />
                   </div>
-                  <div className="my-storage-filter-actions">
-                    <button className="my-storage-filter-reset" onClick={resetFilter}>초기화</button>
-                    <button className="my-storage-filter-apply" onClick={() => { setFilterOpen(false); setCurrentPage(1); }}>적용</button>
+                  <span className="my-storage-filter-sep">~</span>
+                  <div className="my-storage-filter-date-row">
+                    <input type="text" placeholder="년" maxLength="4" value={endDate.year} onChange={(e) => setEndDate({ ...endDate, year: e.target.value })} className="my-storage-filter-input" />
+                    <span>/</span>
+                    <input type="text" placeholder="월" maxLength="2" value={endDate.month} onChange={(e) => setEndDate({ ...endDate, month: e.target.value })} className="my-storage-filter-input" />
+                    <span>/</span>
+                    <input type="text" placeholder="일" maxLength="2" value={endDate.day} onChange={(e) => setEndDate({ ...endDate, day: e.target.value })} className="my-storage-filter-input" />
                   </div>
                 </div>
-              )}
-            </div>
-            <select className="my-storage-sort" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
-              {SORT_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
-            </select>
+                <div className="my-storage-filter-actions">
+                  <button className="my-storage-filter-reset" onClick={resetFilter}>초기화</button>
+                  <button className="my-storage-filter-apply" onClick={() => { setFilterOpen(false); setCurrentPage(1); }}>적용</button>
+                </div>
+              </div>
+            )}
           </div>
+          <select className="my-storage-sort" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
+            {SORT_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
+          </select>
         </div>
 
         {/* 테이블 */}
@@ -170,7 +171,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
             </tbody>
           </table>
         </div>
-
+        <hr className="my-storage-divider" />      
         <div className="my-storage-pagination">
           <button className="my-storage-page-btn" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>&lt;</button>
           <span className="my-storage-page-info">{currentPage}/{totalPages || 1}</span>

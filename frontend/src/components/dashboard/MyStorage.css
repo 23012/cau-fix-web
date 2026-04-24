@@ -15,40 +15,45 @@
   width: 90%;
   max-width: 600px;
   height: 80vh;
-  padding: 32px 28px 24px;
+  padding: 16px 28px 24px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
 }
 
 .my-storage-close {
-  position: absolute;
-  top: 15px;
-  right: 27px;
+  align-self: flex-end;
   background: none;
   border: none;
   cursor: pointer;
   color: #888;
-  padding: 4px;
-  border-radius: 6px;
+  padding-right: 8px;
   transition: background 0.15s;
 }
 
 .my-storage-close:hover {
-  background: rgba(0, 0, 0, 0.06);
   color: #333;
+}
+
+.my-storage-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  padding: 0;
+  margin-top: 8px;
+  margin-bottom: 0px;
 }
 
 .my-storage-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
-  margin-top : 15px;
+  margin-top : 16px;
+  margin-bottom: 25px;
 }
 
 .my-storage-header h2 {
-  font-size: 26px;
+  font-size: 25px;
   font-weight: 700;
   margin: 0;
   color: #222;
@@ -80,6 +85,7 @@
 .my-storage-search-container {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .my-storage-search-wrapper {
@@ -88,29 +94,34 @@
   transition: width 0.3s ease-in-out;
   display: flex;
   align-items: center;
+  position: absolute;
+  right: 100%;
+  margin-right: 8px;
+  z-index: 10;
 }
 
 .my-storage-search-wrapper.open {
-  width: 200px;
+  width: 260px;
 }
 
 .my-storage-search-input {
   width: 100%;
   padding: 6px 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
   font-size: 13px;
   outline: none;
   transition: border-color 0.2s;
   height: 32px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  
 }
 
-.my-storage-search-input:focus {
+.search-input:focus {
   border-color: var(--main-color);
 }
 
 .my-storage-search-input::placeholder {
-  color: #bbb;
+  color: #999;
 }
 
 /* 상태 탭 + 정렬 */
@@ -126,17 +137,19 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .my-storage-tab {
-  padding: 6px 14px;
+  padding: 7px 16px;
   border: none;
   border-radius: 8px;
   background: #f0f0f0;
-  font-size: 14px;
+  font-size: 15px;
   color: #666;
   cursor: pointer;
   transition: all 0.15s;
+  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .my-storage-tab.active {
@@ -152,7 +165,10 @@
 .my-storage-controls {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
+  margin-bottom: 8px;
+  position: relative;
 }
 
 .my-storage-sort {
@@ -325,7 +341,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 0px;
   padding-top: 12px;
 }
 
@@ -360,17 +376,17 @@
   }
 
   .my-storage-toolbar {
-    flex-direction: column;
-    align-items: flex-start;
+    display: none;
   }
 
   .my-storage-tabs {
-    gap: 3px;
+    gap: 6px;
+    margin-bottom: 12px;
   }
 
   .my-storage-tab {
-    font-size: 11px;
-    padding: 4px 10px;
+    font-size: 13px;
+    padding: 6px 12px;
   }
 
   .my-storage-filter-dates {
