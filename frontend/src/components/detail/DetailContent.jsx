@@ -7,7 +7,7 @@ const DetailContent = ({
   setShowReporterProfile, formatDate,
   // menu props
   isEditor, fromStorage, user,
-  onStatusChange, onDelete, onEdit, onAddFolder, onAlreadyMine,
+  onStatusChange, onDelete, onEdit, onAddFolder, onAlreadyMine, onHasOtherPerson,
 }) => {
   return (
     <>
@@ -31,6 +31,7 @@ const DetailContent = ({
               onEdit={onEdit}
               onAddFolder={onAddFolder}
               onAlreadyMine={onAlreadyMine}
+              onHasOtherPerson={onHasOtherPerson}
               onClose={() => setMenuOpen(false)}
             />
           )}

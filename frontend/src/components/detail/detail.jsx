@@ -44,6 +44,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   const [showAddFolder, setShowAddFolder] = useState(false);
   const [showAddFolderSuccess, setShowAddFolderSuccess] = useState(false);
   const [showAlreadyMine, setShowAlreadyMine] = useState(false);
+  const [showHasOtherPerson, setShowHasOtherPerson] = useState(false);
 
   // 상태 변경
   const [showStatusChange, setShowStatusChange] = useState(false);
@@ -174,7 +175,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
       <div className="detail-tabs">
         <button className={`detail-tab ${activeTab === "content" ? "active" : ""}`} onClick={() => setActiveTab("content")}>민원 내용</button>
-        <button className={`detail-tab ${activeTab === "result" ? "active" : ""}`} onClick={() => data.status === "완료" ? setActiveTab("result") : setShowNoResultPopup(true)}>처리 내용</button>
+        <button className={`detail-tab ${activeTab === "result" ? "active" : ""}`} onClick={() => setActiveTab("result")}>처리 내용</button>
       </div>
 
       {activeTab === "content" ? (
@@ -195,13 +196,11 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           onEdit={handleEdit}
           onAddFolder={() => setShowAddFolder(true)}
           onAlreadyMine={() => setShowAlreadyMine(true)}
+          onHasOtherPerson={() => setShowHasOtherPerson(true)}
         />
       ) : (
         <DetailResult data={data} formatDate={formatDate} onShowProfile={() => setShowProfile(true)} />
       )}
-
-      {/* 처리 미완료 안내 */}
-      <ConfirmPopup isOpen={showNoResultPopup} message={<>아직 민원 처리가 완료되지 않았습니다.<br />처리가 완료되면<br />내용을 확인하실 수 있습니다.</>} onConfirm={() => setShowNoResultPopup(false)} />
 
       {/* 프로필 팝업 */}
       <ProfilePopup isOpen={showProfile} onClose={() => setShowProfile(false)} name={data.resultPerson} dept={data.resultDept} phone={data.resultPhone} />
@@ -219,13 +218,16 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       <ConfirmPopup isOpen={showDeleteSuccess} message="삭제가 완료되었습니다." onConfirm={() => { setShowDeleteSuccess(false); onClose(); }} />
 
       {/* 내 폴더 추가 확인 */}
-      <ConfirmPopup isOpen={showAddFolder} message="내 폴더에 추가하시겠습니까?" cancelLabel="취소" onCancel={() => setShowAddFolder(false)} confirmLabel="추가" onConfirm={() => { setShowAddFolder(false); onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name }); setShowAddFolderSuccess(true); }} />
+      <ConfirmPopup isOpen={showAddFolder} message="내 폴더에 추가하시겠습니까?" cancelLabel="취소" onCancel={() => setShowAddFolder(false)} confirmLabel="추가" onConfirm={() => { setShowAddFolder(false); onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name, status: data.status === "접수전" ? "접수중" : data.status }); setShowAddFolderSuccess(true); }} />
 
       {/* 내 폴더 추가 완료 */}
       <ConfirmPopup isOpen={showAddFolderSuccess} message="내 폴더에 추가되었습니다." onConfirm={() => setShowAddFolderSuccess(false)} />
 
       {/* 이미 내 민원 */}
       <ConfirmPopup isOpen={showAlreadyMine} message={<>{data.resultPerson || user?.name} 님이 담당자입니다.<br />내 폴더에서 확인 바랍니다.</>} onConfirm={() => setShowAlreadyMine(false)} />
+
+      {/* 다른 담당자가 있는 경우 */}
+      <ConfirmPopup isOpen={showHasOtherPerson} message={<>이미 담당자({data.resultPerson})가 배정되어 있어<br />내 폴더에 추가할 수 없습니다.</>} onConfirm={() => setShowHasOtherPerson(false)} />
 
       {/* 상태 변경 */}
       <StatusChangePopup isOpen={showStatusChange} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onCancel={() => { setShowStatusChange(false); setSelectedStatus(""); }} onNext={handleStatusNext} />

@@ -1,4 +1,4 @@
-const DetailMenu = ({ isEditor, fromStorage, data, user, onStatusChange, onDelete, onEdit, onAddFolder, onAlreadyMine, onClose }) => {
+const DetailMenu = ({ isEditor, fromStorage, data, user, onStatusChange, onDelete, onEdit, onAddFolder, onAlreadyMine, onHasOtherPerson, onClose }) => {
   if (!isEditor) {
     // 처리자
     if (fromStorage) {
@@ -21,6 +21,8 @@ const DetailMenu = ({ isEditor, fromStorage, data, user, onStatusChange, onDelet
             onClose();
             if (String(data.resultPersonId) === String(user?.id)) {
               onAlreadyMine();
+            } else if (data.resultPersonId) {
+              onHasOtherPerson();
             } else {
               onAddFolder();
             }

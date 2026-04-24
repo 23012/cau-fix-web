@@ -6,6 +6,11 @@
 export const parseExcelDate = (value) => {
   if (value == null) return null;
 
+  // 이미 Date 객체인 경우
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? null : value;
+  }
+
   let dateObj;
 
   if (typeof value === "number" || !isNaN(parseFloat(value))) {
