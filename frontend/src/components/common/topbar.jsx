@@ -67,7 +67,7 @@ const TopBar = () => {
 
   return (
     <div className="topbar">
-      <div className="topbar_logo">
+      <div className="topbar_logo" onClick={() => navigate("/complain-dashboard")} style={{ cursor: "pointer" }}>
         <img src={logo} alt="중앙대학교광명병원 로고" />
         {user?.role === "처리자" && user?.dept && (
           <span className="topbar_dept-badge">{user.dept}</span>
