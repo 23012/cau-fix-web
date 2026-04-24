@@ -3,6 +3,17 @@
     body {
         font-size: 14px;
     }
+
+    html, body {
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 /* 태블릿 (769px ~ 1024px) */
