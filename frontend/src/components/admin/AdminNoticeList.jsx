@@ -18,7 +18,7 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("최신순");
+  const [sortOrder, setSortOrder] = useState("번호순");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -129,10 +129,9 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
             <option value="최신순">최신순</option>
             <option value="오래된순">오래된순</option>
           </select>
-          <input type="date" className="admin-date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }} />
-          <span>~</span>
-          <input type="date" className="admin-date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }} />
-          <button className="admin-excel-btn" onClick={handleExcelDownload}>Excel</button>
+          <button className="admin-write-btn" onClick={() => setNoticeFormOpen(true)}>
+            <span>작성하기</span>
+          </button>
         </div>
       </div>
 
@@ -141,7 +140,7 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
         <table className="admin-table notice-table">
           <thead>
             <tr>
-              <th>번호</th><th>카테고리</th><th>제목</th>
+              <th>번호</th><th>분류</th><th>제목</th>
               <th>작성자</th><th>작성일자</th><th>수정일자</th>
             </tr>
           </thead>
@@ -169,10 +168,6 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
         <span>{currentPage} / {totalPages}</span>
         <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}>다음</button>
       </div>
-      <button className="admin-write-btn" onClick={() => setNoticeFormOpen(true)}>
-        <span>작성하기</span>
-      </button>
-
       {/* 공지사항 작성 팝업 */}
       {/* TODO: 백엔드 연결 시 onSubmit에서 POST /api/notices 호출 */}
       <NoticeForm

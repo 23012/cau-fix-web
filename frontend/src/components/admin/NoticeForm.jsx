@@ -1,17 +1,15 @@
-import { useState, useEffect } from "react";
-import { ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronRight, Camera } from "lucide-react";
 import FormPopup from "../form/FormPopup";
+import ImagePreview from "../common/ImagePreview";
 import { NOTICE_CATEGORIES } from "../../constants/noticeCategories";
 
-/**
- * 공지사항 작성/수정 폼
- * TODO: 백엔드 연결 시 onSubmit에서
- *   - 신규: POST /api/notices { title, category, content }
- *   - 수정: PUT /api/notices/{id} { title, category, content }
- */
 const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   const [formData, setFormData] = useState({ title: "", category: "", content: "" });
   const [showCategory, setShowCategory] = useState(false);
+  const [images, setImages] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const fileInputRef = useRef(null);
   const isEdit = !!editData;
 
   useEffect(() => {
@@ -19,6 +17,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
       setFormData({ title: editData.title || "", category: editData.category || "", content: editData.content || "" });
     } else if (!isOpen) {
       setFormData({ title: "", category: "", content: "" });
+      setImages([]);
     }
   }, [isOpen, editData]);
 
@@ -29,17 +28,57 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const addImageFiles = useCallback((files) => {
+    if (images.length + files.length > 10) {
+      alert("사진은 최대 10장까지 첨부할 수 있습니다.");
+      return;
+    }
+    const newImages = files.map((f) => ({ file: f, preview: URL.createObjectURL(f) }));
+    setImages((prev) => [...prev, ...newImages]);
+  }, [images.length]);
+
+  const handleImageAdd = (e) => {
+    addImageFiles(Array.from(e.target.files));
+    e.target.value = "";
+  };
+
+  const handleImageRemove = (index) => {
+    setImages((prev) => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  // 클립보드 붙여넣기 (Ctrl+V)
+  const handlePaste = useCallback((e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const imageFiles = [];
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) imageFiles.push(file);
+      }
+    }
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      addImageFiles(imageFiles);
+    }
+  }, [addImageFiles]);
+
   const handleSubmit = () => {
     if (!formData.title.trim()) { alert("제목을 입력해주세요."); return; }
     if (!formData.category) { alert("카테고리를 선택해주세요."); return; }
     if (!formData.content.trim()) { alert("내용을 입력해주세요."); return; }
-    onSubmit?.({ ...formData, date: dateStr, ...(editData ? { id: editData.id } : {}) });
+    onSubmit?.({ ...formData, date: dateStr, images, ...(editData ? { id: editData.id } : {}) });
     setFormData({ title: "", category: "", content: "" });
+    setImages([]);
     onClose();
   };
 
   const handleClose = () => {
     setFormData({ title: "", category: "", content: "" });
+    setImages([]);
     setShowCategory(false);
     onClose();
   };
@@ -70,9 +109,22 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
         <span className="form-field-value">{dateStr}</span>
       </div>
 
-      <div className="form-field">
-        <textarea className="form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} style={{ minHeight: "350px" }} />
+      <div className="form-field" onPaste={handlePaste}>
+        <textarea className="form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} style={{ minHeight: "250px" }} />
       </div>
+
+      <div className="form-images">
+        {images.map((img, i) => (
+          <div key={i} className="form-image-preview">
+            <img src={img.preview} alt={`첨부 ${i + 1}`} onClick={() => setPreviewImage(img.preview)} />
+            <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ fontSize: "12px", color: "#999", marginTop: "8px" }}>* 이미지 첨부 시 붙여넣기를 이용해주세요. (Ctrl+V)</p>
+
+      <ImagePreview src={previewImage} alt="첨부 사진" onClose={() => setPreviewImage(null)} />
     </FormPopup>
   );
 };

@@ -17,7 +17,7 @@ const AdminComplainList = () => {
   const [selectedComplain, setSelectedComplain] = useState(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [sortOrder, setSortOrder] = useState("최신순");
+  const [sortOrder, setSortOrder] = useState("번호순");
   const itemsPerPage = 15;
 
   /* 필터 + 정렬 */
