@@ -7,6 +7,10 @@ import "./NoticeList.css";
 
 const TABS = ["전체", "공지", "업데이트", "점검"];
 
+/**
+ * 사용자용 공지사항 목록
+ * TODO: 백엔드 연결 시 Excel 로딩을 GET /api/notices?tab={tab}&search={query} 로 교체
+ */
 const NoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");

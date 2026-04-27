@@ -6,6 +6,10 @@ import sampleFile from "../../assets/files/sample.xlsx";
 import { CATEGORIES } from "../../constants/categories";
 import { STATUS_COLORS, normalizeStatus } from "../../constants/status";
 
+/**
+ * 관리자 대시보드 (카테고리별 통계 + 차트)
+ * TODO: 백엔드 연결 시 Excel 로딩을 GET /api/dashboard/stats?year={}&month={} 로 교체
+ */
 const AdminDashboard = () => {
   const [tableData, setTableData] = useState([]);
   const [selectedYear, setSelectedYear] = useState("전체");

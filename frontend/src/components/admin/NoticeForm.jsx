@@ -1,26 +1,22 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import FormPopup from "../form/FormPopup";
+import { NOTICE_CATEGORIES } from "../../constants/noticeCategories";
 
-const NOTICE_CATEGORIES = ["공지", "업데이트", "점검"];
-
+/**
+ * 공지사항 작성/수정 폼
+ * TODO: 백엔드 연결 시 onSubmit에서
+ *   - 신규: POST /api/notices { title, category, content }
+ *   - 수정: PUT /api/notices/{id} { title, category, content }
+ */
 const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    category: "",
-    content: "",
-  });
+  const [formData, setFormData] = useState({ title: "", category: "", content: "" });
   const [showCategory, setShowCategory] = useState(false);
-
   const isEdit = !!editData;
 
   useEffect(() => {
     if (isOpen && editData) {
-      setFormData({
-        title: editData.title || "",
-        category: editData.category || "",
-        content: editData.content || "",
-      });
+      setFormData({ title: editData.title || "", category: editData.category || "", content: editData.content || "" });
     } else if (!isOpen) {
       setFormData({ title: "", category: "", content: "" });
     }
@@ -34,18 +30,9 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   };
 
   const handleSubmit = () => {
-    if (!formData.title.trim()) {
-      alert("제목을 입력해주세요.");
-      return;
-    }
-    if (!formData.category) {
-      alert("카테고리를 선택해주세요.");
-      return;
-    }
-    if (!formData.content.trim()) {
-      alert("내용을 입력해주세요.");
-      return;
-    }
+    if (!formData.title.trim()) { alert("제목을 입력해주세요."); return; }
+    if (!formData.category) { alert("카테고리를 선택해주세요."); return; }
+    if (!formData.content.trim()) { alert("내용을 입력해주세요."); return; }
     onSubmit?.({ ...formData, date: dateStr, ...(editData ? { id: editData.id } : {}) });
     setFormData({ title: "", category: "", content: "" });
     onClose();
@@ -60,13 +47,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   return (
     <FormPopup isOpen={isOpen} onClose={handleClose} title={isEdit ? "공지사항 수정" : "공지사항 작성"} onSubmit={handleSubmit} submitLabel={isEdit ? "수정" : "등록"}>
       <div className="form-field">
-        <input
-          type="text"
-          className="form-input"
-          placeholder="제목"
-          value={formData.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-        />
+        <input type="text" className="form-input" placeholder="제목" value={formData.title} onChange={(e) => handleChange("title", e.target.value)} />
       </div>
 
       <div className="form-field form-field-select" onClick={() => setShowCategory(!showCategory)}>
@@ -77,14 +58,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
         {showCategory && (
           <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
             {NOTICE_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                className={`form-dropdown-item ${formData.category === cat ? "active" : ""}`}
-                onClick={() => {
-                  handleChange("category", cat);
-                  setShowCategory(false);
-                }}
-              >
+              <button key={cat} className={`form-dropdown-item ${formData.category === cat ? "active" : ""}`} onClick={() => { handleChange("category", cat); setShowCategory(false); }}>
                 {cat}
               </button>
             ))}
@@ -97,13 +71,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
       </div>
 
       <div className="form-field">
-        <textarea
-          className="form-textarea"
-          placeholder="내용을 입력하세요"
-          value={formData.content}
-          onChange={(e) => handleChange("content", e.target.value)}
-          style={{ minHeight: "350px" }}
-        />
+        <textarea className="form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} style={{ minHeight: "350px" }} />
       </div>
     </FormPopup>
   );

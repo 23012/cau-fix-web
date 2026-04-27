@@ -2,6 +2,10 @@ import "./Form.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * 로그인 폼
+ * TODO: 백엔드 연결 시 onSubmit에서 POST /api/auth/login { id, password } 호출
+ */
 const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
   const navigate = useNavigate();
   const [rememberMe, setRememberMe] = useState(false);

@@ -6,6 +6,12 @@ import "../form/FormPopup.css";
 import { DEPARTMENTS } from "../../constants/categories";
 
 
+/**
+ * 회원가입 폼
+ * TODO: 백엔드 연결 시
+ *   - 중복확인: GET /api/auth/check-id?id={id}
+ *   - 회원가입: POST /api/auth/signup { id, password, name, role, dept, phone }
+ */
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {
   const navigate = useNavigate();
   const [passwordConfirm, setPasswordConfirm] = useState("");

@@ -9,9 +9,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 20px 0;
+  padding: 20px 0px;
   border-bottom: none;
-  margin: 0;
+  margin-left: -30px;
   width: auto;
   background-color: #fff;
 }
@@ -24,7 +24,7 @@
 }
 
 .topbar_dept-badge {
-  margin-left: 90px;
+  margin-left: 20px;
   padding: 10px 20px;
   background-color: var(--main-color-2);
   color: white;
@@ -107,7 +107,7 @@
 /* 태블릿 */
 @media (min-width: 769px) and (max-width: 1024px) {
   .topbar_logo {
-    padding: 18px 25px;
+    padding: 18px 10px;
   }
 
   .topbar_logo img {
@@ -123,9 +123,7 @@
 
 /* PC */
 @media (min-width: 1025px) {
-  .topbar_logo {
-    padding: 20px 40px;
-  }
+
 
   .topbar_logo img {
     height: 65px;

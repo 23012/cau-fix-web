@@ -9,10 +9,20 @@ import DetailContent from "./DetailContent";
 import DetailResult from "./DetailResult";
 import StatusChangePopup from "./StatusChangePopup";
 import ProcessForm from "./ProcessForm";
-import { useState, useRef, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { CATEGORIES } from "../../constants/categories";
-import { parseExcelDate } from "../../utils/parseExcelDate";
+import { formatDate } from "../../utils/formatDate";
+import useImageUpload from "../../hooks/useImageUpload";
 
+/**
+ * 민원 상세 팝업 (읽기 + 수정 모드)
+ * TODO: 백엔드 연결 시
+ *   - 수정: PUT /api/complains/{id} (editData + editImages)
+ *   - 삭제: DELETE /api/complains/{id}
+ *   - 상태 변경: PATCH /api/complains/{id}/status { status }
+ *   - 처리 완료: POST /api/complains/{id}/process { content, images }
+ *   - 내 폴더 추가: POST /api/complains/{id}/assign { userId }
+ */
 const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromStorage = false }) => {
   const user = useMemo(() => {
     const stored = localStorage.getItem("user");
@@ -23,14 +33,12 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
 
   // 수정 모드
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
   const [showCategory, setShowCategory] = useState(false);
-  const [editImages, setEditImages] = useState([]);
-  const fileInputRef = useRef(null);
+  const { images: editImages, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();
 
   // 프로필 팝업
   const [showProfile, setShowProfile] = useState(false);
@@ -54,22 +62,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // 처리 내용 작성
   const [showProcessForm, setShowProcessForm] = useState(false);
   const [processContent, setProcessContent] = useState("");
-  const [processImages, setProcessImages] = useState([]);
   const [showProcessSuccess, setShowProcessSuccess] = useState(false);
 
   if (!isOpen || !data) return null;
-
-  const formatDate = (value) => {
-    if (!value) return "-";
-    const dateObj = parseExcelDate(value);
-    if (!dateObj) return "-";
-    const y = dateObj.getFullYear();
-    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const d = String(dateObj.getDate()).padStart(2, "0");
-    const h = String(dateObj.getHours()).padStart(2, "0");
-    const min = String(dateObj.getMinutes()).padStart(2, "0");
-    return `${y}-${m}-${d} ${h}:${min}`;
-  };
 
   const getImagePath = (name) => {
     if (!name) return null;
@@ -81,7 +76,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // --- 수정 모드 핸들러 ---
   const handleEdit = () => {
     setEditData({ title: data.title || "", category: data.category || "", location: data.location || "", content: data.content || "" });
-    setEditImages([]);
+    resetImages();
     setEditMode(true);
     setMenuOpen(false);
   };
@@ -92,23 +87,11 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
     setShowEditSuccess(true);
   };
 
-  const handleImageAdd = (e) => {
-    const files = Array.from(e.target.files);
-    if (editImages.length + files.length > 10) { alert("사진은 최대 10장까지 첨부할 수 있습니다."); return; }
-    setEditImages((prev) => [...prev, ...files.map((f) => ({ file: f, preview: URL.createObjectURL(f) }))]);
-    e.target.value = "";
-  };
-
-  const handleImageRemove = (i) => {
-    setEditImages((prev) => { URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i); });
-  };
-
   // --- 상태 변경 핸들러 ---
   const handleStatusNext = () => {
     setShowStatusChange(false);
     if (selectedStatus === "완료") {
       setProcessContent("");
-      setProcessImages([]);
       setShowProcessForm(true);
     } else {
       onUpdate?.({ ...data, status: selectedStatus });
@@ -117,10 +100,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
     setSelectedStatus("");
   };
 
-  const handleProcessSubmit = () => {
+  const handleProcessSubmit = (processImages) => {
     setShowProcessForm(false);
     onUpdate?.({ ...data, status: "완료", result: processContent, resultDate: new Date(), processImages });
-    setProcessImages([]);
     setShowProcessSuccess(true);
   };
 
@@ -176,27 +158,16 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       <div className="detail-tabs">
         <button className={`detail-tab ${activeTab === "content" ? "active" : ""}`} onClick={() => setActiveTab("content")}>민원 내용</button>
         <button className={`detail-tab ${activeTab === "result" ? "active" : ""}`} onClick={() => {
-          if (data.status === "접수전") {
-            setShowNoResultPopup(true);
-          } else {
-            setActiveTab("result");
-          }
+          if (data.status === "접수전") { setShowNoResultPopup(true); } else { setActiveTab("result"); }
         }}>처리 내용</button>
       </div>
 
       {activeTab === "content" ? (
         <DetailContent
-          data={data}
-          imagePath={imagePath}
-          menuOpen={menuOpen}
-          setMenuOpen={setMenuOpen}
-          setPreviewImage={setPreviewImage}
-          setImageError={setImageError}
-          setShowReporterProfile={setShowReporterProfile}
-          formatDate={formatDate}
-          isEditor={isEditor}
-          fromStorage={fromStorage}
-          user={user}
+          data={data} imagePath={imagePath} menuOpen={menuOpen} setMenuOpen={setMenuOpen}
+          setPreviewImage={setPreviewImage} setImageError={setImageError}
+          setShowReporterProfile={setShowReporterProfile} formatDate={formatDate}
+          isEditor={isEditor} fromStorage={fromStorage} user={user}
           onStatusChange={() => setShowStatusChange(true)}
           onDelete={() => setShowDeleteConfirm(true)}
           onEdit={handleEdit}
@@ -217,34 +188,24 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       {/* 수정 완료 */}
       <ConfirmPopup isOpen={showEditSuccess} message="수정이 완료되었습니다." onConfirm={() => { onUpdate?.({ ...data, ...editData, images: editImages }); setShowEditSuccess(false); }} />
 
-      {/* 삭제 확인 */}
+      {/* 삭제 확인/완료 */}
       <ConfirmPopup isOpen={showDeleteConfirm} message={isEditor ? <>삭제된 민원은 복구할 수 없습니다.<br />정말 삭제하시겠습니까?</> : "내 폴더에서 삭제하시겠습니까?"} cancelLabel="취소" onCancel={() => setShowDeleteConfirm(false)} confirmLabel="삭제" confirmType="delete" onConfirm={() => { setShowDeleteConfirm(false); setShowDeleteSuccess(true); }} />
-
-      {/* 삭제 완료 */}
       <ConfirmPopup isOpen={showDeleteSuccess} message="삭제가 완료되었습니다." onConfirm={() => { setShowDeleteSuccess(false); onClose(); }} />
 
-      {/* 내 폴더 추가 확인 */}
+      {/* 내 폴더 추가 */}
       <ConfirmPopup isOpen={showAddFolder} message="내 폴더에 추가하시겠습니까?" cancelLabel="취소" onCancel={() => setShowAddFolder(false)} confirmLabel="추가" onConfirm={() => { setShowAddFolder(false); onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name, status: data.status === "접수전" ? "접수중" : data.status }); setShowAddFolderSuccess(true); }} />
-
-      {/* 내 폴더 추가 완료 */}
       <ConfirmPopup isOpen={showAddFolderSuccess} message="내 폴더에 추가되었습니다." onConfirm={() => setShowAddFolderSuccess(false)} />
 
-      {/* 이미 내 민원 */}
+      {/* 이미 내 민원 / 다른 담당자 */}
       <ConfirmPopup isOpen={showAlreadyMine} message={<>{data.resultPerson || user?.name} 님이 담당자입니다.<br />내 폴더에서 확인 바랍니다.</>} onConfirm={() => setShowAlreadyMine(false)} />
-
-      {/* 다른 담당자가 있는 경우 */}
       <ConfirmPopup isOpen={showHasOtherPerson} message={<>이미 담당자({data.resultPerson})가 배정되어 있어<br />내 폴더에 추가할 수 없습니다.</>} onConfirm={() => setShowHasOtherPerson(false)} />
 
       {/* 상태 변경 */}
       <StatusChangePopup isOpen={showStatusChange} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onCancel={() => { setShowStatusChange(false); setSelectedStatus(""); }} onNext={handleStatusNext} />
-
-      {/* 상태 변경 완료 */}
       <ConfirmPopup isOpen={showStatusSuccess} message="민원 진행 상태가 변경되었습니다." onConfirm={() => setShowStatusSuccess(false)} />
 
       {/* 처리 내용 작성 */}
-      <ProcessForm isOpen={showProcessForm} content={processContent} setContent={setProcessContent} images={processImages} setImages={setProcessImages} previewImage={previewImage} setPreviewImage={setPreviewImage} onCancel={() => { setShowProcessForm(false); setProcessImages([]); }} onSubmit={handleProcessSubmit} />
-
-      {/* 처리 완료 */}
+      <ProcessForm isOpen={showProcessForm} content={processContent} setContent={setProcessContent} onCancel={() => setShowProcessForm(false)} onSubmit={handleProcessSubmit} />
       <ConfirmPopup isOpen={showProcessSuccess} message="처리가 완료되었습니다." onConfirm={() => setShowProcessSuccess(false)} />
 
       {/* 접수전 - 담당자 미배정 */}

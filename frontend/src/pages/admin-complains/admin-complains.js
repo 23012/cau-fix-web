@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import TopBar from '../../components/common/topbar';
 import MenuBar from '../../components/common/menubar';
 import AdminComplainList from '../../components/admin/AdminComplainList';

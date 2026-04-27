@@ -69,10 +69,10 @@ const TopBar = () => {
     <div className="topbar">
       <div className="topbar_logo" onClick={() => navigate("/complain-dashboard")} style={{ cursor: "pointer" }}>
         <img src={logo} alt="중앙대학교광명병원 로고" />
-        {user?.role === "처리자" && user?.dept && (
+      </div>
+      {user?.role === "처리자" && user?.dept && (
           <span className="topbar_dept-badge">{user.dept}</span>
         )}
-      </div>
       <div className="topbar_actions">
         <div className="topbar_action-wrapper">
           <button
