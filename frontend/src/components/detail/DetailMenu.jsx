@@ -8,7 +8,7 @@ const DetailMenu = ({ isEditor, fromStorage, data, user, onStatusChange, onDelet
             상태 변경
           </button>
           <button className="detail-menu-item delete" onClick={() => { onDelete(); onClose(); }}>
-            내 폴더에서<br />삭제하기
+            내 처리 현황에서<br />빼기
           </button>
         </div>
       );
@@ -28,14 +28,15 @@ const DetailMenu = ({ isEditor, fromStorage, data, user, onStatusChange, onDelet
             }
           }}
         >
-          내 폴더에 추가
+          내 처리현황에 추가
         </button>
       </div>
     );
   }
 
   // 사용자/관리자
-  const canEdit = data.status === "접수전";
+  const isAdmin = user?.role === "관리자" || user?.role === "admin" || user?.role === "A";
+  const canEdit = isAdmin || data.status === "접수전";
   return (
     <div className="detail-menu-popup">
       <button

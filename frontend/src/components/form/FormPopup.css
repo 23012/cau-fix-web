@@ -337,10 +337,5 @@
 }
 
 .form-divider {
-  width: 100%;
-  border: none;
-  border-top: 1px solid #e0e0e0;
-  position: absolute;
-  top: 56px;
-  left: 0;
+  display: none;
 }

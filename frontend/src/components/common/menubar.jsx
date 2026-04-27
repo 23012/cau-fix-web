@@ -1,28 +1,44 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, ClipboardList, Bell, User } from "lucide-react";
+import { normalizeRole } from "../../constants/roles";
 import "./menubar.css";
 
-const menuItems = [
-  { name: "내 민원", Icon: LayoutDashboard, order: 2, path: "/complain-dashboard" },
-  { name: "공지사항", Icon: ClipboardList, order: 1, path: "/notice" },
-  { name: "알림", Icon: Bell, order: 3, path: "/alarm-list", mobileOnly: true },
-  { name: "내 정보", Icon: User, order: 4, path: "/myinfo", mobileOnly: true }
-];
+const getMenuItems = (role) => {
+  const dashboardName = role === "관리자" ? "대시보드" : "내 민원";
+  const items = [
+    { name: dashboardName, Icon: LayoutDashboard, order: 1, path: "/complain-dashboard" },
+    { name: "공지사항", Icon: ClipboardList, order: 3, path: "/notice" },
+    { name: "알림", Icon: Bell, order: 4, path: "/alarm-list", mobileOnly: true },
+    { name: "내 정보", Icon: User, order: 5, path: "/myinfo", mobileOnly: true }
+  ];
+  if (role === "관리자") {
+    items.splice(1, 0, { name: "민원 리스트", Icon: ClipboardList, order: 2, path: "/admin/complains" });
+  }
+  return items;
+};
 
 const MenuBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [user, setUser] = useState(null);
 
-  // 현재 경로에 따라 activeIndex 설정
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
+
+  const role = normalizeRole(user?.role || "");
+  const menuItems = getMenuItems(role);
+
   useEffect(() => {
     const currentIndex = menuItems.findIndex(item => item.path === location.pathname);
     if (currentIndex !== -1) {
       setActiveIndex(currentIndex);
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuItems]);
 
   const handleMenuClick = (index, path) => {
     setActiveIndex(index);

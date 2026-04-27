@@ -68,8 +68,8 @@
 .chart-container {
   position: relative;
   width: 100%;
-  max-width: 300px;
-  margin-bottom: 28px;
+  max-width: 400px;
+  margin-bottom: 10px;
 }
 
 .chart {
@@ -79,7 +79,7 @@
 
 .chart-center-label {
   position: absolute;
-  top: 50%;
+  top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
@@ -87,16 +87,16 @@
 }
 
 .chart-center-count {
-  font-size: 46px;
+  font-size: 60px;
   font-weight: 800;
   color: #333;
 }
 
 .chart-center-unit {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 600;
   color: #666;
-  margin-left: 1px;
+  margin-left: 2px;
 }
 
 /* REGISTER BUTTON */
@@ -150,6 +150,39 @@
   border-radius: 0.75rem;
   background-color: white;
   overflow: visible;
+}
+
+/* CHART STATUS SUMMARY */
+
+.chart-status-summary {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.chart-status-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+}
+
+.chart-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-status-name {
+  color: black;
+  font-weight: 800;
+}
+
+.chart-status-count {
+  font-weight: 700;
 }
 
 /* CHART DIVIDER */
@@ -287,6 +320,7 @@
   white-space: nowrap;
   transition: color 0.2s, border-color 0.2s;
   margin-top : 0px;
+  margin-right : 0px;
 }
 
 .status-tab.active {
@@ -354,7 +388,12 @@
 /* 컬럼 너비 지정 */
 .table th:first-child,
 .table td:first-child {
-  width: 180px;
+  width: 120px;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  width: 120px;
 }
 
 .table th:last-child,
@@ -362,9 +401,6 @@
   width: 200px;
 }
 
-.col-category {
-  width: 200px;
-}
 
 .title {
   font-weight: 500;
@@ -373,6 +409,65 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 180px;
+}
+
+/* FAVORITE */
+
+.col-fav {
+  width: 120px !important;
+  text-align: center;
+  cursor: pointer;
+}
+
+.fav-icon {
+  transition: all 0.2s;
+}
+
+.fav-icon:hover {
+  transform: scale(1.2);
+}
+
+.fav-active {
+  filter: drop-shadow(0 1px 2px rgba(255, 210, 63, 0.4));
+}
+
+/* FAVORITE BUTTON */
+
+.favorite-btn {
+  background: white !important;
+  color: var(--yellow) !important;
+  border: 2px solid var(--yellow) !important;
+  margin-bottom: 10px;
+}
+
+.favorite-btn:hover {
+  background: var(--yellow) !important;
+  color: white !important;
+}
+
+/* STORAGE BUTTON */
+
+.storage-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  margin-left : -240px;
+  margin-bottom: 20px;
+  background: var(--main-color-2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.storage-btn:hover {
+  opacity: 0.85;
 }
 
 /* PAGINATION */
@@ -558,7 +653,12 @@
 
   .table th:first-child,
   .table td:first-child {
-    width: 90px;
+    width: 36px;
+  }
+
+  .table th:nth-child(2),
+  .table td:nth-child(2) {
+    width: 50px;
   }
 
   .table th:last-child,

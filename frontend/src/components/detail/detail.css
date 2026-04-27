@@ -142,6 +142,10 @@
   margin-left: 5px;
 }
 
+.detail-row:last-of-type {
+  border-bottom: none;
+}
+
 .detail-row .detail-label {
   width: 80px;
   flex-shrink: 0;

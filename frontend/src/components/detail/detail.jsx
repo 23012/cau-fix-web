@@ -175,7 +175,13 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
       <div className="detail-tabs">
         <button className={`detail-tab ${activeTab === "content" ? "active" : ""}`} onClick={() => setActiveTab("content")}>민원 내용</button>
-        <button className={`detail-tab ${activeTab === "result" ? "active" : ""}`} onClick={() => setActiveTab("result")}>처리 내용</button>
+        <button className={`detail-tab ${activeTab === "result" ? "active" : ""}`} onClick={() => {
+          if (data.status === "접수전") {
+            setShowNoResultPopup(true);
+          } else {
+            setActiveTab("result");
+          }
+        }}>처리 내용</button>
       </div>
 
       {activeTab === "content" ? (
@@ -240,6 +246,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
       {/* 처리 완료 */}
       <ConfirmPopup isOpen={showProcessSuccess} message="처리가 완료되었습니다." onConfirm={() => setShowProcessSuccess(false)} />
+
+      {/* 접수전 - 담당자 미배정 */}
+      <ConfirmPopup isOpen={showNoResultPopup} message="관리자가 아직 배정되지 않았습니다." onConfirm={() => setShowNoResultPopup(false)} />
     </FormPopup>
   );
 };

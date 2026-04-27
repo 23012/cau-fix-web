@@ -1,7 +1,7 @@
 import "./complain.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Filter as FilterIcon, Plus, FolderOpen } from "lucide-react";
+import { Filter as FilterIcon, Plus, FolderOpen, Star } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assets/files/sample.xlsx";
@@ -45,6 +45,10 @@ const Complain = () => {
   const [myStorageOpen, setMyStorageOpen] = useState(false);
   const [selectedComplain, setSelectedComplain] = useState(null);
   const [fromStorage, setFromStorage] = useState(false);
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem("favorites");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [filterOptions, setFilterOptions] = useState({
     statuses: [],
     category: "",
@@ -207,6 +211,7 @@ const Complain = () => {
   // 상태 탭 필터 적용
   const statusFilteredData = additionalFilteredData.filter((row) => {
     if (activeStatusTab === "전체") return true;
+    if (activeStatusTab === "즐겨찾기") return favorites.includes(row.id);
     return row.status === activeStatusTab;
   });
 
@@ -293,6 +298,14 @@ const Complain = () => {
     setCurrentPage(1);
   };
 
+  const toggleFavorite = (id) => {
+    setFavorites((prev) => {
+      const next = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id];
+      localStorage.setItem("favorites", JSON.stringify(next));
+      return next;
+    });
+  };
+
   const handleRowClick = (row) => {
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
@@ -362,8 +375,8 @@ const Complain = () => {
                     data={chartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius="55%"
-                    outerRadius="85%"
+                    innerRadius="50%"
+                    outerRadius="95%"
                     dataKey="value"
                     paddingAngle={2}
                   >
@@ -381,6 +394,17 @@ const Complain = () => {
               <span className="chart-center-count">{chartData.reduce((s, d) => s + d.value, 0)}</span>
               <span className="chart-center-unit">건</span>
             </div>
+          </div>
+
+          {/* 상태별 건수 */}
+          <div className="chart-status-summary">
+            {chartData.map((item) => (
+              <span key={item.name} className="chart-status-item">
+                <span className="chart-status-dot" style={{ background: item.color }} />
+                <span className="chart-status-name">{item.name}</span>
+                <span className="chart-status-count" style={{ color: item.color }}>{item.value}</span>
+              </span>
+            ))}
           </div>
 
           <hr className="chart-divider" />
@@ -406,15 +430,17 @@ const Complain = () => {
           </div>
 
           {user?.role === "처리자" ? (
-            <button className="register-btn" onClick={() => setMyStorageOpen(true)}>
-              <FolderOpen size={20} strokeWidth={2.5} />
-              <span>내 보관함</span>
-            </button>
+            <button className="register-btn favorite-btn" onClick={() => handleStatusTabChange("즐겨찾기")}>
+                <Star size={20} strokeWidth={2.5} />
+                <span>즐겨찾기</span>
+              </button>
           ) : (
-            <button className="register-btn" onClick={() => setComplainFormOpen(true)}>
-              <Plus size={20} strokeWidth={2.5} />
-              <span>민원 작성하기</span>
-            </button>
+            <>
+              <button className="register-btn" onClick={() => setComplainFormOpen(true)}>
+                <Plus size={20} strokeWidth={2.5} />
+                <span>민원 작성하기</span>
+              </button>
+            </>
           )}
 
         </div>
@@ -435,6 +461,12 @@ const Complain = () => {
                 </button>
               ))}
             </div>
+            {user?.role === "처리자" && (
+                <button className="storage-btn" onClick={() => setMyStorageOpen(true)}>
+                  <FolderOpen size={20} />
+                  <span>내 처리 현황</span>
+                </button>
+              )}
             <Search onSearchChange={handleSearchChange} />
           </div>
 
@@ -470,6 +502,7 @@ const Complain = () => {
               <table className="table">
                 <thead>
                   <tr>
+                    <th className="col-fav"></th>
                     <th>번호</th>
                     {user?.role !== "처리자" && <th className="col-category">분류</th>}
                     <th>제목</th>
@@ -479,6 +512,14 @@ const Complain = () => {
                 <tbody>
                   {currentData.map((row) => (
                     <tr key={row.id} onClick={() => handleRowClick(row)} style={{ cursor: 'pointer' }}>
+                      <td className="col-fav" onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id); }}>
+                        <Star
+                          size={18}
+                          className={`fav-icon ${favorites.includes(row.id) ? "fav-active" : ""}`}
+                          fill={favorites.includes(row.id) ? "#FFD23F" : "none"}
+                          color={favorites.includes(row.id) ? "#FFD23F" : "#ccc"}
+                        />
+                      </td>
                       <td>{row.id}</td>
                       {user?.role !== "처리자" && <td className="col-category">{row.category}</td>}
                       <td className="title">{row.title}</td>

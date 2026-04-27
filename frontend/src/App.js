@@ -7,6 +7,7 @@ import Main from "./pages/main/main";
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
 import ComplainDashboard from "./pages/complain-dashboard/complain-dashboard";
+import AdminComplains from "./pages/admin-complains/admin-complains";
 import ComplainDetail from "./pages/complain-detail/complain-detail";
 import Notice from "./pages/notice/notice";
 import AlarmList from "./pages/alarm-list/alarm-list";
@@ -60,6 +61,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/complain-dashboard" element={<ComplainDashboard />} />
+        <Route path="/admin/complains" element={<AdminComplains />} />
         <Route path="/complain-write" element={<ComplainWrite />} />
         <Route path="/complain-detail" element={<ComplainDetail />} />
         <Route path="/notice" element={<Notice />} />
