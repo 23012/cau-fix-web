@@ -24,7 +24,7 @@
 
 .dashboard-header .topbar {
   justify-content: flex-start;
-  margin-left: -25px;
+  margin-left: 0px;
 }
 
 .dashboard-header-menubar {
@@ -33,7 +33,7 @@
 }
 
 .dashboard-header-menubar .menubar {
-  margin-left: 20px;
+  margin-left: 0px;
 }
 
 .dashboard-container > .menubar {

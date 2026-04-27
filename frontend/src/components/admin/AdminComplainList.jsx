@@ -235,7 +235,7 @@ const AdminComplainList = () => {
               <th>부서명</th>
               <th>장소</th>
               <th>접수시간</th>
-              <th>민원분류</th>
+              <th>분류</th>
               <th>제목</th>
               <th>민원내용</th>
               <th>처리내용</th>

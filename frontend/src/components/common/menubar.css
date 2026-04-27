@@ -102,7 +102,7 @@
 /* 태블릿 (769px ~ 1024px) - 기존 스타일 유지 */
 @media (min-width: 769px) and (max-width: 1024px) {
   .menubar {
-    margin-left: 30px;
+    margin-left: 0;
     margin-top: 0;
   }
   
@@ -132,7 +132,7 @@
 /* PC (1025px 이상) - 기존 스타일 유지 */
 @media (min-width: 1025px) {
   .menubar {
-    margin-left: 50px;
+    margin-left: 0;
     margin-top: 0;
   }
   

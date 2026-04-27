@@ -1,18 +1,18 @@
-.admin-list {
+.admin-notice-list {
   padding: 24px 30px 20px;
   max-width: 1800px;
   margin: 0 auto;
 }
 
-.admin-list-title {
+.admin-notice-title {
   font-size: 30px;
   font-weight: 800;
   color: #222;
   margin-bottom: 28px;
 }
 
-/* 필터 영역 */
-.admin-list-filters {
+/* 필터 */
+.admin-notice-filters {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -23,30 +23,29 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-.admin-list-filters-left {
+.admin-notice-filters-left {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.admin-list-filters-right {
+.admin-notice-filters-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* 상태 라디오 */
-.admin-list-status-radios {
+.admin-notice-tabs {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   background: #f5f5f5;
   border-radius: 8px;
   padding: 4px;
 }
 
-.admin-list-status-radios label {
+.admin-notice-tabs label {
   padding: 6px 14px;
   border-radius: 6px;
   font-size: 13px;
@@ -57,18 +56,30 @@
   white-space: nowrap;
 }
 
-.admin-list-status-radios label.active {
+.admin-notice-tabs label.active {
   background: var(--main-color);
   color: white;
   font-weight: 700;
 }
 
-.admin-list-status-radios input {
+.admin-notice-tabs input {
   display: none;
 }
 
-/* 셀렉트, 검색 */
-.admin-list-select {
+.admin-notice-search {
+  padding: 8px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  width: 200px;
+}
+
+.admin-notice-search:focus {
+  border-color: var(--main-color);
+}
+
+.admin-notice-select {
   padding: 8px 12px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -78,22 +89,7 @@
   outline: none;
 }
 
-.admin-list-search {
-  padding: 8px 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 13px;
-  outline: none;
-  width: 200px;
-}
-
-.admin-list-search:focus,
-.admin-list-select:focus {
-  border-color: var(--main-color);
-}
-
-/* 날짜 */
-.admin-list-date {
+.admin-notice-date {
   padding: 6px 10px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -101,12 +97,11 @@
   outline: none;
 }
 
-.admin-list-date:focus {
+.admin-notice-date:focus {
   border-color: var(--main-color);
 }
 
-/* 엑셀 버튼 */
-.admin-list-excel-btn {
+.admin-notice-excel-btn {
   padding: 8px 18px;
   background: #4caf50;
   color: white;
@@ -118,29 +113,28 @@
   transition: opacity 0.2s;
 }
 
-.admin-list-excel-btn:hover {
+.admin-notice-excel-btn:hover {
   opacity: 0.85;
 }
 
 /* 테이블 */
-.admin-list-table-wrapper {
+.admin-notice-table-wrapper {
   overflow-x: auto;
-  border: 1px solid #f5f5f5;
+  border: 1px solid #e0e0e0;
   border-radius: 10px;
 }
 
-.admin-list-table {
+.admin-notice-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  min-width: 1000px;
 }
 
-.admin-list-table thead tr {
+.admin-notice-table thead tr {
   background: #f5f5f5;
 }
 
-.admin-list-table th {
+.admin-notice-table th {
   padding: 14px 10px;
   font-size: 14px;
   font-weight: 700;
@@ -150,7 +144,7 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
-.admin-list-table td {
+.admin-notice-table td {
   padding: 12px 10px;
   font-size: 13px;
   color: #444;
@@ -159,58 +153,78 @@
   vertical-align: middle;
 }
 
-.admin-list-table tbody tr:hover {
+.admin-notice-table tbody tr:hover {
   background: #fafafa;
 }
 
-.admin-list-title-cell,
-.admin-list-content-cell {
-  max-width: 160px;
+.admin-notice-title-cell {
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-align: left;
 }
 
 .nowrap {
   white-space: nowrap;
 }
 
-.admin-list-empty {
+.admin-notice-empty {
   padding: 40px;
   text-align: center;
   color: #999;
 }
 
 /* 컬럼 너비 */
-.admin-list-table th:nth-child(1),
-.admin-list-table td:nth-child(1) { width: 80px; }
+.admin-notice-table th:nth-child(1),
+.admin-notice-table td:nth-child(1) { width: 70px; }
 
-.admin-list-table th:nth-child(2),
-.admin-list-table td:nth-child(2) { width: 110px; }
+.admin-notice-table th:nth-child(2),
+.admin-notice-table td:nth-child(2) { width: 110px; }
 
-.admin-list-table th:nth-child(3),
-.admin-list-table td:nth-child(3) { width: 130px; }
+.admin-notice-table th:nth-child(4),
+.admin-notice-table td:nth-child(4) { width: 110px; }
 
-.admin-list-table th:nth-child(4),
-.admin-list-table td:nth-child(4) { width: 140px; }
+.admin-notice-table th:nth-child(5),
+.admin-notice-table td:nth-child(5) { width: 130px; }
 
-.admin-list-table th:nth-child(5),
-.admin-list-table td:nth-child(5) { width: 100px; }
-
-.admin-list-table th:nth-child(9),
-.admin-list-table td:nth-child(9) { width: 110px; }
+.admin-notice-table th:nth-child(6),
+.admin-notice-table td:nth-child(6) { width: 130px; }
 
 /* 페이지네이션 */
-.admin-list-pagination {
+.admin-notice-pagination {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
   padding: 20px 0;
+  position: relative;
 }
 
-.admin-list-pagination button {
+.admin-notice-write-btn {
+  position : relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-top: -60px;
+  gap: 6px;
+  right: 0;
+  padding: 8px 20px;
+  background: var(--main-color);
+  color: white;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border : none;
+}
+
+.admin-notice-write-btn:hover {
+  opacity: 0.85;
+}
+
+.admin-notice-pagination button {
   padding: 8px 20px;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
@@ -218,42 +232,42 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
+  
 }
 
-.admin-list-pagination button:hover:not(:disabled) {
+.admin-notice-pagination button:hover{
   background: var(--back-color);
   border-color: var(--main-color);
 }
 
-.admin-list-pagination button:disabled {
+.admin-notice-pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-.admin-list-pagination span {
+.admin-notice-pagination span {
   font-size: 14px;
   font-weight: 500;
   color: #333;
 }
 
+
+
 /* 모바일 */
 @media (max-width: 768px) {
-  .admin-list {
+  .admin-notice-list {
     padding: 16px 10px;
     padding-bottom: 100px;
   }
 
-  .admin-list-title {
+  .admin-notice-title {
     font-size: 20px;
   }
 
-  .admin-list-filters {
+  .admin-notice-filters {
     flex-direction: column;
     align-items: stretch;
   }
-
-  .admin-list-filters-left,
-  .admin-list-filters-right {
-    flex-wrap: wrap;
-  }
 }
+
+
