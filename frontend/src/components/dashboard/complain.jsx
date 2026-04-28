@@ -234,7 +234,7 @@ const Complain = () => {
             })}
           </div>
 
-          <button className="register-btn favorite-btn" onClick={() => handleStatusTabChange("즐겨찾기")}>
+          <button className="favorite-btn" onClick={() => handleStatusTabChange("즐겨찾기")}>
             <Star size={20} strokeWidth={2.5} /><span>즐겨찾기</span>
           </button>
         </div>
@@ -306,17 +306,14 @@ const Complain = () => {
         </div>
       </div>
 
-      {/* FAB — Portal로 body 직속에 렌더링하여 부모 레이아웃 영향 제거 */}
-      {createPortal(
-        <div className="fab">
-          {user?.role === "처리자" ? (
-            <button className="fab-btn" onClick={() => setMyStorageOpen(true)}><FolderOpen /></button>
-          ) : (
-            <button className="fab-btn" onClick={() => setComplainFormOpen(true)}><Plus /></button>
-          )}
-        </div>,
-        document.body
-      )}
+     
+      <div className="fab">
+        {user?.role === "처리자" ? (
+          <button className="fab-btn" onClick={() => setMyStorageOpen(true)}><FolderOpen /></button>
+        ) : (
+          <button className="fab-btn" onClick={() => setComplainFormOpen(true)}><Plus /></button>
+        )}
+      </div>
 
       {/* TODO: 백엔드 연결 시 onSubmit에서 POST /api/complains 호출 */}
       <ComplainForm isOpen={complainFormOpen} onClose={() => setComplainFormOpen(false)} onSubmit={() => setComplainFormOpen(false)} />
