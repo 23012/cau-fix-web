@@ -157,6 +157,7 @@ const AdminDashboard = () => {
 
           return (
             <div key={cat.name} className="admin-chart-item">
+              <span className="admin-chart-label">{cat.name}</span>
               <div className="admin-chart-donut">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -177,7 +178,6 @@ const AdminDashboard = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <span className="admin-chart-label">{cat.name}</span>
             </div>
           );
         })}

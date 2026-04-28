@@ -1,0 +1,138 @@
+/* 회원 상세 팝업 */
+.member-detail-section {
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.member-detail-section:last-child {
+  border-bottom: none;
+}
+
+.member-detail-section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.member-detail-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 18px;
+}
+
+.member-detail-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 110px;
+  font-size: 18px;
+}
+
+.member-detail-value {
+  color: #333;
+  font-size: 18px;
+  margin-left : 20px;
+}
+
+/* 승인 상태 배지 */
+.member-detail-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.member-detail-status-badge.approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.member-detail-status-badge.pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.member-detail-status-badge.withdrawn {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+/* 승인 버튼 */
+.member-detail-approve-btn {
+  margin-top: 10px;
+  padding: 8px 24px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.member-detail-approve-btn:hover {
+  opacity: 0.85;
+}
+
+/* 권한 라디오 */
+.member-detail-role-radios {
+  display: flex;
+  gap: 20px;
+}
+
+.member-detail-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: #333;
+  cursor: pointer;
+}
+
+.member-detail-radio input[type="radio"] {
+  accent-color: var(--main-color);
+  width: 16px;
+  height: 16px;
+}
+
+/* 탈퇴 영역 */
+.member-detail-delete-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.member-detail-delete-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.member-detail-delete-input:focus {
+  border-color: #e53935;
+}
+
+.member-detail-delete-btn {
+  padding: 10px 20px;
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.member-detail-delete-btn:hover {
+  opacity: 0.85;
+}

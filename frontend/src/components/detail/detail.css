@@ -424,3 +424,38 @@
   outline: none;
   border-color: var(--main-color);
 }
+
+/* 접수하기 버튼 (처리자 전용) */
+.detail-accept-area {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 0;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  z-index: 5;
+}
+
+.detail-accept-btn {
+  padding: 12px 32px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.detail-accept-btn:hover {
+  opacity: 0.85;
+}
+
+.detail-accept-btn--progress {
+  background: #63BE7B;
+}
+
+.detail-accept-btn--complete {
+  background: #006EB7;
+}

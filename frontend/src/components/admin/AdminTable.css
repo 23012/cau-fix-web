@@ -2,7 +2,7 @@
 
 /* 레이아웃 */
 .admin-page {
-  padding: 24px 30px 20px;
+  padding: 1px 30px 20px;
   max-width: 1800px;
   margin: 0 auto;
 }
@@ -290,3 +290,42 @@
 }
 
 
+
+/* ===== 회원 리스트 전용 ===== */
+.admin-table.member-table th:nth-child(1),
+.admin-table.member-table td:nth-child(1) { width: 150px; }
+
+.admin-table.member-table th:nth-child(2),
+.admin-table.member-table td:nth-child(2) { width: 200px; }
+
+.admin-table.member-table th:nth-child(3),
+.admin-table.member-table td:nth-child(3) { width: 200px; }
+
+.admin-table.member-table th:nth-child(4),
+.admin-table.member-table td:nth-child(4) { width: 200px; }
+
+.admin-table.member-table th:nth-child(5),
+.admin-table.member-table td:nth-child(5) { width: 150px; }
+
+.member-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.member-status.approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.member-status.pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.member-status.withdrawn {
+  background: #fce4ec;
+  color: #c62828;
+}

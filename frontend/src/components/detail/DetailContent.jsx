@@ -17,10 +17,12 @@ const DetailContent = ({
         </div>
         <div className="detail-header-right">
           <Status status={data.status} />
-          <button className="detail-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
-            <MoreVertical size={20} />
-          </button>
-          {menuOpen && (
+          {isEditor && (
+            <button className="detail-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
+              <MoreVertical size={20} />
+            </button>
+          )}
+          {menuOpen && isEditor && (
             <DetailMenu
               isEditor={isEditor}
               fromStorage={fromStorage}

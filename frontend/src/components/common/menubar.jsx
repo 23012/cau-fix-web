@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, Bell, User } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Bell, User, Users } from "lucide-react";
 import { normalizeRole } from "../../constants/roles";
 import "./menubar.css";
 
@@ -14,6 +14,7 @@ const getMenuItems = (role) => {
   ];
   if (role === "관리자") {
     items.splice(1, 0, { name: "민원 리스트", Icon: ClipboardList, order: 2, path: "/admin/complains" });
+    items.splice(2, 0, { name: "회원 관리", Icon: Users, order: 2.5, path: "/admin/members" });
   }
   return items;
 };

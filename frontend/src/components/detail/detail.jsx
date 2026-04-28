@@ -179,6 +179,42 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         <DetailResult data={data} formatDate={formatDate} onShowProfile={() => setShowProfile(true)} />
       )}
 
+      {/* 처리자 + 접수전: 접수하기 버튼 */}
+      {!isEditor && data.status === "접수전" && (
+        <div className="detail-accept-area">
+          <button className="detail-accept-btn" onClick={() => {
+            onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name, status: "접수중" });
+            setShowAddFolderSuccess(true);
+          }}>
+            접수하기
+          </button>
+        </div>
+      )}
+
+      {/* 처리자 + 내 보관함 + 접수중: 진행하기 버튼 */}
+      {!isEditor && fromStorage && data.status === "접수중" && (
+        <div className="detail-accept-area">
+          <button className="detail-accept-btn detail-accept-btn--progress" onClick={() => {
+            onUpdate?.({ ...data, status: "진행중" });
+            setShowStatusSuccess(true);
+          }}>
+            진행하기
+          </button>
+        </div>
+      )}
+
+      {/* 처리자 + 내 보관함 + 진행중: 처리 내용 작성 버튼 */}
+      {!isEditor && fromStorage && data.status === "진행중" && (
+        <div className="detail-accept-area">
+          <button className="detail-accept-btn detail-accept-btn--complete" onClick={() => {
+            setProcessContent("");
+            setShowProcessForm(true);
+          }}>
+            처리 내용 작성
+          </button>
+        </div>
+      )}
+
       {/* 프로필 팝업 */}
       <ProfilePopup isOpen={showProfile} onClose={() => setShowProfile(false)} name={data.resultPerson} dept={data.resultDept} phone={data.resultPhone} />
       <ProfilePopup isOpen={showReporterProfile} onClose={() => setShowReporterProfile(false)} name={data.reporterName} dept={data.dept} phone={data.reporterPhone} />
