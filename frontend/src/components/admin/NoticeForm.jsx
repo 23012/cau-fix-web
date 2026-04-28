@@ -110,19 +110,21 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
       </div>
 
       <div className="form-field" onPaste={handlePaste}>
-        <textarea className="form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} style={{ minHeight: "250px" }} />
+        <textarea className="form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} style={{ minHeight: "300px" }} />
       </div>
 
-      <div className="form-images">
-        {images.map((img, i) => (
-          <div key={i} className="form-image-preview">
-            <img src={img.preview} alt={`첨부 ${i + 1}`} onClick={() => setPreviewImage(img.preview)} />
-            <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
-          </div>
-        ))}
-      </div>
+      {images.length > 0 && (
+        <div className="form-images">
+          {images.map((img, i) => (
+            <div key={i} className="form-image-preview">
+              <img src={img.preview} alt={`첨부 ${i + 1}`} onClick={() => setPreviewImage(img.preview)} />
+              <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <p style={{ fontSize: "12px", color: "#999", marginTop: "8px" }}>* 이미지 첨부 시 붙여넣기를 이용해주세요. (Ctrl+V)</p>
+      <p className="notice-form-hint">* 이미지 첨부 시 붙여넣기를 이용해주세요. (Ctrl+V)</p>
 
       <ImagePreview src={previewImage} alt="첨부 사진" onClose={() => setPreviewImage(null)} />
     </FormPopup>
