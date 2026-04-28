@@ -85,7 +85,8 @@
 }
 
 .form-input::placeholder {
-  color: #bbb;
+  color: var(--back-color-2);
+  font-weight: 500;
 }
 
 .form-field-select {

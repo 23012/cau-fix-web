@@ -4,6 +4,7 @@ import * as XLSX from "xlsx";
 import loginDataFile from "../../assets/files/logindata.xlsx";
 import { normalizeRole, ROLES } from "../../constants/roles";
 import MemberDetailPopup from "./MemberDetailPopup";
+import MemberAddForm from "./MemberAddForm";
 
 /**
  * 관리자 회원 관리 리스트
@@ -32,6 +33,7 @@ const AdminMemberList = () => {
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [addFormOpen, setAddFormOpen] = useState(false);
   const itemsPerPage = 15;
 
   useEffect(() => {
@@ -137,7 +139,7 @@ const AdminMemberList = () => {
             {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
 
-          <input type="text" className="admin-search" placeholder="검색어" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
+          <input type="text" className="admin-search" placeholder="검색어" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} autoComplete="off" />
         </div>
 
         <div className="admin-filters-right">
@@ -145,7 +147,7 @@ const AdminMemberList = () => {
             <option value="번호순">번호순</option>
             <option value="최신순">최신순</option>
           </select>
-          <button className="admin-write-btn">
+          <button className="admin-write-btn" onClick={() => setAddFormOpen(true)}>
             <span>회원 추가</span>
           </button>
         </div>
@@ -167,7 +169,7 @@ const AdminMemberList = () => {
           </thead>
           <tbody>
             {currentData.map((row) => (
-              <tr key={row.no} onClick={() => setSelectedMember(row)} style={{ cursor: "pointer" }}>
+              <tr key={row.no} onClick={(e) => { e.stopPropagation(); setSelectedMember(row); }} style={{ cursor: "pointer" }}>
                 <td>{row.no}</td>
                 <td>{row.id}</td>
                 <td>{row.dept}</td>
@@ -203,6 +205,26 @@ const AdminMemberList = () => {
         onUpdate={(updated) => {
           setMembers((prev) => prev.map((m) => m.no === updated.no ? updated : m));
           setSelectedMember(updated);
+        }}
+      />
+
+      {/* 회원 추가 팝업 */}
+      <MemberAddForm
+        isOpen={addFormOpen}
+        onClose={() => setAddFormOpen(false)}
+        onSubmit={(data) => {
+          const newMember = {
+            no: members.length + 1,
+            id: data.id,
+            role: normalizeRole(data.role),
+            name: data.name,
+            dept: data.dept,
+            phone: data.phone,
+            status: "승인",
+            createdAt: new Date().toLocaleString("ko-KR"),
+            lastLogin: "-",
+          };
+          setMembers((prev) => [...prev, newMember]);
         }}
       />
     </div>

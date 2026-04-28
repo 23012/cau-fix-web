@@ -17,14 +17,29 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
   if (!isOpen || !member) return null;
 
   const currentRole = selectedRole ?? member.role;
+  const roleChanged = selectedRole !== null && selectedRole !== member.role;
 
-  const handleApprove = () => {
-    onUpdate?.({ ...member, status: "승인" });
+  const getNow = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   };
 
-  const handleRoleChange = (role) => {
+  const getAdmin = () => JSON.parse(localStorage.getItem("user") || "{}");
+
+  const handleApprove = () => {
+    const admin = getAdmin();
+    onUpdate?.({ ...member, status: "승인", approvedBy: admin.name || "-", approvedAt: getNow() });
+  };
+
+  const handleRoleSelect = (role) => {
     setSelectedRole(role);
-    onUpdate?.({ ...member, role });
+  };
+
+  const handleRoleConfirm = () => {
+    if (!selectedRole || selectedRole === member.role) return;
+    const admin = getAdmin();
+    onUpdate?.({ ...member, role: selectedRole, roleChangedBy: admin.name || "-", roleChangedAt: getNow() });
+    setSelectedRole(null);
   };
 
   const handleDelete = () => {
@@ -33,7 +48,8 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
       return;
     }
     if (window.confirm("정말 탈퇴 처리하시겠습니까?")) {
-      onUpdate?.({ ...member, status: "탈퇴" });
+      const admin = getAdmin();
+      onUpdate?.({ ...member, status: "탈퇴", deletedBy: admin.name || "-", deletedAt: getNow() });
       setDeletePassword("");
       onClose();
     }
@@ -47,42 +63,64 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
 
   return (
     <FormPopup isOpen={true} onClose={handleClose} title="회원 상세 정보" hideSubmit>
+      <hr className="member-detail-divider" />
       {/* 기본 정보 */}
       <div className="member-detail-section">
         <div className="member-detail-row">
-          <span className="member-detail-label">아이디:</span>
+          <span className="member-detail-label">아이디</span>
           <span className="member-detail-value">{member.id}</span>
+          {member.status !== "탈퇴" && (
+            <button className="member-detail-reset-pw-btn" onClick={() => {
+              if (window.confirm("해당 회원의 아이디로 초기화됩니다. 초기화 하시겠습니까?")) {
+                const admin = getAdmin();
+                onUpdate?.({ ...member, pwResetBy: admin.name || "-", pwResetAt: getNow() });
+                alert("비밀번호가 초기화되었습니다.");
+              }
+            }}>
+              비밀번호 초기화
+            </button>
+          )}
         </div>
         <div className="member-detail-row">
-          <span className="member-detail-label">이름:</span>
+          <span className="member-detail-label">이름</span>
           <span className="member-detail-value">{member.name}</span>
         </div>
         <div className="member-detail-row">
-          <span className="member-detail-label">부서:</span>
+          <span className="member-detail-label">부서</span>
           <span className="member-detail-value">{member.dept}</span>
         </div>
         <div className="member-detail-row">
-          <span className="member-detail-label">전화번호:</span>
+          <span className="member-detail-label">전화번호</span>
           <span className="member-detail-value">{member.phone || "-"}</span>
         </div>
         <div className="member-detail-row">
-          <span className="member-detail-label">가입일자:</span>
+          <span className="member-detail-label">가입일자</span>
           <span className="member-detail-value">{member.createdAt || "-"}</span>
         </div>
         <div className="member-detail-row">
-          <span className="member-detail-label">마지막 로그인:</span>
+          <span className="member-detail-label">마지막 로그인</span>
           <span className="member-detail-value">{member.lastLogin || "-"}</span>
         </div>
+        {member.pwResetBy && (
+          <div className="member-detail-row">
+            <span className="member-detail-sub-info">비밀번호 초기화 | 변경자: {member.pwResetBy} / {member.pwResetAt}</span>
+          </div>
+        )}
       </div>
 
       {/* 승인 여부 */}
       <div className="member-detail-section">
         <h3 className="member-detail-section-title">승인 여부</h3>
         {member.status === "승인" && (
-          <div className="member-detail-status-badge approved">
-            <CheckCircle size={18} />
-            <span>이미 승인된 회원입니다.</span>
-          </div>
+          <>
+            <div className="member-detail-status-badge approved">
+              <CheckCircle size={18} />
+              <span>이미 승인된 회원입니다.</span>
+            </div>
+            <p className="member-detail-sub-info">
+              승인자: {member.approvedBy || "-"} / 승인일자: {member.approvedAt || "-"}
+            </p>
+          </>
         )}
         {member.status === "대기" && (
           <>
@@ -94,10 +132,15 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
           </>
         )}
         {member.status === "탈퇴" && (
-          <div className="member-detail-status-badge withdrawn">
-            <XCircle size={18} />
-            <span>탈퇴된 회원입니다.</span>
-          </div>
+          <>
+            <div className="member-detail-status-badge withdrawn">
+              <XCircle size={18} />
+              <span>탈퇴된 회원입니다.</span>
+            </div>
+            <p className="member-detail-sub-info">
+              처리자: {member.deletedBy || "-"} / 탈퇴일: {member.deletedAt || "-"}
+            </p>
+          </>
         )}
       </div>
 
@@ -113,12 +156,20 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
                   name="roleChange"
                   value={role}
                   checked={currentRole === role}
-                  onChange={() => handleRoleChange(role)}
+                  onChange={() => handleRoleSelect(role)}
                 />
                 <span>{role}</span>
               </label>
             ))}
           </div>
+          {roleChanged && (
+            <button className="member-detail-role-confirm-btn" onClick={handleRoleConfirm}>변경</button>
+          )}
+          {member.roleChangedBy && (
+            <p className="member-detail-sub-info">
+              변경자: {member.roleChangedBy} / 변경일: {member.roleChangedAt || "-"}
+            </p>
+          )}
         </div>
       )}
 

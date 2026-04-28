@@ -126,13 +126,62 @@
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.2s;
 }
 
 .member-detail-delete-btn:hover {
+  opacity: 0.85;
+}
+
+/* 제목 아래 구분선 */
+.member-detail-divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 0 0 2px 0;
+}
+
+.member-detail-sub-info {
+  font-size: 13px;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* 권한 변경 버튼 */
+.member-detail-role-confirm-btn {
+  padding: 5px 15px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: opacity 0.2s;
+}
+
+.member-detail-role-confirm-btn:hover {
+  opacity: 0.85;
+}
+
+/* 비밀번호 초기화 버튼 */
+.member-detail-reset-pw-btn {
+  padding: 5px 15px;
+  background: #555;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 260px;
+  transition: opacity 0.2s;
+}
+
+.member-detail-reset-pw-btn:hover {
   opacity: 0.85;
 }

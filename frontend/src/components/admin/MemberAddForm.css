@@ -1,0 +1,52 @@
+
+
+/* 필드 세로 길이 */
+.member-add-form .form-field {
+  padding: 25px 5px;
+}
+
+/* 권한 라디오 행 */
+.member-add-role-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 25px 5px;
+  color : var(--back-color-2);
+  font-weight : 500;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.member-add-role-label {
+  font-size: 16px;
+  font-weight: 500;
+  min-width: 40px;
+  color : var(--back-color-2);
+}
+
+.member-add-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.member-add-radio input[type="radio"] {
+  accent-color: var(--main-color);
+  width: 16px;
+  height: 16px;
+}
+
+
+/* 등록 버튼 간격 */
+.member-add-form .form-submit-btn {
+  margin-top: 30px;
+}
+
+/* 에러 메시지 */
+.member-add-error {
+  color: #e53935;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 5px 0;
+}
