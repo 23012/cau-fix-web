@@ -98,3 +98,15 @@ input[type="submit"],
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* 공통 페이지 콘텐츠 영역 */
+.page-content {
+  flex: 1;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding: 10px;
+  }
+}

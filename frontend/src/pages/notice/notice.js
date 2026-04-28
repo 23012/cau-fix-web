@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import TopBar from '../../components/common/topbar';
-import MenuBar from '../../components/common/menubar';
+import Header from '../../components/common/Header';
 import NoticeList from '../../components/notice/NoticeList';
 import NoticeDetail from '../../components/notice/NoticeDetail';
 import AdminNoticeList from '../../components/admin/AdminNoticeList';
@@ -34,14 +33,12 @@ const Notice = () => {
     const updatedAt = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
     const updated = { ...editData, ...formData, updatedAt };
     setUpdatedNotice(updated);
-    // TODO: DB 연결 후 수정 API 호출
     setEditFormOpen(false);
     setEditData(null);
     setSelectedNotice(null);
   };
 
   const handleDelete = (noticeId) => {
-    // TODO: DB 연결 후 삭제 API 호출
     setSelectedNotice(null);
   };
 
@@ -65,22 +62,11 @@ const Notice = () => {
 
   return (
     <div className="page-container">
-      <div className="dashboard-container">
-        <div className="dashboard-header-wrapper">
-          <div className="dashboard-header">
-            <TopBar />
-            <div className="dashboard-header-menubar">
-              <MenuBar />
-            </div>
-          </div>
-        </div>
-        <MenuBar />
-        <div className="dashboard-content">
-          {renderContent()}
-        </div>
+      <Header />
+      <div className="page-content">
+        {renderContent()}
       </div>
 
-      {/* 수정 팝업 */}
       <NoticeForm
         isOpen={editFormOpen}
         onClose={() => { setEditFormOpen(false); setEditData(null); }}

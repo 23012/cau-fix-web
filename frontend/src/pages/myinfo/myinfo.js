@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TopBar from '../../components/common/topbar';
-import MenuBar from '../../components/common/menubar';
+import Header from '../../components/common/Header';
 import MyProfileCard from '../../components/myinfo/MyProfileCard';
 import MyMenuList from '../../components/myinfo/MyMenuList';
 import './myinfo.css';
 import '../../styles/global.css';
-
 
 const MyInfo = () => {
   const navigate = useNavigate();
@@ -26,7 +24,6 @@ const MyInfo = () => {
     localStorage.setItem('pushEnabled', next.toString());
   };
 
-
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
       localStorage.removeItem('user');
@@ -36,27 +33,17 @@ const MyInfo = () => {
 
   return (
     <div className="page-container">
-      <div className="dashboard-container">
-        {/* 데스크톱 화면에서 가장 위 상단바로 표시됨 */}
-        <div className="dashboard-header">
-          <TopBar />
-          <div className="dashboard-header-menubar">
-            <MenuBar />
-          </div>
-        </div>
-        <MenuBar />
-        <div className="dashboard-content">
-          {/* 모바일 화면에서만 '내정보' 페이지 보임 */}
-          <div className="myinfo-page">
-            <MyProfileCard name={user?.name} dept={user?.dept} />
-            <MyMenuList
-              pushEnabled={pushEnabled}
-              onTogglePush={handleTogglePush}
-              onUpdateProfile={(updates) => { /* TODO: 프로필 수정 API 호출 */ }}
-              onLogout={handleLogout}
-              user={user}
-            />
-          </div>
+      <Header />
+      <div className="page-content">
+        <div className="myinfo-page">
+          <MyProfileCard name={user?.name} dept={user?.dept} />
+          <MyMenuList
+            pushEnabled={pushEnabled}
+            onTogglePush={handleTogglePush}
+            onUpdateProfile={() => {}}
+            onLogout={handleLogout}
+            user={user}
+          />
         </div>
       </div>
     </div>

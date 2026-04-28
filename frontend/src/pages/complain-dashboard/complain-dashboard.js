@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import TopBar from '../../components/common/topbar';
-import MenuBar from '../../components/common/menubar';
+import Header from '../../components/common/Header';
 import Complain from '../../components/dashboard/complain.jsx';
 import AdminDashboard from '../../components/admin/AdminDashboard.jsx';
 import { normalizeRole } from '../../constants/roles';
-import './complain-dashboard.css';
 import "../../styles/global.css";
 
 const ComplainDashboard = () => {
@@ -19,19 +17,9 @@ const ComplainDashboard = () => {
 
   return (
     <div className="page-container">
-      <div className="dashboard-container">
-        <div className="dashboard-header-wrapper">
-          <div className="dashboard-header">
-            <TopBar />
-            <div className="dashboard-header-menubar">
-              <MenuBar />
-            </div>
-          </div>
-        </div>
-        <MenuBar />
-        <div className="dashboard-content">
-          {role === "관리자" ? <AdminDashboard /> : <Complain />}
-        </div>
+      <Header />
+      <div className="page-content">
+        {role === "관리자" ? <AdminDashboard /> : <Complain />}
       </div>
     </div>
   );
