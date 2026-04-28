@@ -78,10 +78,7 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
       <div className="admin-dashboard-header">
-        <h1 className="admin-dashboard-title">
-          <span className="admin-dashboard-icon">📊</span>
-          대시보드
-        </h1>
+        <h1 className="admin-dashboard-title">대시보드</h1>
         <div className="admin-dashboard-filters">
           <select
             className="admin-dropdown"

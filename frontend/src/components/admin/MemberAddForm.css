@@ -37,16 +37,52 @@
   height: 16px;
 }
 
-
-/* 등록 버튼 간격 */
-.member-add-form .form-submit-btn {
-  margin-top: 30px;
-}
-
 /* 에러 메시지 */
 .member-add-error {
   color: #e53935;
   font-size: 14px;
   font-weight: 500;
   padding: 8px 5px 0;
+}
+
+.form-submit-btn{
+    margin-top : 30px;
+}
+
+
+/* 아이디 + 중복확인 버튼 행 */
+.member-add-id-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-add-id-row .form-input {
+  flex: 1;
+}
+
+.member-add-check-btn {
+  padding: 12px 16px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.member-add-check-btn:hover {
+  opacity: 0.85;
+}
+
+/* 안내 문구 */
+.member-add-hint {
+  font-size: 13px;
+  color: #999;
+  padding: 4px 5px 0;
+  margin: 0;
 }

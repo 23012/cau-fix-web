@@ -8,6 +8,18 @@ import "./MemberAddForm.css";
  * 관리자 회원 추가 폼
  * TODO: 백엔드 연결 시 onSubmit에서 POST /api/members 호출
  */
+
+const formatAMPM = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  let h = date.getHours();
+  const min = String(date.getMinutes()).padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${y}-${m}-${d} ${String(h).padStart(2, "0")}:${min}${ampm}`;
+};
+
 const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     id: "", password: "", passwordConfirm: "",
@@ -16,17 +28,18 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
   const [error, setError] = useState("");
 
+  const passwordMismatch = formData.passwordConfirm.length > 0 && formData.password !== formData.passwordConfirm;
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError("");
   };
 
   const handleSubmit = () => {
-    if (!formData.id.trim()) { setError("아이디를 입력해주세요."); return; }
-    if (!formData.password.trim()) { setError("비밀번호를 입력해주세요."); return; }
-    if (formData.password !== formData.passwordConfirm) { setError("비밀번호가 일치하지 않습니다."); return; }
-    if (!formData.name.trim()) { setError("이름을 입력해주세요."); return; }
-    if (!formData.dept.trim()) { setError("부서를 입력해주세요."); return; }
+    if (!formData.id.trim() || !formData.password.trim() || !formData.name.trim() || !formData.dept.trim()) return;
+
+    const admin = JSON.parse(localStorage.getItem("user") || "{}");
+    const now = formatAMPM(new Date());
 
     onSubmit?.({
       id: formData.id,
@@ -35,6 +48,9 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
       name: formData.name,
       dept: formData.dept,
       phone: formData.phone,
+      approvedBy: admin.name || "-",
+      approvedAt: now,
+      createdAt: now,
     });
 
     setFormData({ id: "", password: "", passwordConfirm: "", role: "C", name: "", dept: "", phone: "" });
@@ -51,19 +67,23 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <FormPopup isOpen={isOpen} onClose={handleClose} title="회원 추가" onSubmit={handleSubmit} submitLabel="추가">
-      <div className="member-add-form" style={{ color: "#828282" }}>
+      <div className="member-add-form">
       {/* 아이디 */}
-      <div className="form-field">
-        <input type="text" className="form-input" placeholder="아이디 (사번)" value={formData.id} onChange={(e) => handleChange("id", e.target.value)} style={{ color: "#828282" }} />
+      <div className="form-field member-add-id-row">
+        <input type="text" className="form-input" placeholder="아이디 (사번)" value={formData.id} onChange={(e) => handleChange("id", e.target.value)} />
+        <button type="button" className="member-add-check-btn" onClick={() => {
+          // TODO: 백엔드 연결 시 GET /api/auth/check-id?id={formData.id}
+          alert("사용 가능한 아이디입니다.");
+        }}>
+          중복 확인
+        </button>
       </div>
 
       {/* 비밀번호 */}
       <div className="form-field">
         <input type="password" className="form-input" placeholder="비밀번호" value={formData.password} onChange={(e) => handleChange("password", e.target.value)} />
       </div>
-      <div className="form-field">
-        <input type="password" className="form-input" placeholder="비밀번호 확인" value={formData.passwordConfirm} onChange={(e) => handleChange("passwordConfirm", e.target.value)} />
-      </div>
+      <p className="member-add-hint">※ 사번과 동일하게 입력 바랍니다.</p>
 
       {/* 권한 */}
       <div className="member-add-role-row">
@@ -111,8 +131,6 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
         <input type="tel" className="form-input" placeholder="전화번호" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} />
       </div>
 
-
-      {error && <p className="member-add-error">{error}</p>}
       </div>
     </FormPopup>
   );

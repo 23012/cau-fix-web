@@ -107,7 +107,7 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
 
   return (
     <div className="admin-page">
-      <h1 className="admin-page-title">📢 공지사항</h1>
+      <h1 className="admin-page-title">공지사항</h1>
 
       {/* 필터 영역 */}
       <div className="admin-filters">

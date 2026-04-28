@@ -76,7 +76,7 @@ const AdminComplainList = () => {
 
   return (
     <div className="admin-page">
-      <h1 className="admin-page-title">📋 민원 리스트</h1>
+      <h1 className="admin-page-title">민원 리스트</h1>
 
       {/* 필터 영역 */}
       <div className="admin-filters">

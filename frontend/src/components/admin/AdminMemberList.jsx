@@ -120,7 +120,7 @@ const AdminMemberList = () => {
 
   return (
     <div className="admin-page">
-      <h1 className="admin-page-title">👤 회원 관리</h1>
+      <h1 className="admin-page-title">회원 관리</h1>
 
       {/* 필터 영역 */}
       <div className="admin-filters">
@@ -216,12 +216,14 @@ const AdminMemberList = () => {
           const newMember = {
             no: members.length + 1,
             id: data.id,
-            role: normalizeRole(data.role),
+            role: data.role === "C" ? "사용자" : data.role === "E" ? "처리자" : data.role,
             name: data.name,
             dept: data.dept,
             phone: data.phone,
             status: "승인",
-            createdAt: new Date().toLocaleString("ko-KR"),
+            approvedBy: data.approvedBy,
+            approvedAt: data.approvedAt,
+            createdAt: data.createdAt,
             lastLogin: "-",
           };
           setMembers((prev) => [...prev, newMember]);
