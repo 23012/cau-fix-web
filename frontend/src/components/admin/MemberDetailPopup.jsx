@@ -1,6 +1,7 @@
 import FormPopup from "../form/FormPopup";
 import { useState } from "react";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
+import { CATEGORIES } from "../../constants/categories";
 import "./MemberDetailPopup.css";
 
 /**
@@ -12,6 +13,7 @@ import "./MemberDetailPopup.css";
  */
 const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
   const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedDept, setSelectedDept] = useState(null);
   const [deletePassword, setDeletePassword] = useState("");
 
   if (!isOpen || !member) return null;
@@ -57,6 +59,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
 
   const handleClose = () => {
     setSelectedRole(null);
+    setSelectedDept(null);
     setDeletePassword("");
     onClose();
   };
@@ -147,7 +150,22 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
       {/* 권한 변경 */}
       {member.status !== "탈퇴" && (
         <div className="member-detail-section">
-          <h3 className="member-detail-section-title">권한 변경</h3>
+          <div className="member-detail-section-header">
+            <h3 className="member-detail-section-title">권한 변경</h3>
+            {(roleChanged || (selectedDept !== null && selectedDept !== member.dept)) && (
+              <button className="member-detail-role-confirm-btn" onClick={() => {
+                const admin = getAdmin();
+                const updates = { ...member };
+                if (roleChanged) updates.role = selectedRole;
+                if (selectedDept !== null && selectedDept !== member.dept) updates.dept = selectedDept;
+                updates.roleChangedBy = admin.name || "-";
+                updates.roleChangedAt = getNow();
+                onUpdate?.(updates);
+                setSelectedRole(null);
+                setSelectedDept(null);
+              }}>변경</button>
+            )}
+          </div>
           <div className="member-detail-role-radios">
             {["사용자", "처리자"].map((role) => (
               <label key={role} className="member-detail-radio">
@@ -161,10 +179,19 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
                 <span>{role}</span>
               </label>
             ))}
+            {currentRole === "처리자" && (
+              <select
+                className="member-detail-dept-select"
+                value={selectedDept ?? member.dept}
+                onChange={(e) => setSelectedDept(e.target.value)}
+              >
+                <option value="전체">전체</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            )}
           </div>
-          {roleChanged && (
-            <button className="member-detail-role-confirm-btn" onClick={handleRoleConfirm}>변경</button>
-          )}
           {member.roleChangedBy && (
             <p className="member-detail-sub-info">
               변경자: {member.roleChangedBy} / 변경일: {member.roleChangedAt || "-"}

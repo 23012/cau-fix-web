@@ -166,18 +166,17 @@
 }
 
 .admin-chart-legend {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  margin-top: 5px;
+  margin-bottom: 16px;
 }
 
 .admin-legend-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 18px;
   color: #666;
 }
 

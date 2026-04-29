@@ -143,6 +143,17 @@ const AdminDashboard = () => {
 
       {/* 통계 차트 */}
       <h2 className="admin-section-title">통계 차트</h2>
+      <div className="admin-chart-legend">
+        <span className="admin-legend-item">
+          <span className="admin-legend-dot" style={{ background: chartColors[0] }} />미진행
+        </span>
+        <span className="admin-legend-item">
+          <span className="admin-legend-dot" style={{ background: chartColors[1] }} />진행중
+        </span>
+        <span className="admin-legend-item">
+          <span className="admin-legend-dot" style={{ background: chartColors[2] }} />완료
+        </span>
+      </div>
       <div className="admin-chart-grid">
         {categoryStats.map((cat) => {
           const chartData = [
@@ -178,19 +189,6 @@ const AdminDashboard = () => {
             </div>
           );
         })}
-
-        {/* 범례 */}
-        <div className="admin-chart-legend">
-          <span className="admin-legend-item">
-            <span className="admin-legend-dot" style={{ background: chartColors[0] }} />미진행
-          </span>
-          <span className="admin-legend-item">
-            <span className="admin-legend-dot" style={{ background: chartColors[1] }} />진행중
-          </span>
-          <span className="admin-legend-item">
-            <span className="admin-legend-dot" style={{ background: chartColors[2] }} />완료
-          </span>
-        </div>
       </div>
     </div>
   );

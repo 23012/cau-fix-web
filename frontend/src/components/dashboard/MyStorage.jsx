@@ -82,7 +82,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
 
         <div className="my-storage-header">
           <FolderOpen size={24} color="#63C3D1" />
-          <h2>내 보관함</h2>
+          <h2>내 처리함</h2>
           <div className="my-storage-header-actions">
             <div className="my-storage-search-container">
               <div className={`my-storage-search-wrapper ${searchOpen ? "open" : ""}`}>
