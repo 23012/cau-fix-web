@@ -5,11 +5,11 @@ import useComplainData from "./useComplainData";
 import { normalizeStatus } from "../constants/status";
 
 /**
- * 알림 + 민원 데이터를 로딩하는 훅
+ * 푸시 알림 + 민원 데이터를 로딩하는 훅
  * TODO: 백엔드 연결 시
- *   - 알림: GET /api/alarms?userId={userId}&days=7
+ *   - 푸시: GET /api/push?userId={userId}&days=7
  *   - 민원: useComplainData 훅이 자동으로 API 호출
- *   - 읽음 처리: PATCH /api/alarms/{id}/read
+ *   - 읽음 처리: PATCH /api/push/{id}/read
  */
 
 const parseExcelTime = (value) => {
@@ -18,20 +18,19 @@ const parseExcelTime = (value) => {
   return new Date(epoch.getTime() + value * 86400000);
 };
 
-const useAlarms = () => {
-  const [alarms, setAlarms] = useState([]);
+const usePush = () => {
+  const [pushList, setPushList] = useState([]);
   const { tableData: complains } = useComplainData();
 
-  /* 알림 데이터 로딩 */
   useEffect(() => {
-    const loadAlarms = async () => {
+    const loadPush = async () => {
       try {
         const res = await fetch(alarmDataFile);
         const buffer = await res.arrayBuffer();
         const wb = XLSX.read(buffer, { type: "array" });
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
 
-        setAlarms(rows.map((row) => ({
+        setPushList(rows.map((row) => ({
           id: row["push_id"],
           memberId: row["member_id"] || null,
           title: row["push_content"] || "",
@@ -42,10 +41,10 @@ const useAlarms = () => {
           state: normalizeStatus(row["state"]) || "",
         })));
       } catch (error) {
-        // 알림 로드 실패 시 빈 목록 유지
+        // 푸시 로드 실패 시 빈 목록 유지
       }
     };
-    loadAlarms();
+    loadPush();
   }, []);
 
   const user = useMemo(() => {
@@ -53,25 +52,23 @@ const useAlarms = () => {
     return stored ? JSON.parse(stored) : null;
   }, []);
 
-  /* 최근 7일 내 알림 (현재 사용자 기준) */
-  const recentAlarms = useMemo(() => {
+  const recentPush = useMemo(() => {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    return alarms
+    return pushList
       .filter((a) => a.time >= sevenDaysAgo)
       .filter((a) => !user || String(a.memberId) === String(user.id));
-  }, [alarms, user]);
+  }, [pushList, user]);
 
-  const todayAlarms = recentAlarms.filter((a) => a.time.toDateString() === new Date().toDateString());
-  const earlierAlarms = recentAlarms.filter((a) => a.time.toDateString() !== new Date().toDateString());
-  const unreadCount = recentAlarms.filter((a) => !a.read).length;
+  const todayPush = recentPush.filter((a) => a.time.toDateString() === new Date().toDateString());
+  const earlierPush = recentPush.filter((a) => a.time.toDateString() !== new Date().toDateString());
+  const unreadCount = recentPush.filter((a) => !a.read).length;
 
-  /** 알림에 연결된 민원 데이터 조회 */
-  const getComplainForAlarm = (alarm) => {
-    if (!alarm.complainId) return null;
-    return complains.find((c) => c.id === alarm.complainId) || null;
+  const getComplainForPush = (push) => {
+    if (!push.complainId) return null;
+    return complains.find((c) => c.id === push.complainId) || null;
   };
 
-  return { recentAlarms, todayAlarms, earlierAlarms, unreadCount, complains, getComplainForAlarm };
+  return { recentPush, todayPush, earlierPush, unreadCount, complains, getComplainForPush };
 };
 
-export default useAlarms;
+export default usePush;

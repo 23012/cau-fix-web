@@ -257,20 +257,20 @@
 
 /* ===== 공지사항 전용 컬럼 너비 ===== */
 .admin-table.notice-table th:nth-child(1),
-.admin-table.notice-table td:nth-child(1) { width: 140px; }
+.admin-table.notice-table td:nth-child(1) { width: 100px; }
 .admin-table.notice-table th:nth-child(2),
-.admin-table.notice-table td:nth-child(2) { width: 260px; white-space: nowrap; }
+.admin-table.notice-table td:nth-child(2) { width: 120px; white-space: nowrap; }
 .admin-table.notice-table th:nth-child(4),
-.admin-table.notice-table td:nth-child(4) { width: 260px; white-space: nowrap; }
+.admin-table.notice-table td:nth-child(4) { width: 120px; white-space: nowrap; }
 .admin-table.notice-table th:nth-child(5),
-.admin-table.notice-table td:nth-child(5) { width: 180px; }
+.admin-table.notice-table td:nth-child(5) { width: 100px; }
 .admin-table.notice-table th:nth-child(6),
-.admin-table.notice-table td:nth-child(6) { width: 180px; }
+.admin-table.notice-table td:nth-child(6) { width: 100px; }
 
 /* 모바일 */
 @media (max-width: 768px) {
   .admin-page {
-    padding: 16px 10px;
+    padding: 16px 16px;
     padding-bottom: 100px;
   }
 
@@ -281,11 +281,37 @@
   .admin-filters {
     flex-direction: column;
     align-items: stretch;
+    gap: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    margin-bottom: 0;
   }
 
-  .admin-filters-left,
+  /* 모바일: 탭/검색 숨김 (모바일 헤더에서 처리) */
+  .admin-tabs,
+  .admin-filters-left {
+    display: none;
+  }
+
   .admin-filters-right {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 12px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .admin-filters-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 민원 리스트: 기간설정+엑셀 같은 줄 */
+  .admin-date,
+  .admin-excel-btn {
+    margin-top: 0;
   }
 }
 
@@ -328,4 +354,144 @@
 .member-status.withdrawn {
   background: #fce4ec;
   color: #c62828;
+}
+
+/* ===== 모바일: 관리자 테이블 컬럼 제한 ===== */
+@media (max-width: 768px) {
+  /* 공통: 테이블 가로 스크롤 제거, 화면에 맞춤 */
+  .admin-table {
+    table-layout: auto;
+    min-width: 0 !important;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 12px 4px;
+    font-size: 14px;
+  }
+
+  /* --- 회원 관리: 번호, 아이디, 부서, 상태만 --- */
+  .member-table th:nth-child(4),
+  .member-table td:nth-child(4),
+  .member-table th:nth-child(6),
+  .member-table td:nth-child(6),
+  .member-table th:nth-child(7),
+  .member-table td:nth-child(7) {
+    display: none;
+  }
+
+  .member-table th:nth-child(1),
+  .member-table td:nth-child(1) { width: 30px; }
+  .member-table th:nth-child(2),
+  .member-table td:nth-child(2) { width: auto; }
+  .member-table th:nth-child(3),
+  .member-table td:nth-child(3) { width: auto; }
+  .member-table th:nth-child(5),
+  .member-table td:nth-child(5) { width: 40px; }
+
+  /* --- 민원 리스트: 번호, 제목, 상태만 --- */
+  .complain-table th:nth-child(2),
+  .complain-table td:nth-child(2),
+  .complain-table th:nth-child(3),
+  .complain-table td:nth-child(3),
+  .complain-table th:nth-child(4),
+  .complain-table td:nth-child(4),
+  .complain-table th:nth-child(5),
+  .complain-table td:nth-child(5),
+  .complain-table th:nth-child(7),
+  .complain-table td:nth-child(7),
+  .complain-table th:nth-child(8),
+  .complain-table td:nth-child(8) {
+    display: none;
+  }
+
+  .complain-table th:nth-child(1),
+  .complain-table td:nth-child(1) { width: 30px; }
+  .complain-table th:nth-child(6),
+  .complain-table td:nth-child(6) { width: auto; text-align: center; }
+  .complain-table th:nth-child(9),
+  .complain-table td:nth-child(9) { width: 60px; }
+
+  /* --- 공지사항: 번호, 제목, 작성자만 --- */
+  .notice-table th:nth-child(2),
+  .notice-table td:nth-child(2),
+  .notice-table th:nth-child(5),
+  .notice-table td:nth-child(5),
+  .notice-table th:nth-child(6),
+  .notice-table td:nth-child(6) {
+    display: none;
+  }
+
+  .notice-table th:nth-child(1),
+  .notice-table td:nth-child(1) { width: 30px; }
+  .notice-table th:nth-child(3),
+  .notice-table td:nth-child(3) { width: auto; text-align: center; }
+  .notice-table th:nth-child(4),
+  .notice-table td:nth-child(4) { width: 30px; }
+}
+
+/* ===== 모바일: 관리자 모바일 헤더 ===== */
+.admin-mobile-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .admin-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .admin-mobile-header .admin-page-title {
+    margin-bottom: 0;
+  }
+
+  /* 기존 필터 영역의 검색 input 숨김 */
+  .admin-search {
+    display: none;
+  }
+
+  /* 타이틀은 모바일 헤더에서 표시하므로 기존 것 숨김 */
+  .admin-page > .admin-page-title {
+    display: none;
+  }
+}
+
+/* ===== 관리자 FAB (모바일 전용) ===== */
+.admin-fab {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .admin-fab {
+    display: block;
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 9999;
+  }
+
+  .admin-fab .fab-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: var(--main-color);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-fab .fab-btn svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .admin-write-btn {
+    display: none;
+  }
 }

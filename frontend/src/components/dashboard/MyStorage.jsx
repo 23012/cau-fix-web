@@ -78,7 +78,6 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
     <div className="my-storage-overlay" onClick={onClose}>
       <div className="my-storage-popup" onClick={(e) => e.stopPropagation()}>
         <button className="my-storage-close" onClick={onClose}><X size={22} /></button>
-        <hr className="my-storage-divider" />
 
         <div className="my-storage-header">
           <FolderOpen size={24} color="#63C3D1" />

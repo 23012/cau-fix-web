@@ -152,7 +152,7 @@
 
 /* 권한 변경 버튼 */
 .member-detail-role-confirm-btn {
-  padding: 5px 15px;
+  padding: 5px 20px;
   background: var(--main-color);
   color: white;
   border: none;
@@ -160,29 +160,11 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  margin-top: 0px;
+  margin-left: auto;
   transition: opacity 0.2s;
 }
 
 .member-detail-role-confirm-btn:hover {
-  opacity: 0.85;
-}
-
-/* 비밀번호 초기화 버튼 */
-.member-detail-reset-pw-btn {
-  padding: 5px 15px;
-  background: #555;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-left: 260px;
-  transition: opacity 0.2s;
-}
-
-.member-detail-reset-pw-btn:hover {
   opacity: 0.85;
 }
 
@@ -208,3 +190,23 @@
   align-items: center;
   justify-content: space-between;
 }
+
+/* 비밀번호 초기화 버튼 */
+.member-detail-reset-pw-btn {
+  padding: 5px 15px;
+  background: #555;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: auto;
+  transition: opacity 0.2s;
+}
+
+.member-detail-reset-pw-btn:hover {
+  opacity: 0.85;
+}
+
+

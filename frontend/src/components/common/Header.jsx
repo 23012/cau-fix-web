@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, Bell, User, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Bell, User, Users, LogOut, MessageSquareWarning } from "lucide-react";
 import MyProfileCard from "../myinfo/MyProfileCard";
 import MyMenuList from "../myinfo/MyMenuList";
-import AlarmPopup from "../alarm/AlarmPopup";
+import PushPopup from "../push/PushPopup";
 import { normalizeRole } from "../../constants/roles";
 import logo from "../../assets/images/logo.svg";
 import "./Header.css";
@@ -13,11 +13,11 @@ const getMenuItems = (role) => {
   const items = [
     { name: dashboardName, Icon: LayoutDashboard, order: 1, path: "/complain-dashboard" },
     { name: "공지사항", Icon: ClipboardList, order: 3, path: "/notice" },
-    { name: "알림", Icon: Bell, order: 4, path: "/alarm-list", mobileOnly: true },
+    { name: "알림", Icon: Bell, order: 4, path: "/push-list", mobileOnly: true },
     { name: "내 정보", Icon: User, order: 5, path: "/myinfo", mobileOnly: true },
   ];
   if (role === "관리자") {
-    items.splice(1, 0, { name: "민원 리스트", Icon: ClipboardList, order: 2, path: "/admin/complains" });
+    items.splice(1, 0, { name: "민원 리스트", Icon: MessageSquareWarning, order: 2, path: "/admin/complains" });
     items.splice(2, 0, { name: "회원 관리", Icon: Users, order: 2.5, path: "/admin/members" });
   }
   return items;
@@ -32,14 +32,14 @@ const Header = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   // 팝업 상태
-  const [alarmOpen, setAlarmOpen] = useState(false);
+  const [pushOpen, setPushOpen] = useState(false);
   const [myinfoOpen, setMyinfoOpen] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(() => localStorage.getItem("pushEnabled") !== "false");
 
   const popupRef = useRef(null);
   const btnRef = useRef(null);
-  const alarmPopupRef = useRef(null);
-  const alarmBtnRef = useRef(null);
+  const pushPopupRef = useRef(null);
+  const pushBtnRef = useRef(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -60,13 +60,13 @@ const Header = () => {
       if (myinfoOpen && popupRef.current && !popupRef.current.contains(e.target) && btnRef.current && !btnRef.current.contains(e.target)) {
         setMyinfoOpen(false);
       }
-      if (alarmOpen && alarmPopupRef.current && !alarmPopupRef.current.contains(e.target) && alarmBtnRef.current && !alarmBtnRef.current.contains(e.target)) {
-        setAlarmOpen(false);
+      if (pushOpen && pushPopupRef.current && !pushPopupRef.current.contains(e.target) && pushBtnRef.current && !pushBtnRef.current.contains(e.target)) {
+        setPushOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [myinfoOpen, alarmOpen]);
+  }, [myinfoOpen, pushOpen]);
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
@@ -120,15 +120,15 @@ const Header = () => {
           <div className="header__actions">
             <div className="header__action-wrapper">
               <button
-                ref={alarmBtnRef}
-                className={`header__action-btn ${alarmOpen ? "header__action-btn--active" : ""}`}
-                onClick={() => { setAlarmOpen(!alarmOpen); setMyinfoOpen(false); }}
+                ref={pushBtnRef}
+                className={`header__action-btn ${pushOpen ? "header__action-btn--active" : ""}`}
+                onClick={() => { setPushOpen(!pushOpen); setMyinfoOpen(false); }}
               >
                 <Bell size={16} /><span>알림</span>
               </button>
-              {alarmOpen && (
-                <div ref={alarmPopupRef}>
-                  <AlarmPopup onClose={() => setAlarmOpen(false)} />
+              {pushOpen && (
+                <div ref={pushPopupRef}>
+                  <PushPopup onClose={() => setPushOpen(false)} />
                 </div>
               )}
             </div>
@@ -136,7 +136,7 @@ const Header = () => {
               <button
                 ref={btnRef}
                 className={`header__action-btn ${myinfoOpen ? "header__action-btn--active" : ""}`}
-                onClick={() => { setMyinfoOpen(!myinfoOpen); setAlarmOpen(false); }}
+                onClick={() => { setMyinfoOpen(!myinfoOpen); setPushOpen(false); }}
               >
                 <User size={16} /><span>내 정보</span>
               </button>

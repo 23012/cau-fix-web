@@ -150,22 +150,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
       {/* 권한 변경 */}
       {member.status !== "탈퇴" && (
         <div className="member-detail-section">
-          <div className="member-detail-section-header">
-            <h3 className="member-detail-section-title">권한 변경</h3>
-            {(roleChanged || (selectedDept !== null && selectedDept !== member.dept)) && (
-              <button className="member-detail-role-confirm-btn" onClick={() => {
-                const admin = getAdmin();
-                const updates = { ...member };
-                if (roleChanged) updates.role = selectedRole;
-                if (selectedDept !== null && selectedDept !== member.dept) updates.dept = selectedDept;
-                updates.roleChangedBy = admin.name || "-";
-                updates.roleChangedAt = getNow();
-                onUpdate?.(updates);
-                setSelectedRole(null);
-                setSelectedDept(null);
-              }}>변경</button>
-            )}
-          </div>
+          <h3 className="member-detail-section-title">권한 변경</h3>
           <div className="member-detail-role-radios">
             {["사용자", "처리자"].map((role) => (
               <label key={role} className="member-detail-radio">
@@ -190,6 +175,19 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
+            )}
+            {(roleChanged || (selectedDept !== null && selectedDept !== member.dept)) && (
+              <button className="member-detail-role-confirm-btn" onClick={() => {
+                const admin = getAdmin();
+                const updates = { ...member };
+                if (roleChanged) updates.role = selectedRole;
+                if (selectedDept !== null && selectedDept !== member.dept) updates.dept = selectedDept;
+                updates.roleChangedBy = admin.name || "-";
+                updates.roleChangedAt = getNow();
+                onUpdate?.(updates);
+                setSelectedRole(null);
+                setSelectedDept(null);
+              }}>변경</button>
             )}
           </div>
           {member.roleChangedBy && (

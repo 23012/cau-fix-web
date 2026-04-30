@@ -69,8 +69,8 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
 
       <input type="text" name="name" placeholder="이름" value={formData.name} onChange={onChange} disabled={loading} className="input" />
       {formData.role === "E" ? (
-        <div className="form-field-select" onClick={() => setShowDeptDropdown(!showDeptDropdown)} style={{ padding: "12px 16px", border: "1px solid var(--back-color)", borderRadius: "8px", position: "relative", boxSizing: "border-box", fontSize: "1rem", lineHeight: "normal", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
-          <span style={formData.dept ? { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 } : { fontSize: "1rem", color: "var(--back-color-2)", fontWeight: 400 }}>
+        <div className="form-field-select signup-dept-select" onClick={() => setShowDeptDropdown(!showDeptDropdown)}>
+          <span>
             {formData.dept || "구분"}
           </span>
           <ChevronRight size={20} className="form-field-arrow" />

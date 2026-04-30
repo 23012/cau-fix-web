@@ -4,9 +4,9 @@ import ProgressBar from "../detail/ProgressBar";
 import Status from "../common/Status";
 import ImagePreview from "../common/ImagePreview";
 import { parseExcelDate } from "../../utils/parseExcelDate";
-import "./AlarmComplainView.css";
+import "./PushComplainView.css";
 
-const AlarmComplainView = ({ data, onBack }) => {
+const PushComplainView = ({ data, onBack }) => {
   const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -38,23 +38,23 @@ const AlarmComplainView = ({ data, onBack }) => {
 
   return (
     <>
-      <div className="acv-header" onClick={onBack}>
+      <div className="pcv-header" onClick={onBack}>
         <ArrowLeft size={18} />
         <span>알림으로 돌아가기</span>
       </div>
 
-      <div className="acv-body">
+      <div className="pcv-body">
         <ProgressBar status={data.status} />
 
-        <div className="acv-tabs">
+        <div className="pcv-tabs">
           <button
-            className={`acv-tab ${activeTab === "content" ? "active" : ""}`}
+            className={`pcv-tab ${activeTab === "content" ? "active" : ""}`}
             onClick={() => setActiveTab("content")}
           >
             접수 내역
           </button>
           <button
-            className={`acv-tab ${activeTab === "result" ? "active" : ""}`}
+            className={`pcv-tab ${activeTab === "result" ? "active" : ""}`}
             onClick={() => data.status === "완료" && setActiveTab("result")}
           >
             처리 내역
@@ -62,23 +62,23 @@ const AlarmComplainView = ({ data, onBack }) => {
         </div>
 
         {activeTab === "content" ? (
-          <div className="acv-content">
-            <div className="acv-title-row">
-              <h3 className="acv-title">{data.title}</h3>
+          <div className="pcv-content">
+            <div className="pcv-title-row">
+              <h3 className="pcv-title">{data.title}</h3>
               <Status status={data.status} />
             </div>
-            <div className="acv-row"><span className="acv-label">신고자</span><span className="acv-value">{data.reporterName || "-"}</span></div>
-            <div className="acv-row"><span className="acv-label">부서</span><span className="acv-value">{data.dept || "-"}</span></div>
-            <div className="acv-row"><span className="acv-label">구분</span><span className="acv-value">{data.category || "-"}</span></div>
-            <div className="acv-row"><span className="acv-label">장소</span><span className="acv-value">{data.location || "-"}</span></div>
-            <div className="acv-row"><span className="acv-label">시간</span><span className="acv-value">{formatDate(data.date)}</span></div>
-            <div className="acv-desc">
+            <div className="pcv-row"><span className="pcv-label">신고자</span><span className="pcv-value">{data.reporterName || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">부서</span><span className="pcv-value">{data.dept || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">구분</span><span className="pcv-value">{data.category || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">장소</span><span className="pcv-value">{data.location || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">시간</span><span className="pcv-value">{formatDate(data.date)}</span></div>
+            <div className="pcv-desc">
               <p>{data.content || ""}</p>
               {imagePath && (
                 <img
                   src={imagePath}
                   alt="민원 사진"
-                  className="acv-image"
+                  className="pcv-image"
                   onClick={() => setPreviewImage(imagePath)}
                   onError={() => setImageError(true)}
                 />
@@ -86,10 +86,10 @@ const AlarmComplainView = ({ data, onBack }) => {
             </div>
           </div>
         ) : (
-          <div className="acv-content">
-            <div className="acv-row"><span className="acv-label">처리자</span><span className="acv-value">{data.resultPerson || "-"}</span></div>
-            <div className="acv-row"><span className="acv-label">처리 시간</span><span className="acv-value">{formatDate(data.resultDate)}</span></div>
-            <div className="acv-desc"><p>{data.result || "-"}</p></div>
+          <div className="pcv-content">
+            <div className="pcv-row"><span className="pcv-label">처리자</span><span className="pcv-value">{data.resultPerson || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">처리 시간</span><span className="pcv-value">{formatDate(data.resultDate)}</span></div>
+            <div className="pcv-desc"><p>{data.result || "-"}</p></div>
           </div>
         )}
       </div>
@@ -99,4 +99,4 @@ const AlarmComplainView = ({ data, onBack }) => {
   );
 };
 
-export default AlarmComplainView;
+export default PushComplainView;

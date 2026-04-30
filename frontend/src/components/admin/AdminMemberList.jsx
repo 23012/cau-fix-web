@@ -5,6 +5,7 @@ import loginDataFile from "../../assets/files/logindata.xlsx";
 import { normalizeRole, ROLES } from "../../constants/roles";
 import MemberDetailPopup from "./MemberDetailPopup";
 import MemberAddForm from "./MemberAddForm";
+import Search from "../common/search";
 
 /**
  * 관리자 회원 관리 리스트
@@ -120,6 +121,10 @@ const AdminMemberList = () => {
 
   return (
     <div className="admin-page">
+      <div className="admin-mobile-header">
+        <h1 className="admin-page-title">회원 관리</h1>
+        <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
+      </div>
       <h1 className="admin-page-title">회원 관리</h1>
 
       {/* 필터 영역 */}
@@ -147,9 +152,6 @@ const AdminMemberList = () => {
             <option value="번호순">번호순</option>
             <option value="최신순">최신순</option>
           </select>
-          <button className="admin-write-btn" onClick={() => setAddFormOpen(true)}>
-            <span>회원 추가</span>
-          </button>
         </div>
       </div>
 

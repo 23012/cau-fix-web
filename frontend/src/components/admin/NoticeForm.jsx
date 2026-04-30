@@ -110,7 +110,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
       </div>
 
       <div className="form-field" onPaste={handlePaste}>
-        <textarea className="form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} style={{ minHeight: "300px" }} />
+        <textarea className="form-textarea notice-form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} />
       </div>
 
       {images.length > 0 && (

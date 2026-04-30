@@ -1,4 +1,4 @@
-.alarm-popup {
+.push-popup {
   position: absolute;
   top: 40px;
   right: 0;
@@ -10,16 +10,16 @@
   z-index: 1100;
   display: flex;
   flex-direction: column;
-  animation: alarm-popup-in 0.15s ease-out;
+  animation: push-popup-in 0.15s ease-out;
   overflow: hidden;
 }
 
-@keyframes alarm-popup-in {
+@keyframes push-popup-in {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.alarm-popup-header {
+.push-popup-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -30,7 +30,7 @@
   color: #222;
 }
 
-.alarm-popup-badge {
+.push-popup-badge {
   background: var(--warning);
   color: #fff;
   font-size: 11px;
@@ -40,7 +40,7 @@
   line-height: 1.2;
 }
 
-.alarm-popup-body {
+.push-popup-body {
   overflow-y: scroll;
   flex: 1;
   padding: 4px 0;
@@ -48,27 +48,27 @@
   scrollbar-width: none;
 }
 
-.alarm-popup-body::-webkit-scrollbar {
+.push-popup-body::-webkit-scrollbar {
   width: 0;
   background: transparent;
 }
 
-.alarm-popup-empty {
+.push-popup-empty {
   padding: 40px 20px;
   text-align: center;
   color: #999;
   font-size: 14px;
 }
 
-.alarm-popup-section-title {
+.push-popup-section-title {
   padding: 12px 20px 6px;
-  font-size: 13px;
+  font-size: 24px;
   font-weight: 700;
   color: #222;
 }
 
 @media (max-width: 768px) {
-  .alarm-popup {
+  .push-popup {
     display: none;
   }
 }

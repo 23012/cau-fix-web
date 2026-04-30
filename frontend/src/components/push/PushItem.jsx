@@ -1,4 +1,4 @@
-import "./AlarmItem.css";
+import "./PushItem.css";
 
 const formatTime = (date) => {
   const now = new Date();
@@ -12,19 +12,19 @@ const formatTime = (date) => {
   return `${days}일 전`;
 };
 
-const AlarmItem = ({ alarm, size = "small", onClick }) => {
+const PushItem = ({ push, size = "small", onClick }) => {
   return (
     <div
-      className={`alarm-item-row ${!alarm.read ? "unread" : ""} alarm-item-row--${size} ${onClick ? "clickable" : ""}`}
+      className={`push-item-row ${!push.read ? "unread" : ""} push-item-row--${size} ${onClick ? "clickable" : ""}`}
       onClick={onClick}
     >
-      <div className="alarm-item-text">
-        <p className="alarm-item-title">{alarm.title}</p>
-        <p className="alarm-item-desc">{alarm.desc}</p>
+      <div className="push-item-text">
+        <p className="push-item-title">{push.title}</p>
+        <p className="push-item-desc">{push.desc}</p>
       </div>
-      <span className="alarm-item-time">{formatTime(alarm.time)}</span>
+      <span className="push-item-time">{formatTime(push.time)}</span>
     </div>
   );
 };
 
-export default AlarmItem;
+export default PushItem;

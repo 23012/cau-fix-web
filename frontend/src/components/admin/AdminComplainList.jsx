@@ -7,6 +7,7 @@ import { STATUSES } from "../../constants/status";
 import { formatDate } from "../../utils/formatDate";
 import Status from "../common/Status";
 import Detail from "../detail/detail";
+import Search from "../common/search";
 
 const AdminComplainList = () => {
   const { tableData, setTableData } = useComplainData();
@@ -76,6 +77,10 @@ const AdminComplainList = () => {
 
   return (
     <div className="admin-page">
+      <div className="admin-mobile-header">
+        <h1 className="admin-page-title">민원 리스트</h1>
+        <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
+      </div>
       <h1 className="admin-page-title">민원 리스트</h1>
 
       {/* 필터 영역 */}
@@ -103,16 +108,20 @@ const AdminComplainList = () => {
         </div>
 
         <div className="admin-filters-right">
-          <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
-            <option value="번호순">번호순</option>
-            <option value="최신순">최신순</option>
-            <option value="오래된순">오래된순</option>
-            <option value="상태순">상태순</option>
-          </select>
-          <input type="date" className="admin-date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }} />
-          <span>~</span>
-          <input type="date" className="admin-date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }} />
-          <button className="admin-excel-btn" onClick={handleExcelDownload}>Excel</button>
+          <div className="admin-filters-row">
+            <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
+              <option value="번호순">번호순</option>
+              <option value="최신순">최신순</option>
+              <option value="오래된순">오래된순</option>
+              <option value="상태순">상태순</option>
+            </select>
+          </div>
+          <div className="admin-filters-row">
+            <input type="date" className="admin-date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }} />
+            <span>~</span>
+            <input type="date" className="admin-date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }} />
+            <button className="admin-excel-btn" onClick={handleExcelDownload}>Excel</button>
+          </div>
         </div>
       </div>
 

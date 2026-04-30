@@ -68,8 +68,7 @@
 .chart-container {
   position: relative;
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 10px;
+  max-width: clamp(240px, 30vw, 400px);
 }
 
 .chart {
@@ -87,7 +86,7 @@
 }
 
 .chart-center-count {
-  font-size: 60px;
+  font-size: clamp(32px, 5vw, 60px);
   font-weight: 800;
   color: #333;
 }
@@ -109,12 +108,11 @@
   width: 100%;
   padding: 14px 20px;
   margin-top: 40px;
-  margin-bottom : 10px;
-  border: none;
+  margin-bottom: 10px;
+  border: 2px solid var(--yellow);
   border-radius: 12px;
   background: white;
   color: var(--yellow);
-  border: 2px solid var(--yellow) !important;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -130,7 +128,6 @@
 .favorite-btn:active {
   transform: translateY(0);
 }
-
 
 /* MAIN GRID */
 
@@ -276,7 +273,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-top : 28px;
+  margin-top: 28px;
 }
 
 /* STATUS TABS + TOOLBAR */
@@ -286,7 +283,6 @@
   align-items: center;
   justify-content: space-between;
   height: 50px;
-  padding-bottom: 0px;
   border-bottom: 1px solid #e0e0e0;
   position: relative;
 }
@@ -316,7 +312,7 @@
 }
 
 .status-tab {
-  padding: 0px 40px 22px;
+  padding: 0 40px 22px;
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
@@ -326,8 +322,6 @@
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.2s, border-color 0.2s;
-  margin-top : 0px;
-  margin-right : 0px;
 }
 
 .status-tab.active {
@@ -392,10 +386,11 @@
   background: #fafafa;
 }
 
-/* 컬럼 너비 지정 */
-.table th:first-child,
-.table td:first-child {
-  width: 120px;
+/* 컬럼 너비 — col-fav 클래스로 통합 */
+.col-fav {
+  width: 60px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .table th:nth-child(2),
@@ -408,7 +403,6 @@
   width: 200px;
 }
 
-
 .title {
   font-weight: 500;
   text-align: left;
@@ -418,13 +412,7 @@
   max-width: 180px;
 }
 
-/* FAVORITE in TABLE*/
-
-.col-fav {
-  width: 120px !important;
-  text-align: center;
-  cursor: pointer;
-}
+/* FAVORITE in TABLE */
 
 .fav-icon {
   transition: all 0.2s;
@@ -437,8 +425,6 @@
 .fav-active {
   filter: drop-shadow(0 1px 2px rgba(255, 210, 63, 0.4));
 }
-
-
 
 /* PAGINATION */
 
@@ -495,7 +481,7 @@
   background: var(--main-color);
   color: white;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -519,10 +505,9 @@
 /* ===== 모바일 ===== */
 
 @media (max-width: 768px) {
-
   .dashboard {
-    padding: 1rem 2px;
-    padding-bottom: 30px;
+    padding: 1rem 16px;
+    padding-bottom: 100px;
   }
 
   .main {
@@ -531,30 +516,24 @@
     margin-top: 10px;
   }
 
-  /* 모바일: 차트 영역 */
   .chart-area {
     padding: 1rem;
   }
 
-  /* 모바일: 차트 내 날짜 필터 보이기 (박스 안) */
   .chart-date-filters {
-    display: flex;
     justify-content: center;
     margin-bottom: 16px;
   }
 
-  /* 모바일: 별도 기간 설정 숨김 */
   .mobile-date-filters {
     display: none;
   }
 
-  /* 모바일: 내 민원 제목 + 검색 */
   .mobile-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-    position: relative;
+    margin-bottom: 20px;
     min-height: 40px;
   }
 
@@ -562,7 +541,7 @@
     font-size: 22px;
     font-weight: 1000;
     color: black;
-    line-height: 40px;
+    margin: 0;
   }
 
   .mobile-title-row {
@@ -579,37 +558,30 @@
     font-size: 14px;
     font-weight: 600;
     white-space: nowrap;
+    margin-top: 4px;
+    margin-left: 4px;
   }
 
-  .mobile-header .search-container {
-    position: static;
-    height: 40px;
-  }
-
-  .mobile-header .search-input-wrapper.open {
-    width: 180px;
-  }
-
-  /* 모바일: 검색은 상태 탭 줄에서 숨김 (모바일 헤더에 있으므로) */
   .table-toolbar .search-container {
     display: none;
   }
 
-  /* 모바일: 등록 버튼 숨김 */
+  .table-section {
+    margin-top: 0;
+  }
+
+  .table-toolbar {
+    height: 40px;
+    gap: 5px;
+  }
+
   .register-btn {
     display: none;
   }
 
-  .chart-container {
-    max-width: 280px;
-  }
-
-  .chart-center-count {
-    font-size: 32px;
-  }
-
   .fab {
     bottom: 100px;
+    right: 20px;
   }
 
   .fab button {
@@ -618,14 +590,12 @@
   }
 
   .fab button svg {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
   }
-  
+
   .table-wrapper {
     margin-bottom: 20px;
-    margin-left: 0px;
-    margin-right: 0px;
   }
 
   .table th,
@@ -633,9 +603,9 @@
     padding: 12px 4px;
   }
 
-  .table th:first-child,
-  .table td:first-child {
+  .col-fav {
     width: 36px;
+    padding: 8px 2px 8px 8px;
   }
 
   .table th:nth-child(2),
@@ -656,13 +626,12 @@
     min-width: 100%;
   }
 
-  /* 모바일: 분류 컬럼 숨김 */
   .col-category {
     display: none;
   }
 
   .status-tab {
-    padding: 0px 18px 16px;
+    padding: 0 18px 16px;
     font-size: 16px;
   }
 }
@@ -670,7 +639,6 @@
 /* ===== 태블릿 ===== */
 
 @media (min-width: 769px) and (max-width: 1024px) {
-
   .dashboard {
     padding-bottom: 10px;
   }
@@ -679,26 +647,13 @@
     grid-template-columns: 1fr 2fr;
     margin-top: 10px;
   }
-
-  .chart-container {
-    max-width: 240px;
-  }
-
-  .chart-center-count {
-    font-size: 32px;
-  }
 }
 
 /* ===== PC ===== */
 
 @media (min-width: 1025px) {
-
   .main {
     grid-template-columns: 1fr 2fr;
-  }
-
-  .chart-container {
-    max-width: 280px;
   }
 
   .fab {
@@ -706,5 +661,3 @@
     right: 80px;
   }
 }
-
-/* 확인 */

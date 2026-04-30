@@ -11,7 +11,7 @@ import AdminComplains from "./pages/admin-complains/admin-complains";
 import AdminMembers from "./pages/admin-members/admin-members";
 import ComplainDetail from "./pages/complain-detail/complain-detail";
 import Notice from "./pages/notice/notice";
-import AlarmList from "./pages/alarm-list/alarm-list";
+import PushList from "./pages/push-list/push-list";
 import MyInfo from "./pages/myinfo/myinfo";
 import ComplainWrite from "./pages/complain-write/complain-write";
 
@@ -67,7 +67,7 @@ function App() {
         <Route path="/complain-write" element={<ComplainWrite />} />
         <Route path="/complain-detail" element={<ComplainDetail />} />
         <Route path="/notice" element={<Notice />} />
-        <Route path="/alarm-list" element={<AlarmList />} />
+        <Route path="/push-list" element={<PushList />} />
         <Route path="/myinfo" element={<MyInfo />} />
       </Routes>
     </Router>

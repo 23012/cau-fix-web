@@ -1,4 +1,4 @@
-.alarm-item-row {
+.push-item-row {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -7,31 +7,30 @@
   transition: background 0.15s;
 }
 
-.alarm-item-row:hover {
+.push-item-row:hover {
   background: #f8f8f8;
 }
 
-.alarm-item-row.unread {
+.push-item-row.unread {
   background: #f0f8ff;
 }
 
-.alarm-item-row.unread:hover {
+.push-item-row.unread:hover {
   background: #e6f2ff;
 }
 
-.alarm-item-row--large {
+.push-item-row--large {
   gap: 14px;
   padding: 14px 8px;
   border-radius: 10px;
 }
 
-/* 텍스트 */
-.alarm-item-text {
+.push-item-text {
   flex: 1;
   min-width: 0;
 }
 
-.alarm-item-title {
+.push-item-title {
   font-size: 14px;
   font-weight: 600;
   color: #222;
@@ -39,11 +38,11 @@
   line-height: 1.4;
 }
 
-.alarm-item-row--large .alarm-item-title {
+.push-item-row--large .push-item-title {
   font-size: 15px;
 }
 
-.alarm-item-desc {
+.push-item-desc {
   font-size: 13px;
   color: #666;
   margin: 0;
@@ -53,7 +52,7 @@
   white-space: nowrap;
 }
 
-.alarm-item-row--large .alarm-item-desc {
+.push-item-row--large .push-item-desc {
   font-size: 14px;
   white-space: normal;
   display: -webkit-box;
@@ -61,7 +60,7 @@
   -webkit-box-orient: vertical;
 }
 
-.alarm-item-time {
+.push-item-time {
   font-size: 12px;
   color: #999;
   white-space: nowrap;
@@ -69,10 +68,10 @@
   margin-top: 2px;
 }
 
-.alarm-item-row.clickable {
+.push-item-row.clickable {
   cursor: pointer;
 }
 
-.alarm-item-row.clickable:hover .alarm-item-title {
+.push-item-row.clickable:hover .push-item-title {
   color: var(--main-color);
 }

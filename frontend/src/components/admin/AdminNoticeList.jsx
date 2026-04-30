@@ -5,6 +5,8 @@ import noticeDataFile from "../../assets/files/notice-data.xlsx";
 import loginDataFile from "../../assets/files/logindata.xlsx";
 import { normalizeNoticeCategory } from "../../constants/noticeCategories";
 import NoticeForm from "./NoticeForm";
+import Search from "../common/search";
+import { Plus } from "lucide-react";
 
 /**
  * TODO: 백엔드 연결 시 Excel 로딩을 아래 API로 교체
@@ -107,6 +109,10 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
 
   return (
     <div className="admin-page">
+      <div className="admin-mobile-header">
+        <h1 className="admin-page-title">공지사항</h1>
+        <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
+      </div>
       <h1 className="admin-page-title">공지사항</h1>
 
       {/* 필터 영역 */}
@@ -177,6 +183,10 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
           setNoticeFormOpen(false);
         }}
       />
+
+      <div className="admin-fab">
+        <button className="fab-btn" onClick={() => setNoticeFormOpen(true)}><Plus /></button>
+      </div>
     </div>
   );
 };

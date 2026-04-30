@@ -3,6 +3,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+*:focus {
+  outline: none;
 }
 
 /* 기본 폰트 */
@@ -74,6 +79,17 @@ input[type="submit"],
   cursor: pointer;
 }
 
+input,
+textarea,
+select,
+[contenteditable] {
+  cursor: text;
+}
+
+select {
+  cursor: pointer;
+}
+
 /* 커스텀 마우스 포인터 */
 .custom-cursor {
   position: fixed;
@@ -107,6 +123,6 @@ input[type="submit"],
 
 @media (max-width: 768px) {
   .page-content {
-    padding: 10px;
+    padding: 0;
   }
 }
