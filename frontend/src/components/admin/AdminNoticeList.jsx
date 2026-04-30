@@ -113,6 +113,15 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
         <h1 className="admin-page-title">공지사항</h1>
         <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
       </div>
+
+      <div className="admin-status-tabs">
+        {TABS.map((tab) => (
+          <button key={tab} className={`admin-status-tab ${activeTab === tab ? "active" : ""}`} onClick={() => { setActiveTab(tab); setCurrentPage(1); }}>
+            {tab}
+          </button>
+        ))}
+      </div>
+
       <h1 className="admin-page-title">공지사항</h1>
 
       {/* 필터 영역 */}

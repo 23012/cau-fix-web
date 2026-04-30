@@ -363,7 +363,7 @@
 
 @media (max-width: 768px) {
   .notice-form-textarea {
-    min-height: 200px;
+    min-height: 230px;
   }
 
   .notice-form-hint {

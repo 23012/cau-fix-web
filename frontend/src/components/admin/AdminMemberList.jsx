@@ -123,8 +123,17 @@ const AdminMemberList = () => {
     <div className="admin-page">
       <div className="admin-mobile-header">
         <h1 className="admin-page-title">회원 관리</h1>
-        <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
+        <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} placeholder="이름을 입력하세요" />
       </div>
+
+      <div className="admin-status-tabs">
+        {STATUS_TABS.map((tab) => (
+          <button key={tab} className={`admin-status-tab ${statusFilter === tab ? "active" : ""}`} onClick={() => { setStatusFilter(tab); setCurrentPage(1); }}>
+            {tab}
+          </button>
+        ))}
+      </div>
+
       <h1 className="admin-page-title">회원 관리</h1>
 
       {/* 필터 영역 */}
@@ -162,7 +171,8 @@ const AdminMemberList = () => {
             <tr>
               <th>번호</th>
               <th>아이디</th>
-              <th>부서</th>
+              <th className="member-col-dept">부서</th>
+              <th className="member-col-name">이름</th>
               <th>권한</th>
               <th>상태</th>
               <th>가입일자</th>
@@ -174,7 +184,8 @@ const AdminMemberList = () => {
               <tr key={row.no} onClick={(e) => { e.stopPropagation(); setSelectedMember(row); }} style={{ cursor: "pointer" }}>
                 <td>{row.no}</td>
                 <td>{row.id}</td>
-                <td>{row.dept}</td>
+                <td className="member-col-dept">{row.dept}</td>
+                <td className="member-col-name">{row.name}</td>
                 <td>{row.role}</td>
                 <td>
                   <span className={`member-status ${STATUS_CLASS[row.status] || ""}`}>
@@ -186,7 +197,7 @@ const AdminMemberList = () => {
               </tr>
             ))}
             {currentData.length === 0 && (
-              <tr><td colSpan={7} className="admin-empty">회원이 없습니다.</td></tr>
+              <tr><td colSpan={8} className="admin-empty">회원이 없습니다.</td></tr>
             )}
           </tbody>
         </table>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search as SearchIcon } from "lucide-react";
 import "./search.css";
 
-const Search = ({ onSearchChange }) => {
+const Search = ({ onSearchChange, placeholder = "제목을 입력하세요" }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -26,7 +26,7 @@ const Search = ({ onSearchChange }) => {
         <input
           type="text"
           className="search-input"
-          placeholder="제목을 입력하세요"
+          placeholder={placeholder}
           value={searchQuery}
           onChange={handleSearchChange}
         />

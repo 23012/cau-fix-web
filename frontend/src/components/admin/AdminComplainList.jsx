@@ -81,6 +81,15 @@ const AdminComplainList = () => {
         <h1 className="admin-page-title">민원 리스트</h1>
         <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
       </div>
+
+      <div className="admin-status-tabs">
+        {["전체", ...STATUSES].map((tab) => (
+          <button key={tab} className={`admin-status-tab ${statusFilter === tab ? "active" : ""}`} onClick={() => { setStatusFilter(tab); setCurrentPage(1); }}>
+            {tab}
+          </button>
+        ))}
+      </div>
+
       <h1 className="admin-page-title">민원 리스트</h1>
 
       {/* 필터 영역 */}

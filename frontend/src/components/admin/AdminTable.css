@@ -275,7 +275,8 @@
   }
 
   .admin-page-title {
-    font-size: 20px;
+    font-size: 22px;
+    font-weight: 1000;
   }
 
   .admin-filters {
@@ -285,6 +286,10 @@
     padding-bottom: 0;
     border-bottom: none;
     margin-bottom: 0;
+  }
+
+  .admin-table-wrapper {
+    overflow-x: hidden;
   }
 
   /* 모바일: 탭/검색 숨김 (모바일 헤더에서 처리) */
@@ -299,7 +304,7 @@
     gap: 8px;
     padding-top: 8px;
     padding-bottom: 12px;
-    border-top: 1px solid #e0e0e0;
+    border-top: none;
   }
 
   .admin-filters-row {
@@ -370,24 +375,24 @@
     font-size: 14px;
   }
 
-  /* --- 회원 관리: 번호, 아이디, 부서, 상태만 --- */
-  .member-table th:nth-child(4),
-  .member-table td:nth-child(4),
-  .member-table th:nth-child(6),
-  .member-table td:nth-child(6),
+  /* --- 회원 관리: 번호, 부서, 이름, 상태만 --- */
+  .member-table th:nth-child(2),
+  .member-table td:nth-child(2),
+  .member-table th:nth-child(5),
+  .member-table td:nth-child(5),
   .member-table th:nth-child(7),
-  .member-table td:nth-child(7) {
+  .member-table td:nth-child(7),
+  .member-table th:nth-child(8),
+  .member-table td:nth-child(8) {
     display: none;
   }
 
-  .member-table th:nth-child(1),
-  .member-table td:nth-child(1) { width: 30px; }
-  .member-table th:nth-child(2),
-  .member-table td:nth-child(2) { width: auto; }
-  .member-table th:nth-child(3),
-  .member-table td:nth-child(3) { width: auto; }
-  .member-table th:nth-child(5),
-  .member-table td:nth-child(5) { width: 40px; }
+  .admin-table.member-table th:nth-child(1),
+  .admin-table.member-table td:nth-child(1) { width: 100px; }
+  .member-col-dept { width: 60px; }
+  .member-col-name { width: auto;}
+  .admin-table.member-table th:nth-child(6),
+  .admin-table.member-table td:nth-child(6) { width: 100px; white-space: nowrap; }
 
   /* --- 민원 리스트: 번호, 제목, 상태만 --- */
   .complain-table th:nth-child(2),
@@ -493,5 +498,55 @@
 
   .admin-write-btn {
     display: none;
+  }
+}
+
+/* ===== 관리자 모바일 상태 탭 ===== */
+.admin-status-tabs {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .admin-status-tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 8px;
+  }
+
+  .admin-status-tab {
+    padding: 0 18px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--back-color-2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .admin-status-tab.active {
+    color: var(--main-color);
+    font-weight: 700;
+    border-bottom-color: var(--main-color);
+  }
+
+  .admin-status-tab:hover {
+    color: var(--main-color);
+    border-bottom-color: var(--main-color);
+  }
+}
+
+/* PC: 이름 컬럼 숨김 (모바일 전용) */
+.member-col-name {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .member-col-name {
+    display: table-cell;
   }
 }
