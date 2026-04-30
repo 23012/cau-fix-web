@@ -34,12 +34,16 @@ const Header = () => {
   // 팝업 상태
   const [pushOpen, setPushOpen] = useState(false);
   const [myinfoOpen, setMyinfoOpen] = useState(false);
+  const [mobileDashboardMenuOpen, setMobileDashboardMenuOpen] = useState(false);
+  const [mobileDashboardPopupStyle, setMobileDashboardPopupStyle] = useState({ left: "50%", bottom: "66px" });
   const [pushEnabled, setPushEnabled] = useState(() => localStorage.getItem("pushEnabled") !== "false");
 
   const popupRef = useRef(null);
   const btnRef = useRef(null);
   const pushPopupRef = useRef(null);
   const pushBtnRef = useRef(null);
+  const mobileDashboardBtnRef = useRef(null);
+  const mobileDashboardPopupRef = useRef(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -48,6 +52,12 @@ const Header = () => {
 
   const role = normalizeRole(user?.role || "");
   const menuItems = getMenuItems(role);
+  const mobileMenuItems = menuItems.filter((item) => !(role === "관리자" && item.path === "/admin/complains"));
+  const mobileDashboardMenuItems = role === "관리자" ? [
+    { name: "대시보드", path: "/complain-dashboard" },
+    { name: "민원 리스트", path: "/admin/complains" },
+  ] : [];
+  const isDashboardGroupActive = role === "관리자" && ["/complain-dashboard", "/admin/complains"].includes(location.pathname);
 
   useEffect(() => {
     const idx = menuItems.findIndex((item) => item.path === location.pathname);
@@ -63,10 +73,13 @@ const Header = () => {
       if (pushOpen && pushPopupRef.current && !pushPopupRef.current.contains(e.target) && pushBtnRef.current && !pushBtnRef.current.contains(e.target)) {
         setPushOpen(false);
       }
+      if (mobileDashboardMenuOpen && mobileDashboardPopupRef.current && !mobileDashboardPopupRef.current.contains(e.target) && mobileDashboardBtnRef.current && !mobileDashboardBtnRef.current.contains(e.target)) {
+        setMobileDashboardMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [myinfoOpen, pushOpen]);
+  }, [myinfoOpen, pushOpen, mobileDashboardMenuOpen]);
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
@@ -84,6 +97,24 @@ const Header = () => {
   const handleMenuClick = (index, path) => {
     setActiveIndex(index);
     navigate(path);
+  };
+
+  const handleMobileNavClick = (item, index) => {
+    if (role === "관리자" && item.path === "/complain-dashboard") {
+      if (!mobileDashboardMenuOpen && mobileDashboardBtnRef.current) {
+        const rect = mobileDashboardBtnRef.current.getBoundingClientRect();
+        setMobileDashboardPopupStyle({
+          left: `${rect.left + rect.width / 2}px`,
+          bottom: `${window.innerHeight - rect.top + 8}px`,
+        });
+      }
+      setMobileDashboardMenuOpen((prev) => !prev);
+      return;
+    }
+    const realIndex = menuItems.findIndex((menuItem) => menuItem.path === item.path);
+    if (realIndex !== -1) setActiveIndex(realIndex);
+    navigate(item.path);
+    setMobileDashboardMenuOpen(false);
   };
 
   return (
@@ -161,16 +192,41 @@ const Header = () => {
 
       {/* 모바일: 하단 고정 메뉴 */}
       <nav className="header-mobile-nav">
-        {menuItems.map((item, index) => {
-          const isActive = activeIndex === index;
-          const isHovered = hoveredIndex === index;
+        {mobileDashboardMenuOpen && (
+          <div className="header-mobile-dashboard-popup" ref={mobileDashboardPopupRef} style={mobileDashboardPopupStyle}>
+            {mobileDashboardMenuItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <button
+                  key={item.name}
+                  type="button"
+                  className={`header-mobile-dashboard-popup__item ${isActive ? "header-mobile-dashboard-popup__item--active" : ""}`}
+                  onClick={() => {
+                    navigate(item.path);
+                    setActiveIndex(menuItems.findIndex((menuItem) => menuItem.path === item.path));
+                    setMobileDashboardMenuOpen(false);
+                  }}
+                >
+                  {item.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {mobileMenuItems.map((item, index) => {
+          const realIndex = menuItems.findIndex((menuItem) => menuItem.path === item.path);
+          const isActive = item.path === "/complain-dashboard" ? isDashboardGroupActive : activeIndex === realIndex;
+          const isHovered = hoveredIndex === realIndex;
           const showActiveIcon = isActive || isHovered;
           return (
             <button
               key={item.name}
+              ref={item.path === "/complain-dashboard" ? mobileDashboardBtnRef : null}
               className={`header-mobile-nav__btn ${isActive ? "header-mobile-nav__btn--active" : ""}`}
-              onClick={() => handleMenuClick(index, item.path)}
+              onClick={() => handleMobileNavClick(item, index)}
               style={{ order: item.order }}
+              aria-label={item.name}
             >
               <item.Icon size={24} strokeWidth={showActiveIcon ? 2.5 : 1.5} />
             </button>

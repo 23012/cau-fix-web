@@ -108,7 +108,7 @@ const AdminComplainList = () => {
             ))}
           </div>
 
-          <select className="admin-select" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}>
+          <select className="admin-role-filter" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}>
             <option value="전체">전체 분류</option>
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>

@@ -280,37 +280,46 @@
   }
 
   .admin-filters {
-    flex-direction: column;
+    flex-direction: row;
     align-items: stretch;
-    gap: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-    margin-bottom: 0;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
   }
 
   .admin-table-wrapper {
     overflow-x: hidden;
   }
 
-  /* 모바일: 탭/검색 숨김 (모바일 헤더에서 처리) */
+  /* 모바일: 탭/검색 표시 */
   .admin-tabs,
   .admin-filters-left {
-    display: none;
+    display: flex;
   }
 
   .admin-filters-right {
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-end;
     gap: 8px;
-    padding-top: 8px;
-    padding-bottom: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
     border-top: none;
   }
 
   .admin-filters-row {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
+    width: 100%;
+  }
+
+  /* 모바일에서 특정 요소 숨김 */
+  .admin-status-tabs,
+  .admin-category-tabs,
+  .admin-role-filter {
+    display: none;
   }
 
   /* 민원 리스트: 기간설정+엑셀 같은 줄 */
@@ -368,7 +377,7 @@
     table-layout: auto;
     min-width: 0 !important;
   }
-
+ 
   .admin-table th,
   .admin-table td {
     padding: 12px 4px;
@@ -461,6 +470,11 @@
   .admin-page > .admin-page-title {
     display: none;
   }
+
+  /* 모바일에서 권한 필터 숨김 */
+  .admin-role-filter {
+    display: none;
+  }
 }
 
 /* ===== 관리자 FAB (모바일 전용) ===== */
@@ -508,45 +522,6 @@
 
 @media (max-width: 768px) {
   .admin-status-tabs {
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 8px;
-  }
-
-  .admin-status-tab {
-    padding: 0 18px 16px;
-    background: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--back-color-2);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .admin-status-tab.active {
-    color: var(--main-color);
-    font-weight: 700;
-    border-bottom-color: var(--main-color);
-  }
-
-  .admin-status-tab:hover {
-    color: var(--main-color);
-    border-bottom-color: var(--main-color);
-  }
-}
-
-/* PC: 이름 컬럼 숨김 (모바일 전용) */
-.member-col-name {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .member-col-name {
-    display: table-cell;
+    display: none;
   }
 }

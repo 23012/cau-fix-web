@@ -148,10 +148,6 @@ const AdminMemberList = () => {
             ))}
           </div>
 
-          <select className="admin-select" value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}>
-            <option value="전체">전체 권한</option>
-            {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
 
           <input type="text" className="admin-search" placeholder="검색어" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} autoComplete="off" />
         </div>
@@ -160,6 +156,8 @@ const AdminMemberList = () => {
           <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
             <option value="번호순">번호순</option>
             <option value="최신순">최신순</option>
+            <option value="오래된순">오래된순</option>
+            <option value="상태순">상태순</option>
           </select>
         </div>
       </div>
