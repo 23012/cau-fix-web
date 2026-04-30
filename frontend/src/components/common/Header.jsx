@@ -17,7 +17,7 @@ const getMenuItems = (role) => {
     { name: "내 정보", Icon: User, order: 5, path: "/myinfo", mobileOnly: true },
   ];
   if (role === "관리자") {
-    items.splice(1, 0, { name: "민원 리스트", Icon: MessageSquareWarning, order: 2, path: "/admin/complains" });
+    items.splice(1, 0, { name: "리스트", Icon: MessageSquareWarning, order: 2, path: "/admin/complains" });
     items.splice(2, 0, { name: "회원 관리", Icon: Users, order: 2.5, path: "/admin/members" });
   }
   return items;
@@ -55,7 +55,7 @@ const Header = () => {
   const mobileMenuItems = menuItems.filter((item) => !(role === "관리자" && item.path === "/admin/complains"));
   const mobileDashboardMenuItems = role === "관리자" ? [
     { name: "대시보드", path: "/complain-dashboard" },
-    { name: "민원 리스트", path: "/admin/complains" },
+    { name: "리스트", path: "/admin/complains" },
   ] : [];
   const isDashboardGroupActive = role === "관리자" && ["/complain-dashboard", "/admin/complains"].includes(location.pathname);
 

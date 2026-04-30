@@ -2,7 +2,6 @@ import "./AdminTable.css";
 import { useState, useMemo } from "react";
 import * as XLSX from "xlsx";
 import useComplainData from "../../hooks/useComplainData";
-import { CATEGORIES } from "../../constants/categories";
 import { STATUSES } from "../../constants/status";
 import { formatDate } from "../../utils/formatDate";
 import Status from "../common/Status";
@@ -12,7 +11,6 @@ import Search from "../common/search";
 const AdminComplainList = () => {
   const { tableData, setTableData } = useComplainData();
   const [statusFilter, setStatusFilter] = useState("전체");
-  const [categoryFilter, setCategoryFilter] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedComplain, setSelectedComplain] = useState(null);
@@ -25,7 +23,6 @@ const AdminComplainList = () => {
   const filteredData = useMemo(() => {
     const result = tableData.filter((row) => {
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;
-      if (categoryFilter !== "전체" && row.category !== categoryFilter) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (!row.title.toLowerCase().includes(q) && !row.content?.toLowerCase().includes(q)) return false;
@@ -57,7 +54,7 @@ const AdminComplainList = () => {
       default: sorted.sort((a, b) => b.id - a.id);
     }
     return sorted;
-  }, [tableData, statusFilter, categoryFilter, searchQuery, startDate, endDate, sortOrder]);
+  }, [tableData, statusFilter, searchQuery, startDate, endDate, sortOrder]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -90,8 +87,6 @@ const AdminComplainList = () => {
         ))}
       </div>
 
-      <h1 className="admin-page-title">민원 리스트</h1>
-
       {/* 필터 영역 */}
       <div className="admin-filters">
         <div className="admin-filters-left">
@@ -108,10 +103,6 @@ const AdminComplainList = () => {
             ))}
           </div>
 
-          <select className="admin-role-filter" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}>
-            <option value="전체">전체 분류</option>
-            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
 
           <input type="text" className="admin-search" placeholder="제목" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
         </div>
