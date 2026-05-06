@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Background from "../../components/common/Background";
 import SignupForm from "../../components/form/SignupForm";
+import { checkDuplicateId, register } from "../../services/authService";
 import hospitalBg from "../../assets/images/background-img.png";
 import "./signup.css";
 import "../../styles/global.css";
@@ -9,11 +10,10 @@ import "../../styles/global.css";
 const Signup = () => {
   const navigate = useNavigate();
 
-  //member 데이터 생성
   const [formData, setFormData] = useState({
     id: "",
     password: "",
-    role: "", // "사용자" or "처리자"
+    role: "",
     name: "",
     dept: "",
     phone: "",
@@ -21,14 +21,17 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // id duplicate-check state
   const [idChecked, setIdChecked] = useState(false);
-  const [idAvailable, setIdAvailable] = useState(null); // null=unchecked, true/false
+  const [idAvailable, setIdAvailable] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
+    if (name === "id") {
+      setIdChecked(false);
+      setIdAvailable(null);
+    }
   };
 
   const handleCheckDuplicate = async () => {
@@ -36,24 +39,25 @@ const Signup = () => {
       setError("아이디를 입력해주세요");
       return;
     }
-    // TODO: DB api 연결 필요
-    const exists = false;
-
-    if (exists) {
-      alert("사용 불가능한 아이디입니다.");
-      setIdChecked(true);
-      setIdAvailable(false);
-    } else {
-      alert("사용 가능한 아이디입니다.");
-      setIdChecked(true);
-      setIdAvailable(true);
+    try {
+      const result = await checkDuplicateId(formData.id);
+      if (result.available) {
+        alert("사용 가능한 아이디입니다.");
+        setIdChecked(true);
+        setIdAvailable(true);
+      } else {
+        alert("사용 불가능한 아이디입니다.");
+        setIdChecked(true);
+        setIdAvailable(false);
+      }
+    } catch (err) {
+      setError("중복 확인 중 오류가 발생했습니다");
     }
   };
 
   const handleSubmit = async (e, passwordConfirm) => {
     e.preventDefault();
 
-    // require duplicate check and availability
     if (!idChecked) {
       setError("아이디 중복 확인을 해주세요");
       return;
@@ -79,13 +83,20 @@ const Signup = () => {
       setError("비밀번호가 일치하지 않습니다");
       return;
     }
+
     setLoading(true);
     try {
-      // TODO: 실제 회원가입 API 호출
-      alert("회원가입 요청이 접수되었습니다. 관리자 승인 후 로그인 가능합니다. (이음톡 확인 바람)");
+      const result = await register(formData);
+      alert(result.message);
       navigate("/login");
     } catch (err) {
-      setError("회원가입 중 오류가 발생했습니다");
+      if (err.status === 409) {
+        setError("이미 사용 중인 아이디입니다");
+        setIdChecked(false);
+        setIdAvailable(null);
+      } else {
+        setError(err.message || "회원가입 중 오류가 발생했습니다");
+      }
     } finally {
       setLoading(false);
     }
@@ -101,7 +112,7 @@ const Signup = () => {
           error={error}
           loading={loading}
           onChange={handleChange}
-          onSubmit={handleSubmit}    // + 비밀번호 확인 함수 (passwordConfirm) 호출
+          onSubmit={handleSubmit}
           onCheckDuplicate={handleCheckDuplicate}
         />
       </div>

@@ -27,7 +27,7 @@ export const CATEGORIES = [
   "미화",
 ];
 
-export const DEPARTMENTS = ["전체", ...CATEGORIES];
+export const DEPARTMENTS = ["전체 분류", ...CATEGORIES];
 
 /**
  * 코드값 또는 한글값을 라벨로 변환

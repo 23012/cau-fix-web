@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시설관리팀 고장 신고 앱 ERD</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f7f4;color:#1a1a18;padding:24px}
+h1{font-size:18px;font-weight:600;color:#1a1a18;margin-bottom:4px}
+.subtitle{font-size:12px;color:#73726c;margin-bottom:16px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center;background:#fff;padding:10px 14px;border-radius:8px;border:1px solid #e5e4de}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#5f5e5a}
+.badge{font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;white-space:nowrap}
+.pk{background:#FEF3C7;color:#92400E}
+.fk{background:#DBEAFE;color:#1E40AF}
+.new-b{background:#D1FAE5;color:#065F46}
+.grid{display:grid;grid-template-columns:repeat(4,220px);gap:14px}
+.tbl{border-radius:10px;overflow:hidden;border:1.5px solid #e5e4de;background:#fff;font-size:11px;box-shadow:0 1px 3px rgba(0,0,0,0.05);width:220px}
+.tbl-head{padding:8px 12px 6px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tbl-head .name{flex:1}
+.tbl-row{display:flex;align-items:flex-start;gap:6px;padding:2px 10px;min-height:20px}
+.col-name{flex:1;color:#1a1a18;font-size:11px;line-height:1.4}
+.col-type{font-size:10px;color:#888780;white-space:nowrap;padding-top:1px}
+.enum-vals{font-size:9.5px;color:#73726c;padding:0 10px 5px 10px;line-height:1.6;border-top:1px solid #f0efe9;margin-top:1px}
+.enum-vals span{display:inline-block;background:#f8f7f4;border:1px solid #e5e4de;border-radius:3px;padding:0 4px;margin:1px 2px 1px 0;font-size:9px;color:#5f5e5a}
+.divider{height:1px;background:#f0efe9;margin:2px 0}
+.changed{background:rgba(253,230,138,0.15)}
+.section-label{font-size:9px;font-weight:600;color:#888780;padding:4px 10px 1px;text-transform:uppercase;letter-spacing:0.06em}
+.h-purple{background:#EEEDFE;color:#3C3489}
+.h-teal{background:#E1F5EE;color:#085041}
+.h-blue{background:#E6F1FB;color:#0C447C}
+.h-coral{background:#FAECE7;color:#712B13}
+.h-amber{background:#FAEEDA;color:#633806}
+.h-pink{background:#FBEAF0;color:#72243E}
+@media print{
+  button{display:none!important}
+  body{padding:16px;background:#f8f7f4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tbl{break-inside:avoid;box-shadow:none!important}
+}
+</style>
+</head>
+<body>
+<h1>시설관리팀 고장 신고 앱 ERD</h1>
+<p class="subtitle">facility-complaint · PostgreSQL · v2</p>
+<button onclick="window.print()" style="margin-bottom:16px;padding:7px 16px;background:#3C3489;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">🖨️ 인쇄 / PDF 저장</button>
+
+<div class="legend">
+  <div class="legend-item"><span class="badge pk">PK</span> Primary Key</div>
+  <div class="legend-item"><span class="badge fk">FK</span> Foreign Key</div>
+  <div class="legend-item"><div style="width:8px;height:8px;border-radius:2px;background:#6EE7B7;display:inline-block"></div> 신규 테이블</div>
+  <div class="legend-item"><div style="width:8px;height:8px;border-radius:2px;background:#FDE68A;display:inline-block"></div> 추가된 컬럼</div>
+</div>
+
+<div class="grid">
+
+<!-- member -->
+<div class="tbl">
+  <div class="tbl-head h-purple"><span class="name">👤 member</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">member_id</span><span class="badge pk">PK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">계정</div>
+  <div class="tbl-row"><span class="col-name">password</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">name</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">dept</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">phone</span><span class="col-type">VARCHAR(20)</span></div>
+  <div class="tbl-row"><span class="col-name">role</span><span class="col-type">ENUM</span></div>
+  <div class="enum-vals"><span>C 사용자</span><span>E 처리자</span><span>A 관리자</span></div>
+  <div class="divider"></div>
+  <div class="section-label">상태</div>
+  <div class="tbl-row"><span class="col-name">is_approved</span><span class="col-type">BOOLEAN</span></div>
+  <div class="tbl-row changed"><span class="col-name">is_deleted</span><span class="col-type">BOOLEAN</span></div>
+  <div class="tbl-row changed"><span class="col-name">deleted_at</span><span class="col-type">TIMESTAMP</span></div>
+  <div class="tbl-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+  <div class="tbl-row"><span class="col-name">last_login_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- complain -->
+<div class="tbl">
+  <div class="tbl-head h-teal"><span class="name">📋 complain</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">complain_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">complain_by</span><span class="badge fk">FK</span></div>
+  <div class="tbl-row changed"><span class="col-name">category_id</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">내용</div>
+  <div class="tbl-row"><span class="col-name">complain_title</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">complain_content</span><span class="col-type">TEXT</span></div>
+  <div class="tbl-row"><span class="col-name">location</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">state</span><span class="col-type">ENUM</span></div>
+  <div class="enum-vals"><span>B 접수전</span><span>A 접수중</span><span>P 진행중</span><span>D 완료</span></div>
+  <div class="divider"></div>
+  <div class="section-label">상태</div>
+  <div class="tbl-row changed"><span class="col-name">is_deleted</span><span class="col-type">BOOLEAN</span></div>
+  <div class="tbl-row changed"><span class="col-name">deleted_at</span><span class="col-type">TIMESTAMP</span></div>
+  <div class="tbl-row"><span class="col-name">complain_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- process -->
+<div class="tbl">
+  <div class="tbl-head h-blue"><span class="name">⚙️ process</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">process_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">complain_id</span><span class="badge fk">FK</span></div>
+  <div class="tbl-row"><span class="col-name">process_by</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">내용</div>
+  <div class="tbl-row"><span class="col-name">process_content</span><span class="col-type">TEXT</span></div>
+  <div class="tbl-row"><span class="col-name">process_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- notice -->
+<div class="tbl">
+  <div class="tbl-head h-coral"><span class="name">📢 notice</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">notice_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">notice_by</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">내용</div>
+  <div class="tbl-row"><span class="col-name">notice_title</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">notice_category</span><span class="col-type">ENUM</span></div>
+  <div class="enum-vals"><span>G 공지</span><span>U 업데이트</span><span>F 점검</span></div>
+  <div class="tbl-row"><span class="col-name">notice_content</span><span class="col-type">TEXT</span></div>
+  <div class="divider"></div>
+  <div class="section-label">상태</div>
+  <div class="tbl-row changed"><span class="col-name">is_deleted</span><span class="col-type">BOOLEAN</span></div>
+  <div class="tbl-row changed"><span class="col-name">updated_at</span><span class="col-type">TIMESTAMP</span></div>
+  <div class="tbl-row"><span class="col-name">noticed_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- complain_category -->
+<div class="tbl">
+  <div class="tbl-head h-amber"><span class="name">🏷️ complain_category</span><span class="badge new-b">신규</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">category_id</span><span class="badge pk">PK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">내용</div>
+  <div class="tbl-row"><span class="col-name">category_name</span><span class="col-type">VARCHAR(100)</span></div>
+  <div class="tbl-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- complain_img -->
+<div class="tbl">
+  <div class="tbl-head h-teal"><span class="name">🖼️ complain_img</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">complain_img_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">complain_id</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">파일</div>
+  <div class="tbl-row"><span class="col-name">complain_img_order</span><span class="col-type">SMALLINT</span></div>
+  <div class="tbl-row"><span class="col-name">complain_img_url</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">complain_img_size</span><span class="col-type">INTEGER (Byte)</span></div>
+  <div class="tbl-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- complain_state_history -->
+<div class="tbl">
+  <div class="tbl-head h-pink"><span class="name">🔄 complain_state_history</span><span class="badge new-b">신규</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">state_history_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">complain_id</span><span class="badge fk">FK</span></div>
+  <div class="tbl-row"><span class="col-name">changed_by</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">상태 변경</div>
+  <div class="tbl-row"><span class="col-name">prev_state</span><span class="col-type">ENUM</span></div>
+  <div class="enum-vals"><span>B 접수전</span><span>A 접수중</span><span>P 진행중</span><span>D 완료</span></div>
+  <div class="tbl-row"><span class="col-name">next_state</span><span class="col-type">ENUM</span></div>
+  <div class="enum-vals"><span>B 접수전</span><span>A 접수중</span><span>P 진행중</span><span>D 완료</span></div>
+  <div class="tbl-row"><span class="col-name">changed_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- process_img -->
+<div class="tbl">
+  <div class="tbl-head h-blue"><span class="name">🖼️ process_img</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">process_img_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">process_id</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">파일</div>
+  <div class="tbl-row"><span class="col-name">process_img_order</span><span class="col-type">SMALLINT</span></div>
+  <div class="tbl-row"><span class="col-name">process_img_url</span><span class="col-type">VARCHAR(255)</span></div>
+  <div class="tbl-row"><span class="col-name">process_img_size</span><span class="col-type">INTEGER (Byte)</span></div>
+  <div class="tbl-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+<!-- push -->
+<div class="tbl">
+  <div class="tbl-head h-coral"><span class="name">🔔 push</span></div>
+  <div class="section-label">식별자</div>
+  <div class="tbl-row"><span class="col-name">push_id</span><span class="badge pk">PK</span></div>
+  <div class="tbl-row"><span class="col-name">complain_id</span><span class="badge fk">FK</span></div>
+  <div class="tbl-row"><span class="col-name">member_id</span><span class="badge fk">FK</span></div>
+  <div class="divider"></div>
+  <div class="section-label">알림</div>
+  <div class="tbl-row"><span class="col-name">state</span><span class="col-type">ENUM</span></div>
+  <div class="enum-vals"><span>B 접수전</span><span>A 접수중</span><span>P 진행중</span><span>D 완료</span></div>
+  <div class="tbl-row"><span class="col-name">push_content</span><span class="col-type">TEXT</span></div>
+  <div class="tbl-row changed"><span class="col-name">is_read</span><span class="col-type">BOOLEAN</span></div>
+  <div class="tbl-row changed"><span class="col-name">read_at</span><span class="col-type">TIMESTAMP</span></div>
+  <div class="tbl-row"><span class="col-name">push_at</span><span class="col-type">TIMESTAMP</span></div>
+</div>
+
+</div>
+</body>
+</html>

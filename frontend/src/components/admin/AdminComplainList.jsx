@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import * as XLSX from "xlsx";
 import useComplainData from "../../hooks/useComplainData";
 import { STATUSES } from "../../constants/status";
+import { DEPARTMENTS } from "../../constants/categories";
 import { formatDate } from "../../utils/formatDate";
 import Status from "../common/Status";
 import Detail from "../detail/detail";
@@ -14,15 +15,17 @@ const AdminComplainList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedComplain, setSelectedComplain] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState("전체 분류");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortOrder, setSortOrder] = useState("번호순");
-  const itemsPerPage = 15;
+  const itemsPerPage = 10;
 
   /* 필터 + 정렬 */
   const filteredData = useMemo(() => {
     const result = tableData.filter((row) => {
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;
+      if (categoryFilter !== "전체 분류" && row.category !== categoryFilter) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (!row.title.toLowerCase().includes(q) && !row.content?.toLowerCase().includes(q)) return false;
@@ -54,7 +57,7 @@ const AdminComplainList = () => {
       default: sorted.sort((a, b) => b.id - a.id);
     }
     return sorted;
-  }, [tableData, statusFilter, searchQuery, startDate, endDate, sortOrder]);
+  }, [tableData, statusFilter, searchQuery, startDate, endDate, sortOrder, categoryFilter]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -79,41 +82,47 @@ const AdminComplainList = () => {
         <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
       </div>
 
-      <div className="admin-status-tabs">
-        {["전체", ...STATUSES].map((tab) => (
-          <button key={tab} className={`admin-status-tab ${statusFilter === tab ? "active" : ""}`} onClick={() => { setStatusFilter(tab); setCurrentPage(1); }}>
-            {tab}
-          </button>
-        ))}
-      </div>
+      <h1 className="admin-page-title">민원 리스트</h1>
 
       {/* 필터 영역 */}
       <div className="admin-filters">
         <div className="admin-filters-left">
           <div className="admin-tabs">
             <label className={statusFilter === "전체" ? "active" : ""}>
-              <input type="radio" name="status" value="전체" checked={statusFilter === "전체"} onChange={() => { setStatusFilter("전체"); setCurrentPage(1); }} />
+              <input type="radio" name="status" value="전체"
+                checked={statusFilter === "전체"}
+                onChange={() => { setStatusFilter("전체"); setCurrentPage(1); }} />
               전체
             </label>
             {STATUSES.map((s) => (
               <label key={s} className={statusFilter === s ? "active" : ""}>
-                <input type="radio" name="status" value={s} checked={statusFilter === s} onChange={() => { setStatusFilter(s); setCurrentPage(1); }} />
+                <input type="radio" name="status" value={s}
+                  checked={statusFilter === s}
+                  onChange={() => { setStatusFilter(s); setCurrentPage(1); }} />
                 {s}
               </label>
             ))}
           </div>
 
-
-          <input type="text" className="admin-search" placeholder="제목" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
         </div>
 
         <div className="admin-filters-right">
+          <Search
+            className = "search-container search-pc"
+            onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }}
+            placeholder="제목을 입력하세요"
+          />
+          
+          {/* 카테고리 */}
           <div className="admin-filters-row">
-            <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
-              <option value="번호순">번호순</option>
-              <option value="최신순">최신순</option>
-              <option value="오래된순">오래된순</option>
-              <option value="상태순">상태순</option>
+            <select
+              className="admin-select"
+              value={categoryFilter}
+              onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
+            >
+              {DEPARTMENTS.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
             </select>
           </div>
           <div className="admin-filters-row">
@@ -124,6 +133,16 @@ const AdminComplainList = () => {
           </div>
         </div>
       </div>
+
+      {/*정렬*/}
+        <div className="admin-filters-row">
+          <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
+            <option value="번호순">번호순</option>
+            <option value="최신순">최신순</option>
+            <option value="오래된순">오래된순</option>
+            <option value="상태순">상태순</option>
+          </select>
+        </div>
 
       {/* 테이블 */}
       <div className="admin-table-wrapper">

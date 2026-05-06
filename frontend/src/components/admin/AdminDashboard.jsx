@@ -10,10 +10,40 @@ import { STATUS_COLORS, normalizeStatus } from "../../constants/status";
  * 관리자 대시보드 (카테고리별 통계 + 차트)
  * TODO: 백엔드 연결 시 Excel 로딩을 GET /api/dashboard/stats?year={}&month={} 로 교체
  */
+
+/** complain_at 값을 Date 객체로 변환 */
+const parseRowDate = (raw) => {
+  if (!raw) return null;
+  if (raw instanceof Date) return isNaN(raw.getTime()) ? null : raw;
+  if (typeof raw === "number") {
+    return new Date((raw - 25569) * 86400 * 1000);
+  }
+  const d = new Date(raw);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+/** Date → input[type=date] 형식 "YYYY-MM-DD" */
+const toInputFormat = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 const AdminDashboard = () => {
+  const [statusFilter, setStatusFilter] = useState("전체");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState([]);
-  const [selectedYear, setSelectedYear] = useState("전체");
-  const [selectedMonth, setSelectedMonth] = useState("전체");
+
+  // 초기값: 현재 월의 첫날 ~ 마지막날
+  const today = new Date();
+  const [startDate, setStartDate] = useState(
+    toInputFormat(new Date(today.getFullYear(), today.getMonth(), 1))
+  );
+  const [endDate, setEndDate] = useState(
+    toInputFormat(new Date(today.getFullYear(), today.getMonth() + 1, 0))
+  );
 
   useEffect(() => {
     const loadExcel = async () => {
@@ -29,6 +59,8 @@ const AdminDashboard = () => {
           category: row["category_id"] || "",
           status: normalizeStatus(row["state"] || ""),
           date: row["complain_at"],
+          title: row["complain_title"] || "",
+          content: row["complain_content"] || "",
         }));
 
         setTableData(parsed);
@@ -39,23 +71,40 @@ const AdminDashboard = () => {
     loadExcel();
   }, []);
 
-  // 날짜 필터링
+  // 날짜 범위 + 상태 + 검색어로만 필터링
   const filteredData = useMemo(() => {
+    const rangeStart = startDate ? new Date(startDate) : null;
+    const rangeEnd = endDate ? new Date(endDate) : null;
+    if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+
     return tableData.filter((row) => {
-      if (!row.date) return false;
-      const excelDate = typeof row.date === "number" ? row.date : parseFloat(row.date);
-      if (isNaN(excelDate)) return false;
-      const dateObj = new Date((excelDate - 25569) * 86400 * 1000);
-      const year = dateObj.getFullYear().toString();
-      const month = (dateObj.getMonth() + 1).toString();
-      if (selectedYear !== "전체" && year !== selectedYear) return false;
-      if (selectedMonth !== "전체" && month !== selectedMonth) return false;
+      // 상태 필터
+      if (statusFilter !== "전체" && row.status !== statusFilter) return false;
+
+      // 검색어 필터
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        if (
+          !row.title?.toLowerCase().includes(q) &&
+          !row.content?.toLowerCase().includes(q)
+        )
+          return false;
+      }
+
+      // 날짜 범위 필터
+      const dateObj = parseRowDate(row.date);
+      if (!dateObj) return false;
+      if (rangeStart && dateObj < rangeStart) return false;
+      if (rangeEnd && dateObj > rangeEnd) return false;
+
       return true;
     });
-  }, [tableData, selectedYear, selectedMonth]);
+  }, [tableData, statusFilter, searchQuery, startDate, endDate]);
 
   const totalCount = filteredData.length;
-  const pendingCount = filteredData.filter((r) => r.status === "접수전" || r.status === "접수중").length;
+  const pendingCount = filteredData.filter(
+    (r) => r.status === "접수전" || r.status === "접수중"
+  ).length;
   const progressCount = filteredData.filter((r) => r.status === "진행중").length;
   const doneCount = filteredData.filter((r) => r.status === "완료").length;
 
@@ -66,47 +115,61 @@ const AdminDashboard = () => {
       return {
         name: cat,
         total: items.length,
-        pending: items.filter((r) => r.status === "접수전" || r.status === "접수중").length,
+        pending: items.filter(
+          (r) => r.status === "접수전" || r.status === "접수중"
+        ).length,
         progress: items.filter((r) => r.status === "진행중").length,
         done: items.filter((r) => r.status === "완료").length,
       };
     });
   }, [filteredData]);
 
-  const chartColors = [STATUS_COLORS["접수중"], STATUS_COLORS["진행중"], STATUS_COLORS["완료"]];
+  const chartColors = [
+    STATUS_COLORS["접수중"],
+    STATUS_COLORS["진행중"],
+    STATUS_COLORS["완료"],
+  ];
 
   return (
     <div className="admin-dashboard">
       <div className="admin-dashboard-header">
         <h1 className="admin-dashboard-title">대시보드</h1>
+
+        {/* 날짜 범위 필터 */}
         <div className="admin-dashboard-filters">
-          <select
-            className="admin-dropdown"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-          >
-            <option value="전체">전체</option>
-            {[2026].map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <select
-            className="admin-dropdown"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          >
-            <option value="전체">전체</option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <option key={m} value={m}>{m}월</option>
-            ))}
-          </select>
+          <div className="admin-filters-row">
+            <input
+              type="date"
+              className="admin-date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+            <span>~</span>
+            <input
+              type="date"
+              className="admin-date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
         </div>
+      </div>
+
+      {/* 통계 기간 명시 */}
+      <div className="admin-dashboard-period">
+        * {startDate || "시작일"} ~ {endDate || "종료일"}
       </div>
 
       {/* 상단 카드 */}
       <div className="admin-stat-cards">
         <div className="admin-stat-card blue">
-          <span className="admin-stat-label">{selectedMonth !== "전체" ? `${selectedMonth}월` : ""} 전체</span>
+          <span className="admin-stat-label">전체</span>
           <span className="admin-stat-value">{totalCount}</span>
         </div>
         <div className="admin-stat-card pink">
@@ -124,9 +187,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* 카테고리별 상세 현황 */}
-      <h2 className="admin-section-title">
-        {selectedMonth !== "전체" ? `${selectedMonth}월` : ""} 상세 현황
-      </h2>
+      <h2 className="admin-section-title">상세 현황</h2>
       <div className="admin-category-cards">
         {categoryStats.map((cat) => (
           <div key={cat.name} className="admin-category-card">
@@ -145,13 +206,16 @@ const AdminDashboard = () => {
       <h2 className="admin-section-title">통계 차트</h2>
       <div className="admin-chart-legend">
         <span className="admin-legend-item">
-          <span className="admin-legend-dot" style={{ background: chartColors[0] }} />미진행
+          <span className="admin-legend-dot" style={{ background: chartColors[0] }} />
+          미진행
         </span>
         <span className="admin-legend-item">
-          <span className="admin-legend-dot" style={{ background: chartColors[1] }} />진행중
+          <span className="admin-legend-dot" style={{ background: chartColors[1] }} />
+          진행중
         </span>
         <span className="admin-legend-item">
-          <span className="admin-legend-dot" style={{ background: chartColors[2] }} />완료
+          <span className="admin-legend-dot" style={{ background: chartColors[2] }} />
+          완료
         </span>
       </div>
       <div className="admin-chart-grid">
@@ -170,7 +234,11 @@ const AdminDashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={hasData ? chartData : [{ name: "없음", value: 1, color: "#e0e0e0" }]}
+                      data={
+                        hasData
+                          ? chartData
+                          : [{ name: "없음", value: 1, color: "#e0e0e0" }]
+                      }
                       cx="50%"
                       cy="50%"
                       innerRadius="55%"
@@ -178,11 +246,15 @@ const AdminDashboard = () => {
                       dataKey="value"
                       paddingAngle={hasData ? 2 : 0}
                     >
-                      {(hasData ? chartData : [{ color: "#e0e0e0" }]).map((item, i) => (
-                        <Cell key={i} fill={item.color} />
-                      ))}
+                      {(hasData ? chartData : [{ color: "#e0e0e0" }]).map(
+                        (item, i) => (
+                          <Cell key={i} fill={item.color} />
+                        )
+                      )}
                     </Pie>
-                    {hasData && <Tooltip formatter={(v, n) => [`${v}건`, n]} />}
+                    {hasData && (
+                      <Tooltip formatter={(v, n) => [`${v}건`, n]} />
+                    )}
                   </PieChart>
                 </ResponsiveContainer>
               </div>

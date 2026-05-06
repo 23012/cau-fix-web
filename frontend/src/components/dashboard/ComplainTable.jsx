@@ -1,17 +1,17 @@
 import { Filter as FilterIcon, Star } from "lucide-react";
 import { useState } from "react";
 import Search from "../common/search";
-import Filter from "../common/filter";
 import Status from "../common/Status";
 import { STATUS_TABS } from "../../constants/status";
+import { DEPARTMENTS } from "../../constants/categories";
 
 const ComplainTable = ({
   user, currentData, favorites, activeStatusTab,
   sortOrder, setSortOrder, currentPage, setCurrentPage, totalPages,
   onSearchChange, onStatusTabChange, onFilterApply, onToggleFavorite, onRowClick,
 }) => {
-  const [filterOpen, setFilterOpen] = useState(false);
 
+  
   return (
     <div className="table-section">
       <div className="table-toolbar">
@@ -27,12 +27,6 @@ const ComplainTable = ({
 
       <div className="table-controls">
         <div className="controls">
-          <div style={{ position: "relative" }}>
-            <button className="icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
-              <FilterIcon size={18} />
-            </button>
-            <Filter isOpen={filterOpen} onClose={() => setFilterOpen(false)} onApply={onFilterApply} />
-          </div>
           <select className="dropdown sort-dropdown" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
             <option value="번호순">번호순</option>
             <option value="최신순">최신순</option>

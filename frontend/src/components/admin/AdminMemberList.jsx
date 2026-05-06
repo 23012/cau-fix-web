@@ -126,14 +126,6 @@ const AdminMemberList = () => {
         <Search onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }} placeholder="이름을 입력하세요" />
       </div>
 
-      <div className="admin-status-tabs">
-        {STATUS_TABS.map((tab) => (
-          <button key={tab} className={`admin-status-tab ${statusFilter === tab ? "active" : ""}`} onClick={() => { setStatusFilter(tab); setCurrentPage(1); }}>
-            {tab}
-          </button>
-        ))}
-      </div>
-
       <h1 className="admin-page-title">회원 관리</h1>
 
       {/* 필터 영역 */}
@@ -147,12 +139,19 @@ const AdminMemberList = () => {
               </label>
             ))}
           </div>
-
-
-          <input type="text" className="admin-search" placeholder="검색어" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} autoComplete="off" />
         </div>
 
         <div className="admin-filters-right">
+          <Search
+            onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }}
+            placeholder="이름을 입력하세요"
+            className = "search-container search-pc"
+          />
+      </div>
+    </div>
+    
+     {/*정렬*/}
+        <div className="admin-filters-row">
           <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
             <option value="번호순">번호순</option>
             <option value="최신순">최신순</option>
@@ -160,7 +159,7 @@ const AdminMemberList = () => {
             <option value="상태순">상태순</option>
           </select>
         </div>
-      </div>
+      
 
       {/* 테이블 */}
       <div className="admin-table-wrapper">

@@ -21,7 +21,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e0e0e0;
 }
@@ -81,20 +81,6 @@
   outline: none;
 }
 
-.admin-search {
-  padding: 8px 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 15px;
-  outline: none;
-  width: 200px;
-}
-
-.admin-search:focus,
-.admin-select:focus {
-  border-color: var(--main-color);
-}
-
 .admin-date {
   padding: 6px 10px;
   border: 1px solid #e0e0e0;
@@ -129,6 +115,7 @@
   overflow-x: auto;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
+  margin-top : 10px;
 }
 
 .admin-table {
@@ -263,9 +250,9 @@
 .admin-table.notice-table th:nth-child(4),
 .admin-table.notice-table td:nth-child(4) { width: 120px; white-space: nowrap; }
 .admin-table.notice-table th:nth-child(5),
-.admin-table.notice-table td:nth-child(5) { width: 100px; }
+.admin-table.notice-table td:nth-child(5) { width: 140px; }
 .admin-table.notice-table th:nth-child(6),
-.admin-table.notice-table td:nth-child(6) { width: 100px; }
+.admin-table.notice-table td:nth-child(6) { width: 140px; }
 
 /* 모바일 */
 @media (max-width: 768px) {
@@ -287,7 +274,9 @@
     border-bottom: 1px solid #e0e0e0;
     margin-bottom: 20px;
   }
-
+  .search-pc {
+    display: none;
+  }
   .admin-table-wrapper {
     overflow-x: hidden;
   }
@@ -314,6 +303,7 @@
     gap: 8px;
     width: 100%;
   }
+
 
   /* 모바일에서 특정 요소 숨김 */
   .admin-status-tabs,
@@ -461,11 +451,6 @@
     margin-bottom: 0;
   }
 
-  /* 기존 필터 영역의 검색 input 숨김 */
-  .admin-search {
-    display: none;
-  }
-
   /* 타이틀은 모바일 헤더에서 표시하므로 기존 것 숨김 */
   .admin-page > .admin-page-title {
     display: none;
@@ -515,13 +500,4 @@
   }
 }
 
-/* ===== 관리자 모바일 상태 탭 ===== */
-.admin-status-tabs {
-  display: none;
-}
 
-@media (max-width: 768px) {
-  .admin-status-tabs {
-    display: none;
-  }
-}
