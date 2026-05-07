@@ -4,12 +4,12 @@ const categoryMap = { G: '안내', U: '업데이트', F: '점검' };
 
 const noticeModel = {
   // 공지사항 등록
-  create: async ({ notice_by, notice_title, notice_category, notice_content, notice_images }) => {
+  create: async ({ notice_by, notice_title, notice_category, notice_content }) => {
     const result = await pool.query(
-      `INSERT INTO notice (notice_by, notice_title, notice_category, notice_content, notice_images)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO notice (notice_by, notice_title, notice_category, notice_content)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [notice_by, notice_title, notice_category, notice_content, notice_images || '[]']
+      [notice_by, notice_title, notice_category, notice_content]
     );
     return result.rows[0];
   },
@@ -29,7 +29,6 @@ const noticeModel = {
       title: row.notice_title,
       category: categoryMap[row.notice_category] || row.notice_category,
       content: row.notice_content,
-      images: row.notice_images ? JSON.parse(row.notice_images) : [],
       author: row.author,
       date: row.noticed_at,
       updated_at: row.updated_at,
@@ -54,7 +53,6 @@ const noticeModel = {
       title: row.notice_title,
       category: categoryMap[row.notice_category] || row.notice_category,
       content: row.notice_content,
-      images: row.notice_images ? JSON.parse(row.notice_images) : [],
       author: row.author,
       date: row.noticed_at,
       updated_at: row.updated_at,
@@ -63,13 +61,13 @@ const noticeModel = {
   },
 
   // 공지사항 수정
-  update: async (notice_id, { notice_title, notice_category, notice_content, notice_images }) => {
+  update: async (notice_id, { notice_title, notice_category, notice_content }) => {
     const result = await pool.query(
       `UPDATE notice
-       SET notice_title = $1, notice_category = $2, notice_content = $3, notice_images = $4
-       WHERE notice_id = $5
+       SET notice_title = $1, notice_category = $2, notice_content = $3
+       WHERE notice_id = $4
        RETURNING *`,
-      [notice_title, notice_category, notice_content, notice_images || '[]', notice_id]
+      [notice_title, notice_category, notice_content, notice_id]
     );
     if (!result.rows[0]) return null;
     const row = result.rows[0];
@@ -78,7 +76,6 @@ const noticeModel = {
       title: row.notice_title,
       category: categoryMap[row.notice_category] || row.notice_category,
       content: row.notice_content,
-      images: row.notice_images ? JSON.parse(row.notice_images) : [],
       date: row.noticed_at,
       updated_at: row.updated_at,
     };

@@ -5,6 +5,7 @@ import Logo from "../../components/form/Logo";
 import LoginForm from "../../components/form/LoginForm";
 import { login } from "../../services/authService";
 import { normalizeRole } from "../../constants/roles";
+import { subscribePush } from "../../utils/pushSubscription";
 import hospitalBg from "../../assets/images/background-img.png";
 import "./login.css";
 import "../../styles/global.css";
@@ -37,6 +38,8 @@ const Login = () => {
         ...result.member,
         role: normalizeRole(result.member.role),
       }));
+      // 로그인 버튼 클릭(사용자 제스처) 안에서 푸시 구독 등록
+      subscribePush().catch(() => {});
       navigate("/complain-dashboard");
     } catch (err) {
       if (err.status === 403) {

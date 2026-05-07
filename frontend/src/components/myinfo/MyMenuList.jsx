@@ -7,18 +7,21 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [phone, setPhone] = useState(user?.phone || '');
-  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (password && password !== passwordConfirm) {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
-    onUpdateProfile?.({ password: password || undefined, phone });
-    setPassword('');
-    setPasswordConfirm('');
-    setEditOpen(false);
-    setShowSuccess(true);
+    try {
+      await onUpdateProfile?.({ password: password || undefined, phone });
+      setPassword('');
+      setPasswordConfirm('');
+      setEditOpen(false);
+      alert('회원 정보 수정이 완료되었습니다.');
+    } catch (err) {
+      // Header에서 이미 alert 처리
+    }
   };
 
   return (
@@ -80,17 +83,6 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
           <span>로그아웃</span>
           <ChevronRight size={20} color="#999" />
         </button>
-      )}
-
-      {showSuccess && (
-        <div className="myinfo-success-overlay" onClick={() => setShowSuccess(false)}>
-          <div className="myinfo-success-popup" onClick={(e) => e.stopPropagation()}>
-            <p>회원 정보 수정이 완료되었습니다.</p>
-            <button className="myinfo-success-btn" onClick={() => setShowSuccess(false)}>
-              확인
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -1,6 +1,5 @@
-import { ArrowLeft, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { parseExcelDate } from "../../utils/parseExcelDate";
-import { useRef, useState } from "react";
 import "./NoticeDetail.css";
 
 const NoticeDetail = ({ data, onBack, onEdit, onDelete, currentUser }) => {
@@ -12,28 +11,6 @@ const NoticeDetail = ({ data, onBack, onEdit, onDelete, currentUser }) => {
 };
 
 const NoticeDetailInner = ({ data, onBack, onEdit, onDelete, isAuthor }) => {
-  const scrollRef = useRef(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
-
-  const handleScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setShowLeftArrow(el.scrollLeft > 0);
-    setShowRightArrow(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
-  };
-
-  const scrollBy = (dir) => {
-    scrollRef.current?.scrollBy({ left: dir * 200, behavior: 'smooth' });
-  };
-
-  const checkOverflow = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setShowRightArrow(el.scrollWidth > el.clientWidth);
-  };
-
   return (
     <div className="notice-detail">
       <span className="notice-detail-category">{data.category}</span>
@@ -48,37 +25,7 @@ const NoticeDetailInner = ({ data, onBack, onEdit, onDelete, isAuthor }) => {
       <div className="notice-detail-divider" />
 
       <div className="notice-detail-content">
-        <p>{data.content || "내용이 없습니다."}</p>
-        {data.images && data.images.length > 0 && (
-          <div className="notice-image-scroll-wrapper">
-            {showLeftArrow && (
-              <button className="notice-image-arrow left" onClick={() => scrollBy(-1)}>
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            <div
-              className="notice-image-scroll"
-              ref={scrollRef}
-              onScroll={handleScroll}
-            >
-              {data.images.map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt={`첨부 ${i + 1}`}
-                  className="notice-image-thumb"
-                  onClick={() => setPreviewImage(src)}
-                  onLoad={checkOverflow}
-                />
-              ))}
-            </div>
-            {showRightArrow && (
-              <button className="notice-image-arrow right" onClick={() => scrollBy(1)}>
-                <ChevronRight size={20} />
-              </button>
-            )}
-          </div>
-        )}
+        <div dangerouslySetInnerHTML={{ __html: data.content || "내용이 없습니다." }} />
       </div>
 
       <div className="notice-detail-divider" />
@@ -107,11 +54,6 @@ const NoticeDetailInner = ({ data, onBack, onEdit, onDelete, isAuthor }) => {
         )}
       </div>
 
-      {previewImage && (
-        <div className="notice-image-preview-overlay" onClick={() => setPreviewImage(null)}>
-          <img src={previewImage} alt="미리보기" className="notice-image-preview-full" />
-        </div>
-      )}
     </div>
   );
 };

@@ -5,6 +5,8 @@ import MyProfileCard from "../myinfo/MyProfileCard";
 import MyMenuList from "../myinfo/MyMenuList";
 import PushPopup from "../push/PushPopup";
 import { normalizeRole } from "../../constants/roles";
+import { subscribePush, unsubscribePush } from "../../utils/pushSubscription";
+import { updateMyProfile } from "../../services/memberService";
 import logo from "../../assets/images/logo.svg";
 import "./Header.css";
 
@@ -88,10 +90,22 @@ const Header = () => {
     }
   };
 
-  const handleTogglePush = () => {
+  const handleTogglePush = async () => {
     const next = !pushEnabled;
+    console.log('[Push] 토글:', next);
     setPushEnabled(next);
     localStorage.setItem("pushEnabled", next.toString());
+    try {
+      if (next) {
+        const result = await subscribePush();
+        console.log('[Push] 구독 결과:', result);
+      } else {
+        const result = await unsubscribePush();
+        console.log('[Push] 해제 결과:', result);
+      }
+    } catch (err) {
+      console.error('[Push] 토글 에러:', err);
+    }
   };
 
   const handleMenuClick = (index, path) => {
@@ -174,7 +188,18 @@ const Header = () => {
               {myinfoOpen && (
                 <div className="header__myinfo-popup" ref={popupRef}>
                   <MyProfileCard name={user?.name} dept={user?.dept} />
-                  <MyMenuList pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onUpdateProfile={() => {}} onLogout={handleLogout} user={user} />
+                  <MyMenuList pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onUpdateProfile={async ({ password, phone }) => {
+                    try {
+                      await updateMyProfile({ password, phone });
+                      if (phone) {
+                        const updated = { ...user, phone };
+                        localStorage.setItem("user", JSON.stringify(updated));
+                      }
+                    } catch (err) {
+                      alert(err.message || "정보 수정 중 오류가 발생했습니다.");
+                      throw err;
+                    }
+                  }} onLogout={handleLogout} user={user} />
                 </div>
               )}
             </div>

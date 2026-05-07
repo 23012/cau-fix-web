@@ -40,6 +40,11 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
+// VAPID public key 제공
+app.get('/api/push/vapid-public-key', (req, res) => {
+  res.status(200).json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
 // 404
 app.use((req, res) => {
   res.status(404).json({ message: '요청한 경로를 찾을 수 없습니다.' });

@@ -6,10 +6,11 @@ import PushComplainView from "./PushComplainView";
 import "./PushPopup.css";
 
 const PushPopup = ({ onClose }) => {
-  const { recentPush, todayPush, earlierPush, unreadCount, getComplainForPush } = usePush();
+  const { recentPush, todayPush, earlierPush, unreadCount, getComplainForPush, handleMarkAsRead, handleMarkAllAsRead } = usePush();
   const [selectedComplain, setSelectedComplain] = useState(null);
 
   const handlePushClick = (push) => {
+    if (!push.read) handleMarkAsRead(push.id);
     const complain = getComplainForPush(push);
     if (complain) setSelectedComplain(complain);
   };
@@ -31,6 +32,9 @@ const PushPopup = ({ onClose }) => {
         <Bell size={18} />
         <span>알림</span>
         {unreadCount > 0 && <span className="push-popup-badge">{unreadCount}</span>}
+        {unreadCount > 0 && (
+          <button className="push-popup-read-all" onClick={handleMarkAllAsRead}>전체 읽음</button>
+        )}
       </div>
 
       <div className="push-popup-body">

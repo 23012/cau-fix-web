@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 const TABS = ["전체", "공지", "업데이트", "점검"];
 const CATEGORY_LABEL_TO_CODE = { "공지": "G", "업데이트": "U", "점검": "F" };
 
-const AdminNoticeList = ({ onSelect, updatedNotice }) => {
+const AdminNoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,14 +17,6 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [noticeFormOpen, setNoticeFormOpen] = useState(false);
   const itemsPerPage = 15;
-
-  useEffect(() => {
-    if (updatedNotice) {
-      setNotices((prev) =>
-        prev.map((n) => (n.id === updatedNotice.id ? { ...n, ...updatedNotice } : n))
-      );
-    }
-  }, [updatedNotice]);
 
   const loadData = async () => {
     try {
@@ -58,21 +50,10 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
 
   const handleCreateNotice = async (formData) => {
     try {
-      // 이미지를 base64로 변환
-      const imagePromises = (formData.images || []).map((img) => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(img.file);
-        });
-      });
-      const notice_images = await Promise.all(imagePromises);
-
       await createNotice({
         notice_title: formData.title,
         notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
         notice_content: formData.content,
-        notice_images,
       });
       setNoticeFormOpen(false);
       alert("공지사항이 등록되었습니다.");

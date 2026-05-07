@@ -1,6 +1,5 @@
 const pool = require('../config/db');
-
-const stateMap = { B: '접수전', A: '접수', P: '진행중', D: '완료' };
+const { stateMap } = require('./complainModel');
 
 const notificationModel = {
   // 알림 목록 조회 (최근 7일, 본인)
@@ -85,7 +84,7 @@ const notificationModel = {
 
   // 처리자 알림 생성 (민원 등록 시)
   createForManagers: async ({ complain_id, manager_ids, state, complain_title }) => {
-    const push_content = `새 민원이 접수되었습니다: "${complain_title}"`;
+    const push_content = `새 민원이 접수되었습니다 "${complain_title}"`;
     const promises = manager_ids.map((manager_id) =>
       pool.query(
         `INSERT INTO push_notification (complain_id, member_id, state, push_content)

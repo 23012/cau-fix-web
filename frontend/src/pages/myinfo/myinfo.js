@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import MyProfileCard from '../../components/myinfo/MyProfileCard';
 import MyMenuList from '../../components/myinfo/MyMenuList';
+import { subscribePush, unsubscribePush } from '../../utils/pushSubscription';
 import './myinfo.css';
 import '../../styles/global.css';
 
@@ -18,10 +19,20 @@ const MyInfo = () => {
     if (stored) setUser(JSON.parse(stored));
   }, []);
 
-  const handleTogglePush = () => {
+  const handleTogglePush = async () => {
     const next = !pushEnabled;
+    console.log('[Push] 토글:', next);
     setPushEnabled(next);
     localStorage.setItem('pushEnabled', next.toString());
+    try {
+      if (next) {
+        await subscribePush();
+      } else {
+        await unsubscribePush();
+      }
+    } catch (err) {
+      console.error('[Push] 토글 에러:', err);
+    }
   };
 
   const handleLogout = () => {

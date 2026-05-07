@@ -57,3 +57,20 @@ export async function registerMember({ login_id, password, name, role, dept, pho
     body: JSON.stringify({ login_id, password, name, role, dept, phone }),
   });
 }
+
+/**
+ * 회원 프로필 조회 (처리자 정보)
+ */
+export async function getMemberProfile(id) {
+  return apiClient(`/members/${id}/profile`);
+}
+
+/**
+ * 내 정보 수정 (비밀번호, 전화번호)
+ */
+export async function updateMyProfile({ password, phone }) {
+  return apiClient('/members/me', {
+    method: 'PUT',
+    body: JSON.stringify({ password, phone }),
+  });
+}

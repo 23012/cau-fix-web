@@ -19,26 +19,26 @@ export async function getNoticeDetail(id) {
 
 /**
  * 공지사항 등록
- * @param {Object} data - { notice_title, notice_category, notice_content, notice_images }
+ * @param {Object} data - { notice_title, notice_category, notice_content }
  * @returns {Promise<{message: string, notice: Object}>}
  */
-export async function createNotice({ notice_title, notice_category, notice_content, notice_images }) {
+export async function createNotice({ notice_title, notice_category, notice_content }) {
   return apiClient('/notices', {
     method: 'POST',
-    body: JSON.stringify({ notice_title, notice_category, notice_content, notice_images }),
+    body: JSON.stringify({ notice_title, notice_category, notice_content }),
   });
 }
 
 /**
  * 공지사항 수정
  * @param {number} id
- * @param {Object} data - { notice_title, notice_category, notice_content, notice_images }
+ * @param {Object} data - { notice_title, notice_category, notice_content }
  * @returns {Promise<{message: string, notice: Object}>}
  */
-export async function updateNotice(id, { notice_title, notice_category, notice_content, notice_images }) {
+export async function updateNotice(id, { notice_title, notice_category, notice_content }) {
   return apiClient(`/notices/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ notice_title, notice_category, notice_content, notice_images }),
+    body: JSON.stringify({ notice_title, notice_category, notice_content }),
   });
 }
 

@@ -1,27 +1,10 @@
 import "./AdminDashboard.css";
 import { useState, useEffect, useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import * as XLSX from "xlsx";
-import sampleFile from "../../assets/files/sample.xlsx";
 import { CATEGORIES } from "../../constants/categories";
 import useCategories from "../../hooks/useCategories";
 import { STATUS_COLORS, normalizeStatus } from "../../constants/status";
-
-/**
- * 관리자 대시보드 (카테고리별 통계 + 차트)
- * TODO: 백엔드 연결 시 Excel 로딩을 GET /api/dashboard/stats?year={}&month={} 로 교체
- */
-
-/** complain_at 값을 Date 객체로 변환 */
-const parseRowDate = (raw) => {
-  if (!raw) return null;
-  if (raw instanceof Date) return isNaN(raw.getTime()) ? null : raw;
-  if (typeof raw === "number") {
-    return new Date((raw - 25569) * 86400 * 1000);
-  }
-  const d = new Date(raw);
-  return isNaN(d.getTime()) ? null : d;
-};
+import { getComplaints } from "../../services/complainService";
 
 /** Date → input[type=date] 형식 "YYYY-MM-DD" */
 const toInputFormat = (date) => {
@@ -38,7 +21,6 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState([]);
 
-  // 초기값: 현재 월의 첫날 ~ 마지막날
   const today = new Date();
   const [startDate, setStartDate] = useState(
     toInputFormat(new Date(today.getFullYear(), today.getMonth(), 1))
@@ -48,42 +30,33 @@ const AdminDashboard = () => {
   );
 
   useEffect(() => {
-    const loadExcel = async () => {
+    const loadData = async () => {
       try {
-        const res = await fetch(sampleFile);
-        const buffer = await res.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: "array" });
-        const sheet = workbook.Sheets["민원"];
-        const rows = XLSX.utils.sheet_to_json(sheet);
-
-        const parsed = rows.map((row) => ({
-          id: row["complain_id"],
-          category: row["category_id"] || "",
-          status: normalizeStatus(row["state"] || ""),
-          date: row["complain_at"],
-          title: row["complain_title"] || "",
-          content: row["complain_content"] || "",
+        const result = await getComplaints();
+        const parsed = (result.complaints || []).map((row) => ({
+          id: row.id,
+          category: row.category || "",
+          status: normalizeStatus(row.status || ""),
+          date: row.date,
+          title: row.title || "",
+          content: row.content || "",
         }));
-
         setTableData(parsed);
       } catch (error) {
         // 로드 실패
       }
     };
-    loadExcel();
+    loadData();
   }, []);
 
-  // 날짜 범위 + 상태 + 검색어로만 필터링
   const filteredData = useMemo(() => {
     const rangeStart = startDate ? new Date(startDate) : null;
     const rangeEnd = endDate ? new Date(endDate) : null;
     if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
 
     return tableData.filter((row) => {
-      // 상태 필터
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;
 
-      // 검색어 필터
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (
@@ -93,9 +66,8 @@ const AdminDashboard = () => {
           return false;
       }
 
-      // 날짜 범위 필터
-      const dateObj = parseRowDate(row.date);
-      if (!dateObj) return false;
+      const dateObj = row.date ? new Date(row.date) : null;
+      if (!dateObj || isNaN(dateObj.getTime())) return false;
       if (rangeStart && dateObj < rangeStart) return false;
       if (rangeEnd && dateObj > rangeEnd) return false;
 
@@ -110,7 +82,6 @@ const AdminDashboard = () => {
   const progressCount = filteredData.filter((r) => r.status === "진행중").length;
   const doneCount = filteredData.filter((r) => r.status === "완료").length;
 
-  // 카테고리별 통계
   const categoryStats = useMemo(() => {
     const catNames = apiCategories.length > 0
       ? apiCategories.map((c) => c.category_name)
@@ -140,7 +111,6 @@ const AdminDashboard = () => {
       <div className="admin-dashboard-header">
         <h1 className="admin-dashboard-title">대시보드</h1>
 
-        {/* 날짜 범위 필터 */}
         <div className="admin-dashboard-filters">
           <div className="admin-filters-row">
             <input
@@ -166,12 +136,12 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* 통계 기간 명시 */}
-      <div className="admin-dashboard-period">
-        * {startDate || "시작일"} ~ {endDate || "종료일"}
-      </div>
+      {(startDate || endDate) && (
+        <div className="admin-dashboard-period">
+          * {startDate || "시작일"} ~ {endDate || "종료일"}
+        </div>
+      )}
 
-      {/* 상단 카드 */}
       <div className="admin-stat-cards">
         <div className="admin-stat-card blue">
           <span className="admin-stat-label">전체</span>
@@ -191,7 +161,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* 카테고리별 상세 현황 */}
       <h2 className="admin-section-title">상세 현황</h2>
       <div className="admin-category-cards">
         {categoryStats.map((cat) => (
@@ -207,7 +176,6 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* 통계 차트 */}
       <h2 className="admin-section-title">통계 차트</h2>
       <div className="admin-chart-legend">
         <span className="admin-legend-item">

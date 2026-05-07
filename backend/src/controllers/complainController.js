@@ -1,6 +1,8 @@
 const complainModel = require('../models/complainModel');
+const { stateReverseMap } = require('../models/complainModel');
 const notificationModel = require('../models/notificationModel');
 const memberModel = require('../models/memberModel');
+const webPushService = require('../services/webPush');
 const ExcelJS = require('exceljs');
 
 const complainController = {
@@ -31,6 +33,12 @@ const complainController = {
             state: 'B',
             complain_title: title,
           });
+
+          // 웹 푸시 발송 (담당 처리자들에게)
+          webPushService.sendToMembers(
+            managers.map((m) => m.member_id),
+            { title: '새 민원 접수', body: `새 민원이 접수되었습니다: "${title}"`, data: { complainId: complain.id } }
+          ).catch(() => {});
         }
       }
 
@@ -296,7 +304,6 @@ const complainController = {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
-      const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D' };
       const prevState = stateReverseMap[complain.status];
 
       const updated = await complainModel.updateState(id, state);
@@ -316,6 +323,14 @@ const complainController = {
       await notificationModel.create({
         complain_id: id, member_id: complain.complain_by, state, complain_title: complain.title,
       });
+
+      // 웹 푸시 발송 (민원인에게)
+      const stateText = { B: '접수전', A: '접수', P: '진행중', D: '완료' };
+      webPushService.sendToMember(complain.complain_by, {
+        title: '민원 상태 변경',
+        body: `"${complain.title}"이(가) ${stateText[state] || state} 처리되었습니다.`,
+        data: { complainId: id },
+      }).catch(() => {});
 
       return res.status(200).json({ message: '상태가 변경되었습니다.', complain: updated });
     } catch (err) {
@@ -353,12 +368,10 @@ const complainController = {
         // 이미 접수 시 할당된 process가 있으면 내용만 업데이트
         process = await complainModel.updateProcessContent(id, process_content);
       } else {
-        process = await complainModel.createProcess({
-          complain_id: id, process_by: member_id, process_content,
-        });
+        await complainModel.assignProcess({ complain_id: id, process_by: member_id });
+        process = await complainModel.updateProcessContent(id, process_content);
       }
 
-      const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D' };
       const prevState = stateReverseMap[complain.status];
       await complainModel.updateState(id, 'D');
 

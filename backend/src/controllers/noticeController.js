@@ -10,7 +10,7 @@ const noticeController = {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
-      const { notice_title, notice_category, notice_content, notice_images } = req.body;
+      const { notice_title, notice_category, notice_content } = req.body;
 
       if (!notice_title || !notice_category || !notice_content) {
         return res.status(400).json({ message: '필수 항목을 입력해주세요.' });
@@ -26,7 +26,6 @@ const noticeController = {
         notice_title,
         notice_category,
         notice_content,
-        notice_images: JSON.stringify(notice_images || []),
       });
 
       return res.status(201).json({ message: '공지사항이 등록되었습니다.', notice });
@@ -69,7 +68,7 @@ const noticeController = {
     try {
       const { id } = req.params;
       const { member_id, role } = req.user;
-      const { notice_title, notice_category, notice_content, notice_images } = req.body;
+      const { notice_title, notice_category, notice_content } = req.body;
 
       if (!notice_title || !notice_category || !notice_content) {
         return res.status(400).json({ message: '필수 항목을 입력해주세요.' });
@@ -94,7 +93,6 @@ const noticeController = {
         notice_title,
         notice_category,
         notice_content,
-        notice_images: JSON.stringify(notice_images || []),
       });
 
       return res.status(200).json({ message: '공지사항이 수정되었습니다.', notice: updated });

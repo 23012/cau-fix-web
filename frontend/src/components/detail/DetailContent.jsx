@@ -65,15 +65,15 @@ const DetailContent = ({
         <div className="detail-label">신고자</div>
         <div
           className="detail-value detail-value-clickable"
-          onClick={() => data.reporterName && setShowReporterProfile(true)}
+          onClick={() => (data.memberName || data.reporterName) && setShowReporterProfile(true)}
         >
-          {data.reporterName || "-"}
+          {data.memberName || data.reporterName || "-"}
         </div>
       </div>
 
       <div className="detail-row">
         <div className="detail-label">부서</div>
-        <div className="detail-value">{data.dept || "-"}</div>
+        <div className="detail-value">{data.memberDept || "-"}</div>
       </div>
 
       <div className="detail-row">

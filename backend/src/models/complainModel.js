@@ -296,21 +296,10 @@ const complainModel = {
     return result.rows[0];
   },
 
-  // 처리 등록 (기존 호환용)
-  createProcess: async ({ complain_id, process_by, process_content }) => {
-    const result = await pool.query(
-      `INSERT INTO complaint_process (complain_id, process_by, process_content)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [complain_id, process_by, process_content]
-    );
-    return result.rows[0];
-  },
-
   // 처리 조회
   findProcess: async (complain_id) => {
     const result = await pool.query(
-      `SELECT cp.*, m.name AS process_by_name
+      `SELECT cp.*, m.name AS process_by_name, m.member_id AS process_member_id, m.dept AS process_dept, m.phone AS process_phone
        FROM complaint_process cp
        JOIN member m ON cp.process_by = m.member_id
        WHERE cp.complain_id = $1`,
@@ -320,8 +309,11 @@ const complainModel = {
     const row = result.rows[0];
     return {
       process_id: row.process_id,
+      process_by: row.process_member_id,
       result: row.process_content,
       resultPerson: row.process_by_name,
+      resultDept: row.process_dept || null,
+      resultPhone: row.process_phone || null,
       resultDate: row.process_at,
     };
   },
@@ -339,3 +331,5 @@ const complainModel = {
 };
 
 module.exports = complainModel;
+module.exports.stateMap = stateMap;
+module.exports.stateReverseMap = stateReverseMap;

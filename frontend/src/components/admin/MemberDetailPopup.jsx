@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 import useCategories from "../../hooks/useCategories";
 import { approveMember, updateMemberRole, updateMemberDept, deleteMember } from "../../services/memberService";
+import { formatDateTime, getNow } from "../../utils/formatDate";
 import "./MemberDetailPopup.css";
 
 /**
@@ -19,18 +20,14 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
   const currentRole = selectedRole ?? member.role;
   const roleChanged = selectedRole !== null && selectedRole !== member.role;
 
-  const getNow = () => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  };
-
   const getAdmin = () => JSON.parse(localStorage.getItem("user") || "{}");
 
   const handleApprove = async () => {
     try {
       await approveMember(member.member_id);
+      const admin = getAdmin();
       alert("승인이 완료되었습니다.");
-      onUpdate?.({ ...member, status: "승인" });
+      onUpdate?.({ ...member, status: "승인", approvedBy: admin.name || "-", approvedAt: getNow() });
       onRefresh?.();
     } catch (err) {
       alert(err.message || "승인 중 오류가 발생했습니다.");
@@ -56,8 +53,10 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
     if (window.confirm("정말 탈퇴 처리하시겠습니까?")) {
       try {
         await deleteMember(member.member_id);
+        const admin = getAdmin();
         alert("탈퇴 처리가 완료되었습니다.");
         setDeletePassword("");
+        onUpdate?.({ ...member, status: "탈퇴", deletedBy: admin.name || "-", deletedAt: getNow() });
         onRefresh?.();
         onClose();
       } catch (err) {
@@ -107,11 +106,11 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
         </div>
         <div className="member-detail-row">
           <span className="member-detail-label">가입일자</span>
-          <span className="member-detail-value">{member.createdAt || "-"}</span>
+          <span className="member-detail-value">{formatDateTime(member.createdAt)}</span>
         </div>
         <div className="member-detail-row">
           <span className="member-detail-label">마지막 로그인</span>
-          <span className="member-detail-value">{member.lastLogin || "-"}</span>
+          <span className="member-detail-value">{formatDateTime(member.lastLogin)}</span>
         </div>
         {member.pwResetBy && (
           <div className="member-detail-row">
@@ -197,7 +196,8 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
                     await updateMemberDept(member.member_id, newDept);
                   }
                   alert("변경이 완료되었습니다.");
-                  onUpdate?.({ ...member, role: selectedRole || member.role, dept: newDept });
+                  const admin = getAdmin();
+                  onUpdate?.({ ...member, role: selectedRole || member.role, dept: newDept, roleChangedBy: admin.name || "-", roleChangedAt: getNow() });
                   onRefresh?.();
                   setSelectedRole(null);
                   setSelectedDept(null);

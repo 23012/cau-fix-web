@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/global.css';
 import './styles/responsive.css';
 import './styles/variables.css';
+import { subscribePush } from './utils/pushSubscription';
 import Main from "./pages/main/main";
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
@@ -17,6 +18,14 @@ import ComplainWrite from "./pages/complain-write/complain-write";
 
 function App() {
   const cursorRef = useRef(null);
+
+  // 이미 알림 권한이 granted인 경우 자동 구독 (재방문 시)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && Notification.permission === 'granted') {
+      subscribePush().catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     // 커스텀 커서 요소 생성

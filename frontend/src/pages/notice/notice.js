@@ -16,7 +16,6 @@ const Notice = () => {
   const [user, setUser] = useState(null);
   const [editData, setEditData] = useState(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
-  const [updatedNotice, setUpdatedNotice] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -34,25 +33,12 @@ const Notice = () => {
 
   const handleEditSubmit = async (formData) => {
     try {
-      // 새 이미지를 base64로 변환
-      const imagePromises = (formData.images || []).map((img) => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(img.file);
-        });
-      });
-      const newImages = await Promise.all(imagePromises);
-      // 기존 이미지(삭제되지 않은 것) + 새 이미지 합침
-      const notice_images = [...(formData.existingImages || []), ...newImages];
-
       await updateNotice(editData.id, {
         notice_title: formData.title,
         notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
         notice_content: formData.content,
-        notice_images,
       });
-      const updated = { ...editData, title: formData.title, category: formData.category, content: formData.content, images: notice_images };
+      const updated = { ...editData, title: formData.title, category: formData.category, content: formData.content };
       setEditFormOpen(false);
       setEditData(null);
       setSelectedNotice(updated);
@@ -86,7 +72,7 @@ const Notice = () => {
       );
     }
     if (role === "관리자") {
-      return <AdminNoticeList key={refreshKey} onSelect={(notice) => setSelectedNotice(notice)} updatedNotice={updatedNotice} />;
+      return <AdminNoticeList key={refreshKey} onSelect={(notice) => setSelectedNotice(notice)} />;
     }
     return <NoticeList key={refreshKey} onSelect={(notice) => setSelectedNotice(notice)} />;
   };

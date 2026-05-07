@@ -2,6 +2,7 @@ import "./AdminTable.css";
 import { useState, useEffect, useMemo } from "react";
 import { getMembers } from "../../services/memberService";
 import { normalizeRole, ROLES } from "../../constants/roles";
+import { formatDateTime } from "../../utils/formatDate";
 import MemberDetailPopup from "./MemberDetailPopup";
 import MemberAddForm from "./MemberAddForm";
 import Search from "../common/search";
@@ -16,19 +17,6 @@ const getMemberStatus = (approved, deleted) => {
   if (deleted) return "탈퇴";
   if (approved) return "승인";
   return "대기";
-};
-
-const formatDateTime = (raw) => {
-  if (!raw) return "-";
-  const d = new Date(raw);
-  if (isNaN(d.getTime())) return raw;
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const h = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  const sec = String(d.getSeconds()).padStart(2, "0");
-  return `${y}-${m}-${day} ${h}:${min}:${sec}`;
 };
 
 const STATUS_CLASS = { "승인": "approved", "대기": "pending", "탈퇴": "withdrawn" };
@@ -89,7 +77,7 @@ const AdminMemberList = () => {
         if (startDate && created < new Date(startDate)) return false;
         if (endDate) {
           const end = new Date(endDate);
-          end.setHours(23, 59, 59);
+          end.setHours(23, 59);
           if (created > end) return false;
         }
       }
@@ -205,16 +193,6 @@ const AdminMemberList = () => {
           setSelectedMember(updated);
         }}
         onRefresh={loadData}
-      />
-
-      {/* 회원 추가 팝업 */}
-      <MemberAddForm
-        isOpen={addFormOpen}
-        onClose={() => setAddFormOpen(false)}
-        onSubmit={() => {
-          setAddFormOpen(false);
-          loadData();
-        }}
       />
     </div>
   );

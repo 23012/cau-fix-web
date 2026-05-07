@@ -361,12 +361,21 @@
   min-height: 300px;
 }
 
+.notice-form-textarea[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--back-color-2);
+  pointer-events: none;
+}
+
+.notice-form-textarea[contenteditable] img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 8px 0;
+  display: block;
+}
+
 @media (max-width: 768px) {
   .notice-form-textarea {
     min-height: 230px;
-  }
-
-  .notice-form-hint {
-    margin-bottom: 10px;
   }
 }

@@ -1,64 +1,35 @@
-import { useState, useEffect, useMemo } from "react";
-import * as XLSX from "xlsx";
-import alarmDataFile from "../assets/files/alarm-data.xlsx";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { getNotifications, markAsRead, markAllAsRead } from "../services/notificationService";
 import useComplainData from "./useComplainData";
-import { normalizeStatus } from "../constants/status";
 
 /**
- * 푸시 알림 + 민원 데이터를 로딩하는 훅
- * TODO: 백엔드 연결 시
- *   - 푸시: GET /api/push?userId={userId}&days=7
- *   - 민원: useComplainData 훅이 자동으로 API 호출
- *   - 읽음 처리: PATCH /api/push/{id}/read
+ * 푸시 알림 데이터를 API에서 로딩하는 훅
  */
-
-const parseExcelTime = (value) => {
-  if (typeof value === "string") return new Date(value.trim());
-  const epoch = new Date(1899, 11, 30);
-  return new Date(epoch.getTime() + value * 86400000);
-};
-
 const usePush = () => {
   const [pushList, setPushList] = useState([]);
   const { tableData: complains } = useComplainData();
 
-  useEffect(() => {
-    const loadPush = async () => {
-      try {
-        const res = await fetch(alarmDataFile);
-        const buffer = await res.arrayBuffer();
-        const wb = XLSX.read(buffer, { type: "array" });
-        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-
-        setPushList(rows.map((row) => ({
-          id: row["push_id"],
-          memberId: row["member_id"] || null,
-          title: row["push_content"] || "",
-          desc: `${row["push_content"] || ""} 민원이 ${normalizeStatus(row["state"])} 처리되었습니다.`,
-          time: parseExcelTime(row["push_at"]),
-          read: row["is_read"] === true || row["is_read"] === "true",
-          complainId: row["complain_id"] || null,
-          state: normalizeStatus(row["state"]) || "",
-        })));
-      } catch (error) {
-        // 푸시 로드 실패 시 빈 목록 유지
-      }
-    };
-    loadPush();
+  const loadPush = useCallback(async () => {
+    try {
+      const result = await getNotifications();
+      setPushList((result.notifications || []).map((n) => ({
+        id: n.id,
+        memberId: null,
+        title: n.title || "",
+        desc: n.content || "",
+        time: new Date(n.time),
+        read: n.read,
+        complainId: n.complainId || null,
+        state: n.state || "",
+      })));
+    } catch (error) {
+      // 로드 실패 시 빈 목록 유지
+    }
   }, []);
 
-  const user = useMemo(() => {
-    const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
-  }, []);
+  useEffect(() => { loadPush(); }, [loadPush]);
 
-  const recentPush = useMemo(() => {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    return pushList
-      .filter((a) => a.time >= sevenDaysAgo)
-      .filter((a) => !user || String(a.memberId) === String(user.id));
-  }, [pushList, user]);
-
+  const recentPush = pushList;
   const todayPush = recentPush.filter((a) => a.time.toDateString() === new Date().toDateString());
   const earlierPush = recentPush.filter((a) => a.time.toDateString() !== new Date().toDateString());
   const unreadCount = recentPush.filter((a) => !a.read).length;
@@ -68,7 +39,21 @@ const usePush = () => {
     return complains.find((c) => c.id === push.complainId) || null;
   };
 
-  return { recentPush, todayPush, earlierPush, unreadCount, complains, getComplainForPush };
+  const handleMarkAsRead = async (pushId) => {
+    try {
+      await markAsRead(pushId);
+      setPushList((prev) => prev.map((p) => p.id === pushId ? { ...p, read: true } : p));
+    } catch (e) { /* ignore */ }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+      setPushList((prev) => prev.map((p) => ({ ...p, read: true })));
+    } catch (e) { /* ignore */ }
+  };
+
+  return { recentPush, todayPush, earlierPush, unreadCount, complains, getComplainForPush, handleMarkAsRead, handleMarkAllAsRead, refetch: loadPush };
 };
 
 export default usePush;

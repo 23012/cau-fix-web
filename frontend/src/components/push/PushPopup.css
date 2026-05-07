@@ -72,3 +72,19 @@
     display: none;
   }
 }
+
+.push-popup-read-all {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--main-color);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.push-popup-read-all:hover {
+  background: #f0f0f0;
+}

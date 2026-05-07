@@ -9,11 +9,13 @@ import DetailContent from "./DetailContent";
 import DetailResult from "./DetailResult";
 import StatusChangePopup from "./StatusChangePopup";
 import ProcessForm from "./ProcessForm";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import useCategories from "../../hooks/useCategories";
 import useComplainDetail from "../../hooks/useComplainDetail";
 import { updateComplaint, deleteComplaint, updateComplaintState, createProcess, uploadProcessImages, deleteComplainImage } from "../../services/complainService";
+import { getMemberProfile } from "../../services/memberService";
 import { formatDate } from "../../utils/formatDate";
+import { STATUS_LABEL_TO_CODE } from "../../constants/status";
 import useImageUpload from "../../hooks/useImageUpload";
 
 /**
@@ -43,6 +45,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // 프로필 팝업
   const [showProfile, setShowProfile] = useState(false);
   const [showReporterProfile, setShowReporterProfile] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [reporterProfileData, setReporterProfileData] = useState(null);
 
   // 확인 팝업들
   const [showNoResultPopup, setShowNoResultPopup] = useState(false);
@@ -73,6 +77,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
     ...(detailData?.process ? {
       result: detailData.process.result,
       resultPerson: detailData.process.resultPerson,
+      resultPersonId: detailData.process.process_by,
       resultDate: detailData.process.resultDate,
     } : {}),
   };
@@ -117,7 +122,6 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   };
 
   // --- 상태 변경 핸들러 ---
-  const statusLabelToCode = { "접수전": "B", "접수": "A", "진행중": "P", "완료": "D" };
 
   const handleStatusNext = async () => {
     setShowStatusChange(false);
@@ -126,7 +130,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       setShowProcessForm(true);
     } else {
       try {
-        const stateCode = statusLabelToCode[selectedStatus] || selectedStatus;
+        const stateCode = STATUS_LABEL_TO_CODE[selectedStatus] || selectedStatus;
         await updateComplaintState(data.id, stateCode);
         await refetch();
         onUpdate?.({ ...data, status: selectedStatus });
@@ -149,7 +153,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         }
       }
       await refetch();
-      onUpdate?.({ ...data, status: "완료", result: processContent, resultDate: new Date() });
+      onUpdate?.({ ...data, status: "완료", result: processContent, resultPerson: user?.name, resultPersonId: user?.member_id, resultDate: new Date() });
       alert("처리가 완료되었습니다.");
     } catch (err) {
       alert(err.message || "처리 등록 중 오류가 발생했습니다.");
@@ -229,7 +233,18 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           data={displayData} imagePath={imagePath} menuOpen={menuOpen} setMenuOpen={setMenuOpen}
           setPreviewImage={setPreviewImage} setImageError={setImageError}
           apiImages={detailData?.images || []}
-          setShowReporterProfile={setShowReporterProfile} formatDate={formatDate}
+          setShowReporterProfile={async () => {
+            if (displayData.complain_by) {
+              try {
+                const res = await getMemberProfile(displayData.complain_by);
+                setReporterProfileData(res.profile);
+                setShowReporterProfile(true);
+                return;
+              } catch {}
+            }
+            setReporterProfileData({ name: displayData.memberName || "-" });
+            setShowReporterProfile(true);
+          }} formatDate={formatDate}
           isEditor={isEditor} fromStorage={fromStorage} user={user}
           onStatusChange={() => setShowStatusChange(true)}
           onDelete={() => setShowDeleteConfirm(true)}
@@ -239,7 +254,28 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           onHasOtherPerson={() => setShowHasOtherPerson(true)}
         />
       ) : (
-        <DetailResult data={displayData} formatDate={formatDate} onShowProfile={() => setShowProfile(true)} />
+        <DetailResult data={displayData} formatDate={formatDate} onShowProfile={async () => {
+          const personId = detailData?.process?.process_by || displayData.resultPersonId;
+          if (personId) {
+            try {
+              const res = await getMemberProfile(personId);
+              if (res.profile) {
+                setProfileData(res.profile);
+                setShowProfile(true);
+                return;
+              }
+            } catch (err) {
+              console.error('[Profile] API error:', err.status, err.message);
+            }
+          }
+          // API 실패 시 process에서 가져온 정보로 fallback
+          setProfileData({
+            name: displayData.resultPerson || "-",
+            dept: detailData?.process?.resultDept || null,
+            phone: detailData?.process?.resultPhone || null,
+          });
+          setShowProfile(true);
+        }} />
       )}
 
       {/* 처리자 + 접수전: 접수하기 버튼 */}
@@ -292,8 +328,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       )}
 
       {/* 프로필 팝업 */}
-      <ProfilePopup isOpen={showProfile} onClose={() => setShowProfile(false)} name={data.resultPerson} dept={data.resultDept} phone={data.resultPhone} />
-      <ProfilePopup isOpen={showReporterProfile} onClose={() => setShowReporterProfile(false)} name={data.reporterName} dept={data.dept} phone={data.reporterPhone} />
+      <ProfilePopup isOpen={showProfile} onClose={() => { setShowProfile(false); setProfileData(null); }} name={profileData?.name} dept={profileData?.dept} phone={profileData?.phone} />
+      <ProfilePopup isOpen={showReporterProfile} onClose={() => { setShowReporterProfile(false); setReporterProfileData(null); }} name={reporterProfileData?.name} dept={reporterProfileData?.dept} phone={reporterProfileData?.phone} />
 
       <ImagePreview src={previewImage} alt="민원 사진" onClose={() => setPreviewImage(null)} />
 
