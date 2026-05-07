@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import * as XLSX from "xlsx";
 import sampleFile from "../../assets/files/sample.xlsx";
 import { CATEGORIES } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
 import { STATUS_COLORS, normalizeStatus } from "../../constants/status";
 
 /**
@@ -31,6 +32,7 @@ const toInputFormat = (date) => {
 };
 
 const AdminDashboard = () => {
+  const { categories: apiCategories } = useCategories();
   const [statusFilter, setStatusFilter] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,7 +112,10 @@ const AdminDashboard = () => {
 
   // 카테고리별 통계
   const categoryStats = useMemo(() => {
-    return CATEGORIES.map((cat) => {
+    const catNames = apiCategories.length > 0
+      ? apiCategories.map((c) => c.category_name)
+      : CATEGORIES;
+    return catNames.map((cat) => {
       const items = filteredData.filter((r) => r.category === cat);
       return {
         name: cat,
@@ -122,7 +127,7 @@ const AdminDashboard = () => {
         done: items.filter((r) => r.status === "완료").length,
       };
     });
-  }, [filteredData]);
+  }, [filteredData, apiCategories]);
 
   const chartColors = [
     STATUS_COLORS["접수중"],

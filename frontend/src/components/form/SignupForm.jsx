@@ -3,17 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import "./Form.css";
 import "../form/FormPopup.css";
-import { DEPARTMENTS } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
 
-
-/**
- * 회원가입 폼
- * TODO: 백엔드 연결 시
- *   - 중복확인: GET /api/auth/check-id?id={id}
- *   - 회원가입: POST /api/auth/signup { id, password, name, role, dept, phone }
- */
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {
   const navigate = useNavigate();
+  const { categories } = useCategories(true);
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
 
@@ -76,17 +70,17 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
           <ChevronRight size={20} className="form-field-arrow" />
           {showDeptDropdown && (
             <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
-              {DEPARTMENTS.map((dept) => (
+              {categories.map((cat) => (
                 <button
-                  key={dept}
+                  key={cat.category_id}
                   type="button"
-                  className={`form-dropdown-item ${formData.dept === dept ? "active" : ""}`}
+                  className={`form-dropdown-item ${formData.dept === cat.category_name ? "active" : ""}`}
                   onClick={() => {
-                    onChange({ target: { name: "dept", value: dept } });
+                    onChange({ target: { name: "dept", value: cat.category_name } });
                     setShowDeptDropdown(false);
                   }}
                 >
-                  {dept}
+                  {cat.category_name}
                 </button>
               ))}
             </div>

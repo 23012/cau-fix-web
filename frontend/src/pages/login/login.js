@@ -4,6 +4,7 @@ import Background from "../../components/common/Background";
 import Logo from "../../components/form/Logo";
 import LoginForm from "../../components/form/LoginForm";
 import { login } from "../../services/authService";
+import { normalizeRole } from "../../constants/roles";
 import hospitalBg from "../../assets/images/background-img.png";
 import "./login.css";
 import "../../styles/global.css";
@@ -32,7 +33,10 @@ const Login = () => {
     try {
       const result = await login(formData.id, formData.password);
       localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.member));
+      localStorage.setItem("user", JSON.stringify({
+        ...result.member,
+        role: normalizeRole(result.member.role),
+      }));
       navigate("/complain-dashboard");
     } catch (err) {
       if (err.status === 403) {

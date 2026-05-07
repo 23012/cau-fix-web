@@ -1,16 +1,17 @@
 import "./AdminTable.css";
 import { useState, useMemo } from "react";
-import * as XLSX from "xlsx";
 import useComplainData from "../../hooks/useComplainData";
 import { STATUSES } from "../../constants/status";
-import { DEPARTMENTS } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
 import { formatDate } from "../../utils/formatDate";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 import Status from "../common/Status";
 import Detail from "../detail/detail";
 import Search from "../common/search";
 
 const AdminComplainList = () => {
   const { tableData, setTableData } = useComplainData();
+  const { categories: deptCategories } = useCategories(true);
   const [statusFilter, setStatusFilter] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +22,6 @@ const AdminComplainList = () => {
   const [sortOrder, setSortOrder] = useState("번호순");
   const itemsPerPage = 10;
 
-  /* 필터 + 정렬 */
   const filteredData = useMemo(() => {
     const result = tableData.filter((row) => {
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;
@@ -31,7 +31,6 @@ const AdminComplainList = () => {
         if (!row.title.toLowerCase().includes(q) && !row.content?.toLowerCase().includes(q)) return false;
       }
       if (startDate || endDate) {
-        const { parseExcelDate } = require("../../utils/parseExcelDate");
         const d = parseExcelDate(row.date);
         if (!d) return false;
         if (startDate && d < new Date(startDate)) return false;
@@ -62,17 +61,39 @@ const AdminComplainList = () => {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  /* TODO: 백엔드 연결 시 XLSX.writeFile 대신 GET /api/complains?export=excel 호출 */
-  const handleExcelDownload = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredData.map((r) => ({
-      "신고번호": r.id, "부서명": r.dept, "장소": r.location,
-      "접수시간": formatDate(r.date), "민원분류": r.category,
-      "제목": r.title, "민원내용": r.content,
-      "처리내용": r.result || "", "상태": r.status,
-    })));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "민원리스트");
-    XLSX.writeFile(wb, "민원리스트.xlsx");
+  const handleExcelDownload = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (categoryFilter !== '전체 분류') params.append('category', categoryFilter);
+      if (statusFilter !== '전체') params.append('status', statusFilter);
+      const queryStr = params.toString();
+
+      const response = await fetch(`/api/complaints/export${queryStr ? `?${queryStr}` : ''}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        alert('엑셀 다운로드에 실패했습니다.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const disposition = response.headers.get('Content-Disposition');
+      const filename = disposition
+        ? decodeURIComponent(disposition.split("filename*=UTF-8''")[1] || '민원목록.xlsx')
+        : '민원목록.xlsx';
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('엑셀 다운로드 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -84,7 +105,6 @@ const AdminComplainList = () => {
 
       <h1 className="admin-page-title">민원 리스트</h1>
 
-      {/* 필터 영역 */}
       <div className="admin-filters">
         <div className="admin-filters-left">
           <div className="admin-tabs">
@@ -103,25 +123,23 @@ const AdminComplainList = () => {
               </label>
             ))}
           </div>
-
         </div>
 
         <div className="admin-filters-right">
           <Search
-            className = "search-container search-pc"
+            className="search-container search-pc"
             onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }}
             placeholder="제목을 입력하세요"
           />
           
-          {/* 카테고리 */}
           <div className="admin-filters-row">
             <select
               className="admin-select"
               value={categoryFilter}
               onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
             >
-              {DEPARTMENTS.map((d) => (
-                <option key={d} value={d}>{d}</option>
+              {[{ category_id: -1, category_name: "전체 분류" }, ...deptCategories].map((d) => (
+                <option key={d.category_id} value={d.category_name}>{d.category_name}</option>
               ))}
             </select>
           </div>
@@ -134,17 +152,15 @@ const AdminComplainList = () => {
         </div>
       </div>
 
-      {/*정렬*/}
-        <div className="admin-filters-row">
-          <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
-            <option value="번호순">번호순</option>
-            <option value="최신순">최신순</option>
-            <option value="오래된순">오래된순</option>
-            <option value="상태순">상태순</option>
-          </select>
-        </div>
+      <div className="admin-filters-row">
+        <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
+          <option value="번호순">번호순</option>
+          <option value="최신순">최신순</option>
+          <option value="오래된순">오래된순</option>
+          <option value="상태순">상태순</option>
+        </select>
+      </div>
 
-      {/* 테이블 */}
       <div className="admin-table-wrapper">
         <table className="admin-table complain-table">
           <thead>
@@ -174,21 +190,22 @@ const AdminComplainList = () => {
         </table>
       </div>
 
-      {/* 페이지네이션 */}
       <div className="admin-pagination">
         <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>이전</button>
         <span>{currentPage} / {totalPages}</span>
         <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}>다음</button>
       </div>
 
-      {/* 상세 팝업 */}
-      {/* TODO: 백엔드 연결 시 onUpdate에서 PUT /api/complains/{id} 호출 */}
       <Detail
         isOpen={!!selectedComplain}
         onClose={() => setSelectedComplain(null)}
         data={selectedComplain}
         onUpdate={(updated) => {
-          setTableData((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+          if (updated._deleted) {
+            setTableData((prev) => prev.filter((r) => r.id !== updated.id));
+          } else {
+            setTableData((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+          }
           setSelectedComplain(null);
         }}
       />

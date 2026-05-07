@@ -1,26 +1,16 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import FormPopup from "../form/FormPopup";
-import { DEPARTMENTS } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
+import { checkLoginId, registerMember } from "../../services/memberService";
 import "./MemberAddForm.css";
 
 /**
  * 관리자 회원 추가 폼
- * TODO: 백엔드 연결 시 onSubmit에서 POST /api/members 호출
  */
 
-const formatAMPM = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  let h = date.getHours();
-  const min = String(date.getMinutes()).padStart(2, "0");
-  const ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-  return `${y}-${m}-${d} ${String(h).padStart(2, "0")}:${min}${ampm}`;
-};
-
 const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
+  const { categories: deptCategories } = useCategories(true);
   const [formData, setFormData] = useState({
     id: "", password: "", passwordConfirm: "",
     role: "C", name: "", dept: "", phone: "",
@@ -35,27 +25,29 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
     setError("");
   };
 
-  const handleSubmit = () => {
-    if (!formData.id.trim() || !formData.password.trim() || !formData.name.trim() || !formData.dept.trim()) return;
+  const handleSubmit = async () => {
+    if (!formData.id.trim() || !formData.password.trim() || !formData.name.trim() || !formData.dept.trim()) {
+      alert("필수 항목을 입력해주세요.");
+      return;
+    }
 
-    const admin = JSON.parse(localStorage.getItem("user") || "{}");
-    const now = formatAMPM(new Date());
-
-    onSubmit?.({
-      id: formData.id,
-      password: formData.password,
-      role: formData.role,
-      name: formData.name,
-      dept: formData.dept,
-      phone: formData.phone,
-      approvedBy: admin.name || "-",
-      approvedAt: now,
-      createdAt: now,
-    });
-
-    setFormData({ id: "", password: "", passwordConfirm: "", role: "C", name: "", dept: "", phone: "" });
-    setError("");
-    onClose();
+    try {
+      await registerMember({
+        login_id: formData.id,
+        password: formData.password,
+        name: formData.name,
+        role: formData.role,
+        dept: formData.dept,
+        phone: formData.phone,
+      });
+      alert("회원이 등록되었습니다.");
+      setFormData({ id: "", password: "", passwordConfirm: "", role: "C", name: "", dept: "", phone: "" });
+      setError("");
+      onSubmit?.();
+      onClose();
+    } catch (err) {
+      alert(err.message || "회원 등록 중 오류가 발생했습니다.");
+    }
   };
 
   const handleClose = () => {
@@ -71,9 +63,14 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
       {/* 아이디 */}
       <div className="form-field member-add-id-row">
         <input type="text" className="form-input" placeholder="아이디 (사번)" value={formData.id} onChange={(e) => handleChange("id", e.target.value)} />
-        <button type="button" className="member-add-check-btn" onClick={() => {
-          // TODO: 백엔드 연결 시 GET /api/auth/check-id?id={formData.id}
-          alert("사용 가능한 아이디입니다.");
+        <button type="button" className="member-add-check-btn" onClick={async () => {
+          if (!formData.id.trim()) { alert("아이디를 입력해주세요."); return; }
+          try {
+            const result = await checkLoginId(formData.id);
+            alert(result.available ? "사용 가능한 아이디입니다." : "이미 사용 중인 아이디입니다.");
+          } catch (err) {
+            alert(err.message || "중복 확인 중 오류가 발생했습니다.");
+          }
         }}>
           중복 확인
         </button>
@@ -112,9 +109,9 @@ const MemberAddForm = ({ isOpen, onClose, onSubmit }) => {
           <ChevronRight size={20} className="form-field-arrow" />
           {showDeptDropdown && (
             <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
-              {DEPARTMENTS.filter((d) => d !== "전체").map((dept) => (
-                <button key={dept} type="button" className={`form-dropdown-item ${formData.dept === dept ? "active" : ""}`} onClick={() => { handleChange("dept", dept); setShowDeptDropdown(false); }}>
-                  {dept}
+              {deptCategories.filter((d) => d.category_name !== "전체").map((dept) => (
+                <button key={dept.category_id} type="button" className={`form-dropdown-item ${formData.dept === dept.category_name ? "active" : ""}`} onClick={() => { handleChange("dept", dept.category_name); setShowDeptDropdown(false); }}>
+                  {dept.category_name}
                 </button>
               ))}
             </div>

@@ -1,33 +1,23 @@
 import "./AdminTable.css";
 import { useState, useEffect, useMemo } from "react";
-import * as XLSX from "xlsx";
-import noticeDataFile from "../../assets/files/notice-data.xlsx";
-import loginDataFile from "../../assets/files/logindata.xlsx";
-import { normalizeNoticeCategory } from "../../constants/noticeCategories";
+import { getNotices, createNotice } from "../../services/noticeService";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 import NoticeForm from "./NoticeForm";
 import Search from "../common/search";
 import { Plus } from "lucide-react";
 
-/**
- * TODO: 백엔드 연결 시 Excel 로딩을 아래 API로 교체
- *   - GET /api/notices → 공지사항 목록
- *   - GET /api/members → 작성자 이름 조회 (memberMap 대체)
- */
-
 const TABS = ["전체", "공지", "업데이트", "점검"];
+const CATEGORY_LABEL_TO_CODE = { "공지": "G", "업데이트": "U", "점검": "F" };
 
 const AdminNoticeList = ({ onSelect, updatedNotice }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("번호순");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [noticeFormOpen, setNoticeFormOpen] = useState(false);
   const itemsPerPage = 15;
 
-  /* 수정된 공지사항 반영 */
   useEffect(() => {
     if (updatedNotice) {
       setNotices((prev) =>
@@ -36,51 +26,21 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
     }
   }, [updatedNotice]);
 
-  /* 데이터 로딩 */
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [noticeRes, loginRes] = await Promise.all([
-          fetch(noticeDataFile),
-          fetch(loginDataFile),
-        ]);
-        const noticeBuffer = await noticeRes.arrayBuffer();
-        const loginBuffer = await loginRes.arrayBuffer();
+  const loadData = async () => {
+    try {
+      const result = await getNotices();
+      setNotices(result.notices || []);
+    } catch (error) {
+      // 로드 실패
+    }
+  };
 
-        const loginWb = XLSX.read(loginBuffer, { type: "array" });
-        const loginRows = XLSX.utils.sheet_to_json(loginWb.Sheets[loginWb.SheetNames[0]]);
-        const memberMap = {};
-        loginRows.forEach((row) => {
-          const id = (row["member_id"] ?? row["id"])?.toString();
-          if (id) memberMap[id] = row["name"]?.toString() || "";
-        });
+  useEffect(() => { loadData(); }, []);
 
-        const workbook = XLSX.read(noticeBuffer, { type: "array" });
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-
-        setNotices(rows.map((row) => ({
-          id: row["notice_id"],
-          category: normalizeNoticeCategory(row["notice_category"] || ""),
-          title: row["notice_title"] || "",
-          content: row["notice_content"] || "",
-          date: row["noticed_at"] || "",
-          updatedAt: row["updated_at"] || "",
-          author: memberMap[(row["noticed_by"] ?? "").toString()] || row["noticed_by"] || "",
-        })));
-      } catch (error) {
-        // 로드 실패
-      }
-    };
-    loadData();
-  }, []);
-
-  /* 필터 + 정렬 */
   const filteredData = useMemo(() => {
     let result = notices.filter((n) => {
       if (activeTab !== "전체" && n.category !== activeTab) return false;
       if (searchQuery.trim() && !n.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-      if (startDate && n.date && n.date < startDate.replace(/-/g, ".")) return false;
-      if (endDate && n.date && n.date > endDate.replace(/-/g, ".")) return false;
       return true;
     });
 
@@ -91,20 +51,35 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
       default: result.sort((a, b) => b.id - a.id);
     }
     return result;
-  }, [notices, activeTab, searchQuery, sortOrder, startDate, endDate]);
+  }, [notices, activeTab, searchQuery, sortOrder]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  /* TODO: 백엔드 연결 시 GET /api/notices?export=excel 호출 */
-  const handleExcelDownload = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredData.map((r) => ({
-      "번호": r.id, "카테고리": r.category, "제목": r.title,
-      "내용": r.content, "작성일자": r.date, "작성자": r.author,
-    })));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "공지사항");
-    XLSX.writeFile(wb, "공지사항.xlsx");
+  const handleCreateNotice = async (formData) => {
+    try {
+      // 이미지를 base64로 변환
+      const imagePromises = (formData.images || []).map((img) => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(img.file);
+        });
+      });
+      const notice_images = await Promise.all(imagePromises);
+
+      await createNotice({
+        notice_title: formData.title,
+        notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
+        notice_content: formData.content,
+        notice_images,
+      });
+      setNoticeFormOpen(false);
+      alert("공지사항이 등록되었습니다.");
+      loadData();
+    } catch (err) {
+      alert(err.message || "공지사항 등록 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -116,7 +91,6 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
 
       <h1 className="admin-page-title">공지사항</h1>
 
-      {/* 필터 영역 */}
       <div className="admin-filters">
         <div className="admin-filters-left">
           <div className="admin-tabs admin-category-tabs">
@@ -133,31 +107,28 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
           <Search
             onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }}
             placeholder="제목을 입력하세요"
-            className = "search-container search-pc"
+            className="search-container search-pc"
           />
           <button className="admin-write-btn" onClick={() => setNoticeFormOpen(true)}>
             <span>작성하기</span>
           </button>
         </div>
       </div>
-      
-       {/*정렬*/}
-        <div className="admin-filters-row">
-          <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
-            <option value="번호순">번호순</option>
-            <option value="최신순">최신순</option>
-            <option value="오래된순">오래된순</option>
-            <option value="상태순">상태순</option>
-          </select>
-        </div>
-      
-      {/* 테이블 */}
+
+      <div className="admin-filters-row">
+        <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
+          <option value="번호순">번호순</option>
+          <option value="최신순">최신순</option>
+          <option value="오래된순">오래된순</option>
+        </select>
+      </div>
+
       <div className="admin-table-wrapper">
         <table className="admin-table notice-table">
           <thead>
             <tr>
               <th>번호</th><th>분류</th><th>제목</th>
-              <th>작성자</th><th>작성일자</th><th>수정일자</th>
+              <th>작성자</th><th>작성일자</th>
             </tr>
           </thead>
           <tbody>
@@ -167,31 +138,30 @@ const AdminNoticeList = ({ onSelect, updatedNotice }) => {
                 <td>{row.category}</td>
                 <td className="admin-title-cell">{row.title}</td>
                 <td>{row.author}</td>
-                <td className="nowrap">{row.date}</td>
-                <td className="nowrap">{row.updatedAt}</td>
+                <td className="nowrap">{(() => {
+                  const d = parseExcelDate(row.date);
+                  if (!d) return row.date;
+                  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                })()}</td>
               </tr>
             ))}
             {currentData.length === 0 && (
-              <tr><td colSpan={6} className="admin-empty">공지사항이 없습니다.</td></tr>
+              <tr><td colSpan={5} className="admin-empty">공지사항이 없습니다.</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* 페이지네이션 */}
       <div className="admin-pagination">
         <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>이전</button>
         <span>{currentPage} / {totalPages}</span>
         <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}>다음</button>
       </div>
-      {/* 공지사항 작성 팝업 */}
-      {/* TODO: 백엔드 연결 시 onSubmit에서 POST /api/notices 호출 */}
+
       <NoticeForm
         isOpen={noticeFormOpen}
         onClose={() => setNoticeFormOpen(false)}
-        onSubmit={(data) => {
-          setNoticeFormOpen(false);
-        }}
+        onSubmit={handleCreateNotice}
       />
 
       <div className="admin-fab">

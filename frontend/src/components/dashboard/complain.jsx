@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Plus, FolderOpen } from "lucide-react";
 import useComplainData from "../../hooks/useComplainData";
 import useComplainFilter from "../../hooks/useComplainFilter";
+import { createComplaint, uploadComplainImages, getComplaints } from "../../services/complainService";
+import { normalizeStatus } from "../../constants/status";
 import Search from "../common/search";
 import ComplainForm from "../form/ComplainForm";
 import Detail from "../detail/detail";
@@ -11,16 +13,15 @@ import MyStorage from "./MyStorage";
 import ChartSection from "./ChartSection";
 import ComplainTable from "./ComplainTable";
 
+import useCategories from "../../hooks/useCategories";
+
 /**
  * 민원 대시보드 (사용자/처리자 메인 화면)
- * TODO: 백엔드 연결 시
- *   - useComplainData 훅 내부가 API 호출로 교체됨
- *   - 즐겨찾기: POST/DELETE /api/favorites/{complainId}
- *   - 민원 접수: POST /api/complains
  */
 const Complain = () => {
   const navigate = useNavigate();
   const { tableData, setTableData } = useComplainData();
+  const { categories } = useCategories();
   const {
     user, sortOrder, setSortOrder,
     selectedYear, selectedMonth,
@@ -65,6 +66,14 @@ const Complain = () => {
           onYearChange={handleYearChange}
           onMonthChange={handleMonthChange}
           onFavoriteClick={() => handleStatusTabChange("즐겨찾기")}
+          onDateRangeChange={(start, end) => {
+            handleFilterApply({
+              statuses: [],
+              category: "",
+              startDate: start ? { year: start.slice(0,4), month: start.slice(5,7), day: start.slice(8,10) } : { year: "", month: "", day: "" },
+              endDate: end ? { year: end.slice(0,4), month: end.slice(5,7), day: end.slice(8,10) } : { year: "", month: "", day: "" },
+            });
+          }}
         />
 
         <ComplainTable
@@ -93,7 +102,25 @@ const Complain = () => {
         )}
       </div>
 
-      <ComplainForm isOpen={complainFormOpen} onClose={() => setComplainFormOpen(false)} onSubmit={() => setComplainFormOpen(false)} />
+      <ComplainForm isOpen={complainFormOpen} onClose={() => setComplainFormOpen(false)} onSubmit={async (formData) => {
+        try {
+          const cat = categories.find((c) => c.category_name === formData.category);
+          const result = await createComplaint({
+            category_id: cat?.category_id,
+            title: formData.title,
+            content: formData.content,
+            location: formData.location,
+          });
+          if (formData.images?.length > 0 && result.complain?.id) {
+            await uploadComplainImages(result.complain.id, formData.images.map((img) => img.file));
+          }
+          alert("민원이 등록되었습니다.");
+          setComplainFormOpen(false);
+          window.location.reload();
+        } catch (err) {
+          alert(err.message || "민원 등록 중 오류가 발생했습니다.");
+        }
+      }} />
 
       <MyStorage
         isOpen={myStorageOpen}
@@ -107,9 +134,32 @@ const Complain = () => {
         onClose={() => setSelectedComplain(null)}
         data={selectedComplain}
         fromStorage={fromStorage}
-        onUpdate={(updated) => {
-          setTableData((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-          setSelectedComplain(updated);
+        onUpdate={async (updated) => {
+          if (updated._deleted) {
+            setTableData((prev) => prev.filter((r) => r.id !== updated.id));
+            setSelectedComplain(null);
+          } else {
+            // 목록 새로고침
+            try {
+              const result = await getComplaints();
+              const parsed = result.complaints.map((row) => ({
+                id: row.id, complainBy: row.complainBy || null,
+                reporterName: row.memberName || null, reporterPhone: row.memberPhone || null,
+                dept: row.memberDept || null, category: row.category,
+                title: row.title, content: row.content, location: row.location || null,
+                status: normalizeStatus(row.status), date: row.date,
+                image: null, result: row.result || null,
+                resultPerson: row.resultPerson || null, resultPersonId: row.resultPersonId || null,
+                resultDate: row.resultDate || null, resultDept: row.resultDept || null,
+                resultPhone: row.resultPhone || null,
+              }));
+              setTableData(parsed);
+              setSelectedComplain(parsed.find((r) => r.id === updated.id) || null);
+            } catch (e) {
+              setTableData((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+              setSelectedComplain(updated);
+            }
+          }
         }}
       />
     </div>

@@ -49,16 +49,6 @@ const useComplainFilter = (tableData) => {
   const filteredData = useMemo(() => {
     let data = tableData;
 
-    // 역할 기반 필터링
-    if (user) {
-      data = data.filter((row) => {
-        if (user.role === "관리자") return true;
-        if (user.role === "처리자") return row.category === user.dept;
-        if (user.role === "사용자") return String(row.complainBy) === String(user.id);
-        return true;
-      });
-    }
-
     // 날짜 필터
     if (selectedYear !== "전체" || selectedMonth !== "전체") {
       data = data.filter((row) => {

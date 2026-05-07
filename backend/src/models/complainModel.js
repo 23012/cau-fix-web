@@ -112,9 +112,11 @@ const complainModel = {
   // 민원 목록 조회 - 사용자(C): 본인만
   findByMember: async (member_id) => {
     const result = await pool.query(
-      `SELECT c.*, cc.category_name, cc.dept
+      `SELECT c.*, cc.category_name, cc.dept,
+              m.name AS member_name, m.dept AS member_dept
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
+       JOIN member m ON c.complain_by = m.member_id
        WHERE c.complain_by = $1 AND c.is_deleted = FALSE
        ORDER BY c.complain_at DESC`,
       [member_id]

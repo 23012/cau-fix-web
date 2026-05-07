@@ -9,21 +9,20 @@ import DetailContent from "./DetailContent";
 import DetailResult from "./DetailResult";
 import StatusChangePopup from "./StatusChangePopup";
 import ProcessForm from "./ProcessForm";
-import { useState, useMemo } from "react";
-import { CATEGORIES } from "../../constants/categories";
+import { useState, useMemo, useEffect } from "react";
+import useCategories from "../../hooks/useCategories";
+import useComplainDetail from "../../hooks/useComplainDetail";
+import { updateComplaint, deleteComplaint, updateComplaintState, createProcess, uploadProcessImages, deleteComplainImage } from "../../services/complainService";
 import { formatDate } from "../../utils/formatDate";
 import useImageUpload from "../../hooks/useImageUpload";
 
 /**
  * 민원 상세 팝업 (읽기 + 수정 모드)
- * TODO: 백엔드 연결 시
- *   - 수정: PUT /api/complains/{id} (editData + editImages)
- *   - 삭제: DELETE /api/complains/{id}
- *   - 상태 변경: PATCH /api/complains/{id}/status { status }
- *   - 처리 완료: POST /api/complains/{id}/process { content, images }
- *   - 내 폴더 추가: POST /api/complains/{id}/assign { userId }
  */
 const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromStorage = false }) => {
+  const { categories } = useCategories();
+  const { detail: apiDetail, refetch } = useComplainDetail(isOpen && data?.id ? data.id : null);
+  const detailData = apiDetail || data;
   const user = useMemo(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
@@ -38,6 +37,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
   const [showCategory, setShowCategory] = useState(false);
+  const [existingImages, setExistingImages] = useState([]);
   const { images: editImages, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();
 
   // 프로필 팝업
@@ -66,6 +66,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
   if (!isOpen || !data) return null;
 
+  // API에서 가져온 상세 데이터 또는 목록에서 전달받은 데이터 사용
+  const displayData = { ...data, ...detailData };
+
   const getImagePath = (name) => {
     if (!name) return null;
     try { return require(`../../assets/images/complain/${name}`); } catch { return null; }
@@ -76,34 +79,71 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // --- 수정 모드 핸들러 ---
   const handleEdit = () => {
     setEditData({ title: data.title || "", category: data.category || "", location: data.location || "", content: data.content || "" });
+    setExistingImages(detailData?.images || []);
     resetImages();
     setEditMode(true);
     setMenuOpen(false);
   };
 
-  const handleEditSubmit = () => {
+  const handleEditSubmit = async () => {
     if (!editData.title.trim()) { alert("제목을 입력해주세요."); return; }
-    setEditMode(false);
-    setShowEditSuccess(true);
+    try {
+      const cat = categories.find((c) => c.category_name === editData.category);
+      await updateComplaint(data.id, {
+        category_id: cat?.category_id || data.category_id,
+        title: editData.title,
+        content: editData.content,
+        location: editData.location,
+      });
+      // 새 이미지가 있으면 업로드
+      if (editImages.length > 0) {
+        const { uploadComplainImages } = await import("../../services/complainService");
+        await uploadComplainImages(data.id, editImages.map((img) => img.file));
+      }
+      setEditMode(false);
+      await refetch();
+      setShowEditSuccess(true);
+    } catch (err) {
+      alert(err.message || "수정 중 오류가 발생했습니다.");
+    }
   };
 
   // --- 상태 변경 핸들러 ---
-  const handleStatusNext = () => {
+  const statusLabelToCode = { "접수전": "B", "접수": "A", "진행중": "P", "완료": "D" };
+
+  const handleStatusNext = async () => {
     setShowStatusChange(false);
     if (selectedStatus === "완료") {
       setProcessContent("");
       setShowProcessForm(true);
     } else {
-      onUpdate?.({ ...data, status: selectedStatus });
-      setShowStatusSuccess(true);
+      try {
+        const stateCode = statusLabelToCode[selectedStatus] || selectedStatus;
+        await updateComplaintState(data.id, stateCode);
+        onUpdate?.({ ...data, status: selectedStatus });
+        setShowStatusSuccess(true);
+      } catch (err) {
+        alert(err.message || "상태 변경 중 오류가 발생했습니다.");
+      }
     }
     setSelectedStatus("");
   };
 
-  const handleProcessSubmit = (processImages) => {
+  const handleProcessSubmit = async (processImages) => {
     setShowProcessForm(false);
-    onUpdate?.({ ...data, status: "완료", result: processContent, resultDate: new Date(), processImages });
-    setShowProcessSuccess(true);
+    try {
+      const result = await createProcess(data.id, processContent);
+      if (processImages?.length > 0 && result.process?.process_id) {
+        const files = processImages.map((img) => img.file).filter(Boolean);
+        if (files.length > 0) {
+          await uploadProcessImages(result.process.process_id, files);
+        }
+      }
+      onUpdate?.({ ...data, status: "완료", result: processContent, resultDate: new Date() });
+      setShowProcessSuccess(true);
+    } catch (err) {
+      alert(err.message || "처리 등록 중 오류가 발생했습니다.");
+    }
   };
 
   // --- 수정 모드 렌더링 ---
@@ -122,8 +162,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           <ChevronRight size={20} className="form-field-arrow" />
           {showCategory && (
             <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
-              {CATEGORIES.map((cat) => (
-                <button key={cat} className={`form-dropdown-item ${editData.category === cat ? "active" : ""}`} onClick={() => { setEditData((p) => ({ ...p, category: cat })); setShowCategory(false); }}>{cat}</button>
+              {categories.map((cat) => (
+                <button key={cat.category_id} className={`form-dropdown-item ${editData.category === cat.category_name ? "active" : ""}`} onClick={() => { setEditData((p) => ({ ...p, category: cat.category_name })); setShowCategory(false); }}>{cat.category_name}</button>
               ))}
             </div>
           )}
@@ -134,7 +174,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         <div className="form-images">
           <div className="form-image-upload" onClick={() => fileInputRef.current?.click()}>
             <Camera size={32} color="#63C3D1" />
-            <span className="form-image-count">{editImages.length} / 10</span>
+            <span className="form-image-count">{editImages.length + existingImages.length} / 10</span>
             <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleImageAdd} />
           </div>
           {editImages.map((img, i) => (
@@ -143,7 +183,19 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
               <button className="form-image-remove" onClick={() => handleImageRemove(i)}>×</button>
             </div>
           ))}
-          {imagePath && <div className="form-image-preview"><img src={imagePath} alt="기존 사진" onClick={() => setPreviewImage(imagePath)} /></div>}
+          {existingImages.map((img) => (
+            <div key={img.id} className="form-image-preview">
+              <img src={img.url} alt="기존 사진" onClick={() => setPreviewImage(img.url)} />
+              <button className="form-image-remove" onClick={async () => {
+                try {
+                  await deleteComplainImage(img.id);
+                  setExistingImages((prev) => prev.filter((i) => i.id !== img.id));
+                } catch (err) {
+                  alert(err.message || "이미지 삭제 실패");
+                }
+              }}>×</button>
+            </div>
+          ))}
         </div>
         <ImagePreview src={previewImage} alt="첨부 사진" onClose={() => setPreviewImage(null)} />
       </FormPopup>
@@ -164,8 +216,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
       {activeTab === "content" ? (
         <DetailContent
-          data={data} imagePath={imagePath} menuOpen={menuOpen} setMenuOpen={setMenuOpen}
+          data={displayData} imagePath={imagePath} menuOpen={menuOpen} setMenuOpen={setMenuOpen}
           setPreviewImage={setPreviewImage} setImageError={setImageError}
+          apiImages={detailData?.images || []}
           setShowReporterProfile={setShowReporterProfile} formatDate={formatDate}
           isEditor={isEditor} fromStorage={fromStorage} user={user}
           onStatusChange={() => setShowStatusChange(true)}
@@ -180,23 +233,34 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       )}
 
       {/* 처리자 + 접수전: 접수하기 버튼 */}
-      {!isEditor && data.status === "접수전" && (
+      {!isEditor && displayData.status === "접수전" && (
         <div className="detail-accept-area">
-          <button className="detail-accept-btn" onClick={() => {
-            onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name, status: "접수중" });
-            setShowAddFolderSuccess(true);
+          <button className="detail-accept-btn" onClick={async () => {
+            try {
+              await updateComplaintState(data.id, 'A');
+              await refetch();
+              onUpdate?.({ ...data, resultPersonId: user?.member_id, resultPerson: user?.name, status: "접수중" });
+              setShowAddFolderSuccess(true);
+            } catch (err) {
+              alert(err.message || "접수 처리 중 오류가 발생했습니다.");
+            }
           }}>
             접수하기
           </button>
         </div>
       )}
 
-      {/* 처리자 + 내 보관함 + 접수중: 진행하기 버튼 */}
-      {!isEditor && fromStorage && data.status === "접수중" && (
+      {/* 처리자 + 내 보관함 + 접수: 진행하기 버튼 */}
+      {!isEditor && fromStorage && (displayData.status === "접수" || displayData.status === "접수중") && (
         <div className="detail-accept-area">
-          <button className="detail-accept-btn detail-accept-btn--progress" onClick={() => {
-            onUpdate?.({ ...data, status: "진행중" });
-            setShowStatusSuccess(true);
+          <button className="detail-accept-btn detail-accept-btn--progress" onClick={async () => {
+            try {
+              await updateComplaintState(data.id, 'P');
+              onUpdate?.({ ...data, status: "진행중" });
+              setShowStatusSuccess(true);
+            } catch (err) {
+              alert(err.message || "상태 변경 중 오류가 발생했습니다.");
+            }
           }}>
             진행하기
           </button>
@@ -204,7 +268,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       )}
 
       {/* 처리자 + 내 보관함 + 진행중: 처리 내용 작성 버튼 */}
-      {!isEditor && fromStorage && data.status === "진행중" && (
+      {!isEditor && fromStorage && displayData.status === "진행중" && (
         <div className="detail-accept-area">
           <button className="detail-accept-btn detail-accept-btn--complete" onClick={() => {
             setProcessContent("");
@@ -222,15 +286,24 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       <ImagePreview src={previewImage} alt="민원 사진" onClose={() => setPreviewImage(null)} />
 
       {/* 수정 완료 */}
-      <ConfirmPopup isOpen={showEditSuccess} message="수정이 완료되었습니다." onConfirm={() => { onUpdate?.({ ...data, ...editData, images: editImages }); setShowEditSuccess(false); }} />
+      <ConfirmPopup isOpen={showEditSuccess} message="수정이 완료되었습니다." onConfirm={() => { setShowEditSuccess(false); onUpdate?.({ ...data, ...editData, category: editData.category }); }} />
 
       {/* 삭제 확인/완료 */}
-      <ConfirmPopup isOpen={showDeleteConfirm} message={isEditor ? <>삭제된 민원은 복구할 수 없습니다.<br />정말 삭제하시겠습니까?</> : "내 폴더에서 삭제하시겠습니까?"} cancelLabel="취소" onCancel={() => setShowDeleteConfirm(false)} confirmLabel="삭제" confirmType="delete" onConfirm={() => { setShowDeleteConfirm(false); setShowDeleteSuccess(true); }} />
-      <ConfirmPopup isOpen={showDeleteSuccess} message="삭제가 완료되었습니다." onConfirm={() => { setShowDeleteSuccess(false); onClose(); }} />
+      <ConfirmPopup isOpen={showDeleteConfirm} message={isEditor ? <>삭제된 민원은 복구할 수 없습니다.<br />정말 삭제하시겠습니까?</> : "내 폴더에서 삭제하시겠습니까?"} cancelLabel="취소" onCancel={() => setShowDeleteConfirm(false)} confirmLabel="삭제" confirmType="delete" onConfirm={async () => {
+        try {
+          await deleteComplaint(data.id);
+          setShowDeleteConfirm(false);
+          setShowDeleteSuccess(true);
+        } catch (err) {
+          alert(err.message || "삭제 중 오류가 발생했습니다.");
+          setShowDeleteConfirm(false);
+        }
+      }} />
+      <ConfirmPopup isOpen={showDeleteSuccess} message="삭제가 완료되었습니다." onConfirm={() => { setShowDeleteSuccess(false); onUpdate?.({ ...data, _deleted: true }); onClose(); }} />
 
       {/* 내 폴더 추가 */}
-      <ConfirmPopup isOpen={showAddFolder} message="내 폴더에 추가하시겠습니까?" cancelLabel="취소" onCancel={() => setShowAddFolder(false)} confirmLabel="추가" onConfirm={() => { setShowAddFolder(false); onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name, status: data.status === "접수전" ? "접수중" : data.status }); setShowAddFolderSuccess(true); }} />
-      <ConfirmPopup isOpen={showAddFolderSuccess} message="내 폴더에 추가되었습니다." onConfirm={() => setShowAddFolderSuccess(false)} />
+      <ConfirmPopup isOpen={showAddFolder} message="내 처리함에 추가하시겠습니까?" cancelLabel="취소" onCancel={() => setShowAddFolder(false)} confirmLabel="추가" onConfirm={() => { setShowAddFolder(false); onUpdate?.({ ...data, resultPersonId: user?.id, resultPerson: user?.name, status: data.status === "접수전" ? "접수중" : data.status }); setShowAddFolderSuccess(true); }} />
+      <ConfirmPopup isOpen={showAddFolderSuccess} message="내 처리함에 추가되었습니다." onConfirm={() => setShowAddFolderSuccess(false)} />
 
       {/* 이미 내 민원 / 다른 담당자 */}
       <ConfirmPopup isOpen={showAlreadyMine} message={<>{data.resultPerson || user?.name} 님이 담당자입니다.<br />내 폴더에서 확인 바랍니다.</>} onConfirm={() => setShowAlreadyMine(false)} />
@@ -245,7 +318,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       <ConfirmPopup isOpen={showProcessSuccess} message="처리가 완료되었습니다." onConfirm={() => setShowProcessSuccess(false)} />
 
       {/* 접수전 - 담당자 미배정 */}
-      <ConfirmPopup isOpen={showNoResultPopup} message="관리자가 아직 배정되지 않았습니다." onConfirm={() => setShowNoResultPopup(false)} />
+      <ConfirmPopup isOpen={showNoResultPopup} message="담당자가 아직 배정되지 않았습니다." onConfirm={() => setShowNoResultPopup(false)} />
     </FormPopup>
   );
 };

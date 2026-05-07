@@ -2,15 +2,11 @@ import { useState } from "react";
 import { ChevronRight, Camera } from "lucide-react";
 import FormPopup from "./FormPopup";
 import ImagePreview from "../common/ImagePreview";
-import { CATEGORIES } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
 import useImageUpload from "../../hooks/useImageUpload";
 
-/**
- * 민원 접수 폼
- * TODO: 백엔드 연결 시 onSubmit에서 POST /api/complains (multipart/form-data)
- *   - formData 필드 + images 파일 배열 전송
- */
 const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
+  const { categories } = useCategories();
   const [formData, setFormData] = useState({ title: "", category: "", location: "", content: "" });
   const [showCategory, setShowCategory] = useState(false);
   const { images, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();
@@ -51,9 +47,9 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
         <ChevronRight size={20} className="form-field-arrow" />
         {showCategory && (
           <div className="form-dropdown" onClick={(e) => e.stopPropagation()}>
-            {CATEGORIES.map((cat) => (
-              <button key={cat} className={`form-dropdown-item ${formData.category === cat ? "active" : ""}`} onClick={() => { handleChange("category", cat); setShowCategory(false); }}>
-                {cat}
+            {categories.map((cat) => (
+              <button key={cat.category_id} className={`form-dropdown-item ${formData.category === cat.category_name ? "active" : ""}`} onClick={() => { handleChange("category", cat.category_name); setShowCategory(false); }}>
+                {cat.category_name}
               </button>
             ))}
           </div>

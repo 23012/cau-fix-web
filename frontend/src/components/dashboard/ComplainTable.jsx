@@ -3,7 +3,6 @@ import { useState } from "react";
 import Search from "../common/search";
 import Status from "../common/Status";
 import { STATUS_TABS } from "../../constants/status";
-import { DEPARTMENTS } from "../../constants/categories";
 
 const ComplainTable = ({
   user, currentData, favorites, activeStatusTab,

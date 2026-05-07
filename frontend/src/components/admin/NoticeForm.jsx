@@ -7,7 +7,8 @@ import { NOTICE_CATEGORIES } from "../../constants/noticeCategories";
 const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   const [formData, setFormData] = useState({ title: "", category: "", content: "" });
   const [showCategory, setShowCategory] = useState(false);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]); // 새로 추가한 이미지 (File 객체)
+  const [existingImages, setExistingImages] = useState([]); // 기존 base64 이미지
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
   const isEdit = !!editData;
@@ -15,27 +16,29 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   useEffect(() => {
     if (isOpen && editData) {
       setFormData({ title: editData.title || "", category: editData.category || "", content: editData.content || "" });
+      setExistingImages(editData.images || []);
     } else if (!isOpen) {
       setFormData({ title: "", category: "", content: "" });
       setImages([]);
+      setExistingImages([]);
     }
   }, [isOpen, editData]);
 
   const now = new Date();
-  const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
+  const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addImageFiles = useCallback((files) => {
-    if (images.length + files.length > 10) {
+    if (existingImages.length + images.length + files.length > 10) {
       alert("사진은 최대 10장까지 첨부할 수 있습니다.");
       return;
     }
     const newImages = files.map((f) => ({ file: f, preview: URL.createObjectURL(f) }));
     setImages((prev) => [...prev, ...newImages]);
-  }, [images.length]);
+  }, [images.length, existingImages.length]);
 
   const handleImageAdd = (e) => {
     addImageFiles(Array.from(e.target.files));
@@ -47,6 +50,10 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
       URL.revokeObjectURL(prev[index].preview);
       return prev.filter((_, i) => i !== index);
     });
+  };
+
+  const handleExistingImageRemove = (index) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   // 클립보드 붙여넣기 (Ctrl+V)
@@ -70,15 +77,17 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
     if (!formData.title.trim()) { alert("제목을 입력해주세요."); return; }
     if (!formData.category) { alert("카테고리를 선택해주세요."); return; }
     if (!formData.content.trim()) { alert("내용을 입력해주세요."); return; }
-    onSubmit?.({ ...formData, date: dateStr, images, ...(editData ? { id: editData.id } : {}) });
+    onSubmit?.({ ...formData, date: dateStr, images, existingImages, ...(editData ? { id: editData.id } : {}) });
     setFormData({ title: "", category: "", content: "" });
     setImages([]);
+    setExistingImages([]);
     onClose();
   };
 
   const handleClose = () => {
     setFormData({ title: "", category: "", content: "" });
     setImages([]);
+    setExistingImages([]);
     setShowCategory(false);
     onClose();
   };
@@ -112,6 +121,17 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
       <div className="form-field" onPaste={handlePaste}>
         <textarea className="form-textarea notice-form-textarea" placeholder="내용을 입력하세요" value={formData.content} onChange={(e) => handleChange("content", e.target.value)} />
       </div>
+
+      {existingImages.length > 0 && (
+        <div className="form-images">
+          {existingImages.map((src, i) => (
+            <div key={`existing-${i}`} className="form-image-preview">
+              <img src={src} alt={`기존 ${i + 1}`} onClick={() => setPreviewImage(src)} />
+              <button className="form-image-remove" onClick={() => handleExistingImageRemove(i)}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {images.length > 0 && (
         <div className="form-images">

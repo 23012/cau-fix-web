@@ -1,16 +1,11 @@
 import { useState, useEffect } from "react";
-import * as XLSX from "xlsx";
-import noticeDataFile from "../../assets/files/notice-data.xlsx";
+import { getNotices } from "../../services/noticeService";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 import Search from "../common/search";
-import { normalizeNoticeCategory } from "../../constants/noticeCategories";
 import "./NoticeList.css";
 
 const TABS = ["전체", "공지", "업데이트", "점검"];
 
-/**
- * 사용자용 공지사항 목록
- * TODO: 백엔드 연결 시 Excel 로딩을 GET /api/notices?tab={tab}&search={query} 로 교체
- */
 const NoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");
@@ -20,24 +15,10 @@ const NoticeList = ({ onSelect }) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await fetch(noticeDataFile);
-        const buffer = await res.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
-
-        const parsed = rows.map((row) => ({
-          id: row["notice_id"],
-          category: normalizeNoticeCategory(row["notice_category"] || ""),
-          title: row["notice_title"] || "",
-          content: row["notice_content"] || "",
-          date: row["noticed_at"] || "",
-          author: row["noticed_by"] || "",
-        }));
-
-        setNotices(parsed);
+        const result = await getNotices();
+        setNotices(result.notices || []);
       } catch (error) {
-        // 공지사항 로드 실패 시 빈 목록 유지
+        // 로드 실패
       }
     };
     loadData();
@@ -79,14 +60,14 @@ const NoticeList = ({ onSelect }) => {
 
       <div className="notice-items">
         {visible.map((notice) => (
-          <div
-            key={notice.id}
-            className="notice-item"
-            onClick={() => onSelect?.(notice)}
-          >
+          <div key={notice.id} className="notice-item" onClick={() => onSelect?.(notice)}>
             <span className="notice-item-category">{notice.category}</span>
             <span className="notice-item-title">{notice.title}</span>
-            <span className="notice-item-date">{notice.date}</span>
+            <span className="notice-item-date">{(() => {
+              const d = parseExcelDate(notice.date);
+              if (!d) return notice.date;
+              return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            })()}</span>
           </div>
         ))}
         {filtered.length === 0 && (

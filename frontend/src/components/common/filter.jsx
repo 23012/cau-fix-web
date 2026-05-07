@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { CATEGORIES } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
 import "./filter.css";
 
 const Filter = ({ isOpen, onClose, onApply }) => {
+  const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [startDate, setStartDate] = useState({ year: "", month: "", day: "" });
   const [endDate, setEndDate] = useState({ year: "", month: "", day: "" });
@@ -35,9 +36,9 @@ const Filter = ({ isOpen, onClose, onApply }) => {
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value="">전체</option>
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {category}
+          {categories.map((cat) => (
+            <option key={cat.category_id} value={cat.category_name}>
+              {cat.category_name}
             </option>
           ))}
         </select>

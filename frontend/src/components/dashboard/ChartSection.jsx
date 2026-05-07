@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { STATUS_TABS, STATUS_COLORS } from "../../constants/status";
+import { parseExcelDate } from "../../utils/parseExcelDate";
 
 const getChartData = (data) => {
   const counts = data.reduce((acc, row) => {
@@ -22,7 +23,7 @@ const toInputFormat = (date) => {
   return `${y}-${m}-${d}`;
 };
 
-const ChartSection = ({ data, onFavoriteClick }) => {
+const ChartSection = ({ data, onFavoriteClick, onDateRangeChange }) => {
   const today = new Date();
   const currentYearString = today.getFullYear().toString();
   const currentMonthString = (today.getMonth() + 1).toString();
@@ -41,24 +42,29 @@ const ChartSection = ({ data, onFavoriteClick }) => {
     if (selectedYear === "전체") {
       setStartDate("");
       setEndDate("");
+      onDateRangeChange?.("", "");
       return;
     }
     const y = parseInt(selectedYear, 10);
+    let newStart, newEnd;
     if (selectedMonth === "전체") {
-      setStartDate(toInputFormat(new Date(y, 0, 1)));
-      setEndDate(toInputFormat(new Date(y, 12, 0)));
+      newStart = toInputFormat(new Date(y, 0, 1));
+      newEnd = toInputFormat(new Date(y, 12, 0));
     } else {
       const m = parseInt(selectedMonth, 10) - 1;
-      setStartDate(toInputFormat(new Date(y, m, 1)));
-      setEndDate(toInputFormat(new Date(y, m + 1, 0)));
+      newStart = toInputFormat(new Date(y, m, 1));
+      newEnd = toInputFormat(new Date(y, m + 1, 0));
     }
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    onDateRangeChange?.(newStart, newEnd);
   }, [selectedYear, selectedMonth]);
 
   // 날짜 범위로 data 필터링
   const filteredData = data.filter((row) => {
     if (!row.date) return false;
-    const d = new Date(row.date);
-    if (isNaN(d.getTime())) return false;
+    const d = parseExcelDate(row.date);
+    if (!d) return false;
     if (startDate && d < new Date(startDate)) return false;
     if (endDate) {
       const end = new Date(endDate);
@@ -78,14 +84,14 @@ const ChartSection = ({ data, onFavoriteClick }) => {
           type="date"
           className="dropdown"
           value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          onChange={(e) => { setStartDate(e.target.value); onDateRangeChange?.(e.target.value, endDate); }}
         />
         <span>~</span>
         <input
           type="date"
           className="dropdown"
           value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
+          onChange={(e) => { setEndDate(e.target.value); onDateRangeChange?.(startDate, e.target.value); }}
         />
       </div>
 

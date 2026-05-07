@@ -16,9 +16,11 @@ const useImageUpload = (maxCount = MAX_IMAGES) => {
     const files = Array.from(e.target.files);
     if (images.length + files.length > maxCount) {
       alert(`사진은 최대 ${maxCount}장까지 첨부할 수 있습니다.`);
+      e.target.value = "";
       return;
     }
     const newImages = files.map((file) => ({
+      id: Date.now() + Math.random(),
       file,
       preview: URL.createObjectURL(file),
     }));

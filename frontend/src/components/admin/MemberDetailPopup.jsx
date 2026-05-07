@@ -1,17 +1,15 @@
 import FormPopup from "../form/FormPopup";
 import { useState } from "react";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
-import { CATEGORIES } from "../../constants/categories";
+import useCategories from "../../hooks/useCategories";
+import { approveMember, updateMemberRole, updateMemberDept, deleteMember } from "../../services/memberService";
 import "./MemberDetailPopup.css";
 
 /**
  * 회원 상세 정보 팝업
- * TODO: 백엔드 연결 시
- *   - 승인/반려: PATCH /api/members/{id}/approve { approved: true/false }
- *   - 권한 변경: PATCH /api/members/{id}/role { role }
- *   - 회원 탈퇴: DELETE /api/members/{id} (비밀번호 확인)
  */
-const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
+const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => {
+  const { categories } = useCategories();
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedDept, setSelectedDept] = useState(null);
   const [deletePassword, setDeletePassword] = useState("");
@@ -28,9 +26,15 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
 
   const getAdmin = () => JSON.parse(localStorage.getItem("user") || "{}");
 
-  const handleApprove = () => {
-    const admin = getAdmin();
-    onUpdate?.({ ...member, status: "승인", approvedBy: admin.name || "-", approvedAt: getNow() });
+  const handleApprove = async () => {
+    try {
+      await approveMember(member.member_id);
+      alert("승인이 완료되었습니다.");
+      onUpdate?.({ ...member, status: "승인" });
+      onRefresh?.();
+    } catch (err) {
+      alert(err.message || "승인 중 오류가 발생했습니다.");
+    }
   };
 
   const handleRoleSelect = (role) => {
@@ -44,16 +48,21 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
     setSelectedRole(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deletePassword.trim()) {
       alert("비밀번호를 입력해주세요.");
       return;
     }
     if (window.confirm("정말 탈퇴 처리하시겠습니까?")) {
-      const admin = getAdmin();
-      onUpdate?.({ ...member, status: "탈퇴", deletedBy: admin.name || "-", deletedAt: getNow() });
-      setDeletePassword("");
-      onClose();
+      try {
+        await deleteMember(member.member_id);
+        alert("탈퇴 처리가 완료되었습니다.");
+        setDeletePassword("");
+        onRefresh?.();
+        onClose();
+      } catch (err) {
+        alert(err.message || "탈퇴 처리 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -171,22 +180,30 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate }) => {
                 onChange={(e) => setSelectedDept(e.target.value)}
               >
                 <option value="전체">전체</option>
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {categories.map((cat) => (
+                  <option key={cat.category_id} value={cat.category_name}>{cat.category_name}</option>
                 ))}
               </select>
             )}
             {(roleChanged || (selectedDept !== null && selectedDept !== member.dept)) && (
-              <button className="member-detail-role-confirm-btn" onClick={() => {
-                const admin = getAdmin();
-                const updates = { ...member };
-                if (roleChanged) updates.role = selectedRole;
-                if (selectedDept !== null && selectedDept !== member.dept) updates.dept = selectedDept;
-                updates.roleChangedBy = admin.name || "-";
-                updates.roleChangedAt = getNow();
-                onUpdate?.(updates);
-                setSelectedRole(null);
-                setSelectedDept(null);
+              <button className="member-detail-role-confirm-btn" onClick={async () => {
+                try {
+                  const roleCode = selectedRole === "처리자" ? "E" : "C";
+                  if (roleChanged) {
+                    await updateMemberRole(member.member_id, roleCode);
+                  }
+                  const newDept = selectedDept ?? member.dept;
+                  if (roleCode === "E" && (selectedDept !== null && selectedDept !== member.dept)) {
+                    await updateMemberDept(member.member_id, newDept);
+                  }
+                  alert("변경이 완료되었습니다.");
+                  onUpdate?.({ ...member, role: selectedRole || member.role, dept: newDept });
+                  onRefresh?.();
+                  setSelectedRole(null);
+                  setSelectedDept(null);
+                } catch (err) {
+                  alert(err.message || "변경 중 오류가 발생했습니다.");
+                }
               }}>변경</button>
             )}
           </div>
