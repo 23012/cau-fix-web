@@ -5,7 +5,6 @@ import { useEffect } from "react";
 
 /**
  * 처리 내용 작성 폼 (처리자가 민원 완료 시 사용)
- * TODO: 백엔드 연결 시 onSubmit에서 POST /api/complains/{id}/process (multipart/form-data)
  */
 const ProcessForm = ({ isOpen, content, setContent, onCancel, onSubmit }) => {
   const { images, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();

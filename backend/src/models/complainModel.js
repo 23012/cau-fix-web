@@ -18,6 +18,8 @@ const formatComplain = (row) => ({
   date: row.complain_at,
   is_deleted: row.is_deleted,
   deleted_at: row.deleted_at,
+  resultPersonId: row.process_by || null,
+  resultPerson: row.process_by_name || null,
 });
 
 const complainModel = {
@@ -98,10 +100,13 @@ const complainModel = {
 
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
-              m.name AS member_name, m.dept AS member_dept
+              m.name AS member_name, m.dept AS member_dept,
+              cp.process_by, pm.name AS process_by_name
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id
+       LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
+       LEFT JOIN member pm ON cp.process_by = pm.member_id
        WHERE ${whereClause}
        ORDER BY c.complain_at DESC`,
       params
@@ -113,10 +118,13 @@ const complainModel = {
   findByMember: async (member_id) => {
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
-              m.name AS member_name, m.dept AS member_dept
+              m.name AS member_name, m.dept AS member_dept,
+              cp.process_by, pm.name AS process_by_name
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id
+       LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
+       LEFT JOIN member pm ON cp.process_by = pm.member_id
        WHERE c.complain_by = $1 AND c.is_deleted = FALSE
        ORDER BY c.complain_at DESC`,
       [member_id]
@@ -129,10 +137,13 @@ const complainModel = {
     if (dept === '전체') {
       const result = await pool.query(
         `SELECT c.*, cc.category_name, cc.dept,
-                m.name AS member_name, m.dept AS member_dept
+                m.name AS member_name, m.dept AS member_dept,
+                cp.process_by, pm.name AS process_by_name
          FROM complain c
          JOIN complain_category cc ON c.category_id = cc.category_id
          JOIN member m ON c.complain_by = m.member_id
+         LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
+         LEFT JOIN member pm ON cp.process_by = pm.member_id
          WHERE c.is_deleted = FALSE
          ORDER BY c.complain_at DESC`
       );
@@ -141,10 +152,13 @@ const complainModel = {
 
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
-              m.name AS member_name, m.dept AS member_dept
+              m.name AS member_name, m.dept AS member_dept,
+              cp.process_by, pm.name AS process_by_name
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id
+       LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
+       LEFT JOIN member pm ON cp.process_by = pm.member_id
        WHERE cc.category_name = $1 AND c.is_deleted = FALSE
        ORDER BY c.complain_at DESC`,
       [dept]
@@ -156,10 +170,13 @@ const complainModel = {
   findAll: async () => {
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
-              m.name AS member_name, m.dept AS member_dept
+              m.name AS member_name, m.dept AS member_dept,
+              cp.process_by, pm.name AS process_by_name
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id
+       LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
+       LEFT JOIN member pm ON cp.process_by = pm.member_id
        WHERE c.is_deleted = FALSE
        ORDER BY c.complain_at DESC`
     );
@@ -256,7 +273,30 @@ const complainModel = {
     };
   },
 
-  // 처리 등록
+  // 처리 등록 (접수 시 담당자 할당)
+  assignProcess: async ({ complain_id, process_by }) => {
+    const result = await pool.query(
+      `INSERT INTO complaint_process (complain_id, process_by, process_content)
+       VALUES ($1, $2, '')
+       RETURNING *`,
+      [complain_id, process_by]
+    );
+    return result.rows[0];
+  },
+
+  // 처리 내용 작성 (완료 시)
+  updateProcessContent: async (complain_id, process_content) => {
+    const result = await pool.query(
+      `UPDATE complaint_process
+       SET process_content = $1, process_at = NOW()
+       WHERE complain_id = $2
+       RETURNING *`,
+      [process_content, complain_id]
+    );
+    return result.rows[0];
+  },
+
+  // 처리 등록 (기존 호환용)
   createProcess: async ({ complain_id, process_by, process_content }) => {
     const result = await pool.query(
       `INSERT INTO complaint_process (complain_id, process_by, process_content)

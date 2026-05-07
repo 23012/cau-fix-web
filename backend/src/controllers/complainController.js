@@ -301,6 +301,14 @@ const complainController = {
 
       const updated = await complainModel.updateState(id, state);
 
+      // 접수(A) 시 complaint_process에 담당자 할당
+      if (state === 'A') {
+        const existing = await complainModel.findProcess(id);
+        if (!existing) {
+          await complainModel.assignProcess({ complain_id: id, process_by: member_id });
+        }
+      }
+
       await complainModel.createStateHistory({
         complain_id: id, changed_by: member_id, prev_state: prevState, next_state: state,
       });
@@ -340,13 +348,15 @@ const complainController = {
       }
 
       const existing = await complainModel.findProcess(id);
+      let process;
       if (existing) {
-        return res.status(409).json({ message: '이미 처리된 민원입니다.' });
+        // 이미 접수 시 할당된 process가 있으면 내용만 업데이트
+        process = await complainModel.updateProcessContent(id, process_content);
+      } else {
+        process = await complainModel.createProcess({
+          complain_id: id, process_by: member_id, process_content,
+        });
       }
-
-      const process = await complainModel.createProcess({
-        complain_id: id, process_by: member_id, process_content,
-      });
 
       const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D' };
       const prevState = stateReverseMap[complain.status];

@@ -67,7 +67,15 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   if (!isOpen || !data) return null;
 
   // API에서 가져온 상세 데이터 또는 목록에서 전달받은 데이터 사용
-  const displayData = { ...data, ...detailData };
+  const displayData = {
+    ...data,
+    ...detailData,
+    ...(detailData?.process ? {
+      result: detailData.process.result,
+      resultPerson: detailData.process.resultPerson,
+      resultDate: detailData.process.resultDate,
+    } : {}),
+  };
 
   const getImagePath = (name) => {
     if (!name) return null;
@@ -120,8 +128,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       try {
         const stateCode = statusLabelToCode[selectedStatus] || selectedStatus;
         await updateComplaintState(data.id, stateCode);
+        await refetch();
         onUpdate?.({ ...data, status: selectedStatus });
-        setShowStatusSuccess(true);
+        alert("상태가 변경되었습니다.");
       } catch (err) {
         alert(err.message || "상태 변경 중 오류가 발생했습니다.");
       }
@@ -139,8 +148,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           await uploadProcessImages(result.process.process_id, files);
         }
       }
+      await refetch();
       onUpdate?.({ ...data, status: "완료", result: processContent, resultDate: new Date() });
-      setShowProcessSuccess(true);
+      alert("처리가 완료되었습니다.");
     } catch (err) {
       alert(err.message || "처리 등록 중 오류가 발생했습니다.");
     }
@@ -229,7 +239,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           onHasOtherPerson={() => setShowHasOtherPerson(true)}
         />
       ) : (
-        <DetailResult data={data} formatDate={formatDate} onShowProfile={() => setShowProfile(true)} />
+        <DetailResult data={displayData} formatDate={formatDate} onShowProfile={() => setShowProfile(true)} />
       )}
 
       {/* 처리자 + 접수전: 접수하기 버튼 */}
@@ -239,8 +249,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
             try {
               await updateComplaintState(data.id, 'A');
               await refetch();
-              onUpdate?.({ ...data, resultPersonId: user?.member_id, resultPerson: user?.name, status: "접수중" });
-              setShowAddFolderSuccess(true);
+              onUpdate?.({ ...data, resultPersonId: user?.member_id, resultPerson: user?.name, status: "접수" });
+              alert("접수가 완료되었습니다. 내 처리함에서 확인하세요.");
+              setActiveTab("result");
             } catch (err) {
               alert(err.message || "접수 처리 중 오류가 발생했습니다.");
             }
@@ -256,8 +267,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           <button className="detail-accept-btn detail-accept-btn--progress" onClick={async () => {
             try {
               await updateComplaintState(data.id, 'P');
+              await refetch();
               onUpdate?.({ ...data, status: "진행중" });
-              setShowStatusSuccess(true);
+              alert("진행중으로 변경되었습니다.");
             } catch (err) {
               alert(err.message || "상태 변경 중 오류가 발생했습니다.");
             }

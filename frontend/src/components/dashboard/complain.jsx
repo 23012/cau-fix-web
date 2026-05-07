@@ -125,7 +125,7 @@ const Complain = () => {
       <MyStorage
         isOpen={myStorageOpen}
         onClose={() => setMyStorageOpen(false)}
-        data={tableData.filter((row) => String(row.resultPersonId) === String(user?.id))}
+        data={tableData.filter((row) => String(row.resultPersonId) === String(user?.member_id))}
         onSelect={(row) => { setFromStorage(true); setSelectedComplain(row); }}
       />
 
