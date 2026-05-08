@@ -48,12 +48,12 @@ const ComplainTable = ({
               </tr>
             </thead>
             <tbody>
-              {currentData.map((row) => (
+              {currentData.map((row, index) => (
                 <tr key={row.id} onClick={() => onRowClick(row)} style={{ cursor: "pointer" }}>
                   <td className="col-fav" onClick={(e) => { e.stopPropagation(); onToggleFavorite(row.id); }}>
                     <Star size={18} className={`fav-icon ${favorites.includes(row.id) ? "fav-active" : ""}`} fill={favorites.includes(row.id) ? "#FFD23F" : "none"} color={favorites.includes(row.id) ? "#FFD23F" : "#ccc"} />
                   </td>
-                  <td>{row.id}</td>
+                  <td>{(currentPage - 1) * 10 + index + 1}</td>
                   {user?.role !== "처리자" && <td className="col-category">{row.category}</td>}
                   <td className="title">{row.title}</td>
                   <td><Status status={row.status} /></td>

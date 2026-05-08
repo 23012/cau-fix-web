@@ -7,6 +7,7 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [phone, setPhone] = useState(user?.phone || '');
+  const [dept, setDept] = useState(user?.dept || '');
 
   const handleSubmit = async () => {
     if (password && password !== passwordConfirm) {
@@ -14,7 +15,7 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
       return;
     }
     try {
-      await onUpdateProfile?.({ password: password || undefined, phone });
+      await onUpdateProfile?.({ password: password || undefined, phone, dept });
       setPassword('');
       setPasswordConfirm('');
       setEditOpen(false);
@@ -61,6 +62,16 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
               placeholder="전화번호 입력"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="myinfo-edit-field">
+            <label className="myinfo-edit-label">부서</label>
+            <input
+              type="text"
+              className="myinfo-edit-input"
+              placeholder="부서 입력"
+              value={dept}
+              onChange={(e) => setDept(e.target.value)}
             />
           </div>
           <div className="myinfo-edit-actions">

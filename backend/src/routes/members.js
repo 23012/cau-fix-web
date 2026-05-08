@@ -12,6 +12,9 @@ router.put('/me', authMiddleware, memberController.updateProfile);
 // 프로필 조회 (처리자 정보)
 router.get('/:id/profile', authMiddleware, memberController.getProfile);
 
+// 회원 로그 조회 (관리자)
+router.get('/:id/logs', authMiddleware, memberController.getLogs);
+
 // 회원 승인 (관리자)
 router.put('/:id/approve', authMiddleware, memberController.approve);
 
@@ -20,6 +23,9 @@ router.put('/:id/role', authMiddleware, memberController.updateRole);
 
 // 담당 카테고리 변경 (관리자)
 router.put('/:id/dept', authMiddleware, memberController.updateDept);
+
+// 비밀번호 초기화 (관리자)
+router.put('/:id/reset-password', authMiddleware, memberController.resetPassword);
 
 // 회원 탈퇴 (관리자)
 router.delete('/:id', authMiddleware, memberController.delete);

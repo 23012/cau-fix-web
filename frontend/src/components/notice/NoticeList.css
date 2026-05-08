@@ -61,12 +61,10 @@
 
 /* 리스트 아이템 */
 .notice-items {
-  display: flex;
-  flex-direction: column;
   min-height: 500px;
 }
 
-.notice-item {
+.notice-row {
   display: flex;
   align-items: center;
   padding: 30px 8px;
@@ -76,18 +74,18 @@
   gap: 16px;
 }
 
-.notice-item:hover {
+.notice-row:hover {
   background: #fafafa;
 }
 
-.notice-item-category {
+.notice-td-category {
   font-size: 17px;
   color: var(--back-color-2);
   min-width: 80px;
   flex-shrink: 0;
 }
 
-.notice-item-title {
+.notice-td-title {
   flex: 1;
   font-size: 18px;
   font-weight: 500;
@@ -97,7 +95,7 @@
   white-space: nowrap;
 }
 
-.notice-item-date {
+.notice-td-date {
   font-size: 16px;
   color: var(--back-color-2);
   flex-shrink: 0;
@@ -156,21 +154,21 @@
     font-size: 14px;
   }
 
-  .notice-item {
-    padding: 20px 4px;
+  .notice-td-category {
+    font-size: 13px;
+    min-width: 50px;
+  }
+
+  .notice-td-title {
+    font-size: 15px;
+  }
+
+  .notice-td-date {
+    font-size: 13px;
+  }
+
+  .notice-row {
+    padding: 16px 4px;
     gap: 10px;
-  }
-
-  .notice-item-category {
-    font-size: 12px;
-    min-width: 40px;
-  }
-
-  .notice-item-title {
-    font-size: 14px;
-  }
-
-  .notice-item-date {
-    font-size: 12px;
   }
 }

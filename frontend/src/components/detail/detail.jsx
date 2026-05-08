@@ -9,6 +9,7 @@ import DetailContent from "./DetailContent";
 import DetailResult from "./DetailResult";
 import StatusChangePopup from "./StatusChangePopup";
 import ProcessForm from "./ProcessForm";
+import LoadingPopup from "../common/LoadingPopup";
 import { useState, useMemo } from "react";
 import useCategories from "../../hooks/useCategories";
 import useComplainDetail from "../../hooks/useComplainDetail";
@@ -67,6 +68,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   const [showProcessForm, setShowProcessForm] = useState(false);
   const [processContent, setProcessContent] = useState("");
   const [showProcessSuccess, setShowProcessSuccess] = useState(false);
+  const [processLoading, setProcessLoading] = useState(false);
 
   if (!isOpen || !data) return null;
 
@@ -91,7 +93,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
   // --- 수정 모드 핸들러 ---
   const handleEdit = () => {
-    setEditData({ title: data.title || "", category: data.category || "", location: data.location || "", content: data.content || "" });
+    const source = detailData || data;
+    setEditData({ title: source.title || "", category: source.category || "", location: source.location || "", content: source.content || "" });
     setExistingImages(detailData?.images || []);
     resetImages();
     setEditMode(true);
@@ -115,6 +118,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       }
       setEditMode(false);
       await refetch();
+      onUpdate?.({ ...data, ...editData, category: editData.category });
       setShowEditSuccess(true);
     } catch (err) {
       alert(err.message || "수정 중 오류가 발생했습니다.");
@@ -144,6 +148,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
   const handleProcessSubmit = async (processImages) => {
     setShowProcessForm(false);
+    setProcessLoading(true);
     try {
       const result = await createProcess(data.id, processContent);
       if (processImages?.length > 0 && result.process?.process_id) {
@@ -154,8 +159,11 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       }
       await refetch();
       onUpdate?.({ ...data, status: "완료", result: processContent, resultPerson: user?.name, resultPersonId: user?.member_id, resultDate: new Date() });
+      setProcessLoading(false);
       alert("처리가 완료되었습니다.");
+      setActiveTab("result");
     } catch (err) {
+      setProcessLoading(false);
       alert(err.message || "처리 등록 중 오류가 발생했습니다.");
     }
   };
@@ -254,7 +262,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           onHasOtherPerson={() => setShowHasOtherPerson(true)}
         />
       ) : (
-        <DetailResult data={displayData} formatDate={formatDate} onShowProfile={async () => {
+        <DetailResult data={displayData} formatDate={formatDate} processImages={detailData?.processImages || []} setPreviewImage={setPreviewImage} onShowProfile={async () => {
           const personId = detailData?.process?.process_by || displayData.resultPersonId;
           if (personId) {
             try {
@@ -364,6 +372,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       {/* 처리 내용 작성 */}
       <ProcessForm isOpen={showProcessForm} content={processContent} setContent={setProcessContent} onCancel={() => setShowProcessForm(false)} onSubmit={handleProcessSubmit} />
       <ConfirmPopup isOpen={showProcessSuccess} message="처리가 완료되었습니다." onConfirm={() => setShowProcessSuccess(false)} />
+      <LoadingPopup isOpen={processLoading} message="처리 등록 중입니다..." />
 
       {/* 접수전 - 담당자 미배정 */}
       <ConfirmPopup isOpen={showNoResultPopup} message="담당자가 아직 배정되지 않았습니다." onConfirm={() => setShowNoResultPopup(false)} />

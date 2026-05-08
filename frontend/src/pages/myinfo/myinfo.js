@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import MyProfileCard from '../../components/myinfo/MyProfileCard';
 import MyMenuList from '../../components/myinfo/MyMenuList';
+import { updateMyProfile } from '../../services/memberService';
 import { subscribePush, unsubscribePush } from '../../utils/pushSubscription';
 import './myinfo.css';
 import '../../styles/global.css';
@@ -51,7 +52,17 @@ const MyInfo = () => {
           <MyMenuList
             pushEnabled={pushEnabled}
             onTogglePush={handleTogglePush}
-            onUpdateProfile={() => {}}
+            onUpdateProfile={async ({ password, phone, dept }) => {
+              try {
+                await updateMyProfile({ password, phone, dept });
+                const updated = { ...user, phone, dept };
+                localStorage.setItem("user", JSON.stringify(updated));
+                setUser(updated);
+              } catch (err) {
+                alert(err.message || "정보 수정 중 오류가 발생했습니다.");
+                throw err;
+              }
+            }}
             onLogout={handleLogout}
             user={user}
           />

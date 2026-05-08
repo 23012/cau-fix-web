@@ -68,9 +68,23 @@ export async function getMemberProfile(id) {
 /**
  * 내 정보 수정 (비밀번호, 전화번호)
  */
-export async function updateMyProfile({ password, phone }) {
+export async function updateMyProfile({ password, phone, dept }) {
   return apiClient('/members/me', {
     method: 'PUT',
-    body: JSON.stringify({ password, phone }),
+    body: JSON.stringify({ password, phone, dept }),
   });
+}
+
+/**
+ * 비밀번호 초기화 (관리자)
+ */
+export async function resetMemberPassword(id) {
+  return apiClient(`/members/${id}/reset-password`, { method: 'PUT' });
+}
+
+/**
+ * 회원 로그 조회 (관리자)
+ */
+export async function getMemberLogs(id) {
+  return apiClient(`/members/${id}/logs`);
 }

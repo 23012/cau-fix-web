@@ -129,6 +129,11 @@
   transform: translateY(0);
 }
 
+.favorite-btn--active {
+  background: var(--yellow);
+  color: white;
+}
+
 /* MAIN GRID */
 
 .main {
@@ -470,7 +475,7 @@
 
 .fab {
   position: fixed;
-  z-index: 9999;
+  z-index: 1100;
 }
 
 .fab button {
@@ -520,6 +525,14 @@
     padding: 1rem;
   }
 
+  .chart-status-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 40px;
+    row-gap: 10px;
+    justify-items: flex-start;
+  }
+
   .chart-date-filters {
     justify-content: center;
     margin-bottom: 16px;
@@ -538,7 +551,7 @@
   }
 
   .mobile-title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 1000;
     color: black;
     margin: 0;
@@ -548,6 +561,37 @@
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .refresh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
+  }
+
+  .refresh-btn:active {
+    color: var(--main-color);
+    background-color: rgba(99, 195, 209, 0.1);
+  }
+
+  .refresh-btn:disabled {
+    cursor: default;
+    color: var(--main-color);
+  }
+
+  .refresh-spin {
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .mobile-dept-badge {
@@ -580,13 +624,13 @@
   }
 
   .fab {
-    bottom: 100px;
-    right: 20px;
+    bottom: 120px;
+    right: 30px;
   }
 
   .fab button {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
   }
 
   .fab button svg {

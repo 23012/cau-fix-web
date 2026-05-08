@@ -212,6 +212,7 @@ const complainController = {
       if (role === 'E' && complain.category !== dept && dept !== '전체') {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
+      // 관리자(A)는 모든 민원 접근 가능
 
       const process = await complainModel.findProcess(id);
       const images = await complainModel.findImages(id);
@@ -227,7 +228,7 @@ const complainController = {
     }
   },
 
-  // 민원 수정 (접수전 본인만)
+  // 민원 수정 (접수전 본인만, 관리자는 상태 무관)
   update: async (req, res) => {
     try {
       const { id } = req.params;
@@ -237,11 +238,14 @@ const complainController = {
       if (!complain) {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
-      if (complain.complain_by !== req.user.member_id) {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
-      }
-      if (complain.status !== '접수전') {
-        return res.status(400).json({ message: '접수 전 민원만 수정할 수 있습니다.' });
+
+      if (req.user.role !== 'A') {
+        if (complain.complain_by !== req.user.member_id) {
+          return res.status(403).json({ message: '접근 권한이 없습니다.' });
+        }
+        if (complain.status !== '접수전') {
+          return res.status(400).json({ message: '접수 전 민원만 수정할 수 있습니다.' });
+        }
       }
 
       const updated = await complainModel.update(id, {
@@ -255,7 +259,7 @@ const complainController = {
     }
   },
 
-  // 민원 삭제 (접수전 본인만)
+  // 민원 삭제 (접수전 본인만, 관리자는 상태 무관)
   delete: async (req, res) => {
     try {
       const { id } = req.params;
@@ -264,11 +268,14 @@ const complainController = {
       if (!complain) {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
-      if (complain.complain_by !== req.user.member_id) {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
-      }
-      if (complain.status !== '접수전') {
-        return res.status(400).json({ message: '접수 전 민원만 삭제할 수 있습니다.' });
+
+      if (req.user.role !== 'A') {
+        if (complain.complain_by !== req.user.member_id) {
+          return res.status(403).json({ message: '접근 권한이 없습니다.' });
+        }
+        if (complain.status !== '접수전') {
+          return res.status(400).json({ message: '접수 전 민원만 삭제할 수 있습니다.' });
+        }
       }
 
       await complainModel.softDelete(id);
@@ -327,7 +334,7 @@ const complainController = {
       // 웹 푸시 발송 (민원인에게)
       const stateText = { B: '접수전', A: '접수', P: '진행중', D: '완료' };
       webPushService.sendToMember(complain.complain_by, {
-        title: '${complain.title}',
+        title: complain.title,
         body: `"${complain.title}"이(가) ${stateText[state] || state} 처리되었습니다.`,
         data: { complainId: id },
       }).catch(() => {});

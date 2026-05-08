@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 
-const categoryMap = { G: '안내', U: '업데이트', F: '점검' };
+const categoryMap = { G: '공지', U: '업데이트', F: '점검' };
 
 const noticeModel = {
   // 공지사항 등록

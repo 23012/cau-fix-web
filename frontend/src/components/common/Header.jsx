@@ -188,13 +188,12 @@ const Header = () => {
               {myinfoOpen && (
                 <div className="header__myinfo-popup" ref={popupRef}>
                   <MyProfileCard name={user?.name} dept={user?.dept} />
-                  <MyMenuList pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onUpdateProfile={async ({ password, phone }) => {
+                  <MyMenuList pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onUpdateProfile={async ({ password, phone, dept }) => {
                     try {
-                      await updateMyProfile({ password, phone });
-                      if (phone) {
-                        const updated = { ...user, phone };
-                        localStorage.setItem("user", JSON.stringify(updated));
-                      }
+                      await updateMyProfile({ password, phone, dept });
+                      const updated = { ...user, phone, dept };
+                      localStorage.setItem("user", JSON.stringify(updated));
+                      setUser(updated);
                     } catch (err) {
                       alert(err.message || "정보 수정 중 오류가 발생했습니다.");
                       throw err;
@@ -241,7 +240,8 @@ const Header = () => {
 
         {mobileMenuItems.map((item, index) => {
           const realIndex = menuItems.findIndex((menuItem) => menuItem.path === item.path);
-          const isActive = item.path === "/complain-dashboard" ? isDashboardGroupActive : activeIndex === realIndex;
+          const isActive = location.pathname === item.path
+            || (item.path === "/complain-dashboard" && isDashboardGroupActive);
           const isHovered = hoveredIndex === realIndex;
           const showActiveIcon = isActive || isHovered;
           return (

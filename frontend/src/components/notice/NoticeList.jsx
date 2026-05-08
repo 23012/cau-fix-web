@@ -60,10 +60,10 @@ const NoticeList = ({ onSelect }) => {
 
       <div className="notice-items">
         {visible.map((notice) => (
-          <div key={notice.id} className="notice-item" onClick={() => onSelect?.(notice)}>
-            <span className="notice-item-category">{notice.category}</span>
-            <span className="notice-item-title">{notice.title}</span>
-            <span className="notice-item-date">{(() => {
+          <div key={notice.id} className="notice-row" onClick={() => onSelect?.(notice)}>
+            <span className="notice-td-category">{notice.category}</span>
+            <span className="notice-td-title">{notice.title}</span>
+            <span className="notice-td-date">{(() => {
               const d = parseExcelDate(notice.date);
               if (!d) return notice.date;
               return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;

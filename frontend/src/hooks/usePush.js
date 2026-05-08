@@ -7,7 +7,7 @@ import useComplainData from "./useComplainData";
  */
 const usePush = () => {
   const [pushList, setPushList] = useState([]);
-  const { tableData: complains } = useComplainData();
+  const { tableData: complains, refetch: refetchComplains } = useComplainData();
 
   const loadPush = useCallback(async () => {
     try {
@@ -28,6 +28,16 @@ const usePush = () => {
   }, []);
 
   useEffect(() => { loadPush(); }, [loadPush]);
+
+  // 페이지 포커스 시 자동 갱신
+  useEffect(() => {
+    const handleFocus = () => {
+      loadPush();
+      refetchComplains?.();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [loadPush, refetchComplains]);
 
   const recentPush = pushList;
   const todayPush = recentPush.filter((a) => a.time.toDateString() === new Date().toDateString());

@@ -24,7 +24,7 @@ const memberModel = {
   // 회원 목록 조회 (관리자)
   findAll: async () => {
     const result = await pool.query(
-      `SELECT member_id, login_id, name, role, dept, phone, is_approved, created_at
+      `SELECT member_id, login_id, name, role, dept, phone, is_approved, created_at, last_login_at
        FROM member
        WHERE is_deleted = FALSE
        ORDER BY created_at DESC`
@@ -35,7 +35,7 @@ const memberModel = {
   // 회원 단건 조회
   findById: async (member_id) => {
     const result = await pool.query(
-      `SELECT member_id, login_id, name, role, dept, phone, is_approved, created_at
+      `SELECT member_id, login_id, name, role, dept, phone, is_approved, created_at, last_login_at
        FROM member
        WHERE member_id = $1 AND is_deleted = FALSE`,
       [member_id]
@@ -89,24 +89,24 @@ const memberModel = {
     return result.rows[0];
   },
 
-  // 내 정보 수정 (비밀번호, 전화번호)
-  updateProfile: async (member_id, { password, phone }) => {
+  // 내 정보 수정 (비밀번호, 전화번호, 부서)
+  updateProfile: async (member_id, { password, phone, dept }) => {
     if (password) {
       const result = await pool.query(
         `UPDATE member
-         SET password = $1, phone = $2
-         WHERE member_id = $3
+         SET password = $1, phone = $2, dept = $3
+         WHERE member_id = $4
          RETURNING member_id, login_id, name, role, dept, phone, is_approved, created_at`,
-        [password, phone, member_id]
+        [password, phone, dept, member_id]
       );
       return result.rows[0];
     }
     const result = await pool.query(
       `UPDATE member
-       SET phone = $1
-       WHERE member_id = $2
+       SET phone = $1, dept = $2
+       WHERE member_id = $3
        RETURNING member_id, login_id, name, role, dept, phone, is_approved, created_at`,
-      [phone, member_id]
+      [phone, dept, member_id]
     );
     return result.rows[0];
   },
@@ -117,6 +117,17 @@ const memberModel = {
       'UPDATE member SET last_login_at = NOW() WHERE member_id = $1',
       [member_id]
     );
+  },
+
+  // 비밀번호 초기화 (아이디로 초기화)
+  resetPassword: async (member_id, hashedPassword) => {
+    const result = await pool.query(
+      `UPDATE member SET password = $2
+       WHERE member_id = $1
+       RETURNING member_id`,
+      [member_id, hashedPassword]
+    );
+    return result.rows[0];
   },
 
   // 논리적 탈퇴

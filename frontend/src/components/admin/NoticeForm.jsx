@@ -120,7 +120,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
           contentEditable
           onPaste={handlePaste}
           data-placeholder="내용을 입력하세요 (이미지는 Ctrl+V로 붙여넣기)"
-          style={{ minHeight: "200px", whiteSpace: "pre-wrap", overflowY: "auto" }}
+          style={{ minHeight: "300px", whiteSpace: "pre-wrap", overflowY: "auto" }}
         />
       </div>
     </FormPopup>

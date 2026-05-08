@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronRight, Camera } from "lucide-react";
 import FormPopup from "./FormPopup";
 import ImagePreview from "../common/ImagePreview";
+import LoadingPopup from "../common/LoadingPopup";
 import useCategories from "../../hooks/useCategories";
 import useImageUpload from "../../hooks/useImageUpload";
 
@@ -9,6 +10,7 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
   const { categories } = useCategories();
   const [formData, setFormData] = useState({ title: "", category: "", location: "", content: "" });
   const [showCategory, setShowCategory] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { images, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();
 
   const now = new Date();
@@ -18,13 +20,22 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.title.trim()) { alert("제목을 입력해주세요."); return; }
     if (!formData.category) { alert("구분을 선택해주세요."); return; }
-    onSubmit?.({ ...formData, date: dateStr, images });
-    setFormData({ title: "", category: "", location: "", content: "" });
-    resetImages();
-    onClose();
+    if (!formData.location.trim()) { alert("장소를 입력해주세요."); return; }
+    if (!formData.content.trim()) { alert("접수 내용을 입력해주세요."); return; }
+    setLoading(true);
+    try {
+      await onSubmit?.({ ...formData, date: dateStr, images });
+      setFormData({ title: "", category: "", location: "", content: "" });
+      resetImages();
+      onClose();
+    } catch (err) {
+      // onSubmit에서 에러 발생 시 폼을 닫지 않음
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -83,6 +94,7 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
       </div>
 
       <ImagePreview src={previewImage} alt="첨부 사진" onClose={() => setPreviewImage(null)} />
+      <LoadingPopup isOpen={loading} message="민원 등록 중입니다..." />
     </FormPopup>
   );
 };

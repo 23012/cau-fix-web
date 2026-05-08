@@ -1,18 +1,32 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/common/Header";
 import PushItem from "../../components/push/PushItem";
 import usePush from "../../hooks/usePush";
+import { getComplaintDetail } from "../../services/complainService";
+import { normalizeStatus } from "../../constants/status";
 import "./push-list.css";
 import "../../styles/global.css";
 
 const PushList = () => {
   const navigate = useNavigate();
-  const { recentPush, todayPush, earlierPush, getComplainForPush } = usePush();
+  const { recentPush, todayPush, earlierPush, refetch } = usePush();
 
-  const handlePushClick = (push) => {
-    const complain = getComplainForPush(push);
-    if (complain) {
+  // 페이지 진입 시 항상 최신 데이터 로드
+  useEffect(() => { refetch(); }, [refetch]);
+
+  const handlePushClick = async (push) => {
+    if (!push.complainId) return;
+    try {
+      const result = await getComplaintDetail(push.complainId);
+      const complain = {
+        ...result.complain,
+        status: normalizeStatus(result.complain.status),
+      };
       navigate("/complain-detail", { state: { data: complain, showProgress: true } });
+    } catch {
+      // 상세 조회 실패 시 ID만으로 이동
+      navigate("/complain-detail", { state: { data: { id: push.complainId }, showProgress: true } });
     }
   };
 

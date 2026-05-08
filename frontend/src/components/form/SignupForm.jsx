@@ -89,7 +89,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
       ) : (
         <input type="text" name="dept" placeholder="부서" value={formData.dept} onChange={onChange} disabled={loading} className="input" />
       )}
-      <input type="tel" name="phone" placeholder="전화번호" value={formData.phone} onChange={onChange} disabled={loading} className="input" />
+      <input type="tel" name="phone" placeholder="내선번호" value={formData.phone} onChange={onChange} disabled={loading} className="input" />
 
       {error && <p className="signup-error-message">{error}</p>}
 

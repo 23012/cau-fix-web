@@ -1,7 +1,7 @@
 import "./complain.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FolderOpen } from "lucide-react";
+import { Plus, FolderOpen, RefreshCw } from "lucide-react";
 import useComplainData from "../../hooks/useComplainData";
 import useComplainFilter from "../../hooks/useComplainFilter";
 import { createComplaint, uploadComplainImages, getComplaints } from "../../services/complainService";
@@ -20,7 +20,7 @@ import useCategories from "../../hooks/useCategories";
  */
 const Complain = () => {
   const navigate = useNavigate();
-  const { tableData, setTableData } = useComplainData();
+  const { tableData, setTableData, refetch } = useComplainData();
   const { categories } = useCategories();
   const {
     user, sortOrder, setSortOrder,
@@ -36,6 +36,13 @@ const Complain = () => {
   const [myStorageOpen, setMyStorageOpen] = useState(false);
   const [selectedComplain, setSelectedComplain] = useState(null);
   const [fromStorage, setFromStorage] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setTimeout(() => setRefreshing(false), 1000);
+  };
 
   const handleRowClick = (row) => {
     if (window.innerWidth <= 768) {
@@ -54,6 +61,11 @@ const Complain = () => {
           {user?.role === "처리자" && user?.dept && (
             <span className="mobile-dept-badge">{user.dept}</span>
           )}
+          {user?.role !== "관리자" && (
+            <button className="refresh-btn" onClick={handleRefresh} disabled={refreshing} aria-label="새로고침">
+              <RefreshCw size={20} className={refreshing ? "refresh-spin" : ""} />
+            </button>
+          )}
         </div>
         <Search onSearchChange={handleSearchChange} />
       </div>
@@ -66,6 +78,7 @@ const Complain = () => {
           onYearChange={handleYearChange}
           onMonthChange={handleMonthChange}
           onFavoriteClick={() => handleStatusTabChange("즐겨찾기")}
+          activeStatusTab={activeStatusTab}
           onDateRangeChange={(start, end) => {
             handleFilterApply({
               statuses: [],
@@ -103,23 +116,18 @@ const Complain = () => {
       </div>
 
       <ComplainForm isOpen={complainFormOpen} onClose={() => setComplainFormOpen(false)} onSubmit={async (formData) => {
-        try {
-          const cat = categories.find((c) => c.category_name === formData.category);
-          const result = await createComplaint({
-            category_id: cat?.category_id,
-            title: formData.title,
-            content: formData.content,
-            location: formData.location,
-          });
-          if (formData.images?.length > 0 && result.complain?.id) {
-            await uploadComplainImages(result.complain.id, formData.images.map((img) => img.file));
-          }
-          alert("민원이 등록되었습니다.");
-          setComplainFormOpen(false);
-          window.location.reload();
-        } catch (err) {
-          alert(err.message || "민원 등록 중 오류가 발생했습니다.");
+        const cat = categories.find((c) => c.category_name === formData.category);
+        const result = await createComplaint({
+          category_id: cat?.category_id,
+          title: formData.title,
+          content: formData.content,
+          location: formData.location,
+        });
+        if (formData.images?.length > 0 && result.complain?.id) {
+          await uploadComplainImages(result.complain.id, formData.images.map((img) => img.file));
         }
+        alert("민원이 등록되었습니다.");
+        window.location.reload();
       }} />
 
       <MyStorage

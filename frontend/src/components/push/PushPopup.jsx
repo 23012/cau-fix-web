@@ -3,16 +3,27 @@ import { Bell } from "lucide-react";
 import usePush from "../../hooks/usePush";
 import PushItem from "./PushItem";
 import PushComplainView from "./PushComplainView";
+import { getComplaintDetail } from "../../services/complainService";
+import { normalizeStatus } from "../../constants/status";
 import "./PushPopup.css";
 
 const PushPopup = ({ onClose }) => {
-  const { recentPush, todayPush, earlierPush, unreadCount, getComplainForPush, handleMarkAsRead, handleMarkAllAsRead } = usePush();
+  const { recentPush, todayPush, earlierPush, unreadCount, handleMarkAsRead, handleMarkAllAsRead } = usePush();
   const [selectedComplain, setSelectedComplain] = useState(null);
 
-  const handlePushClick = (push) => {
+  const handlePushClick = async (push) => {
     if (!push.read) handleMarkAsRead(push.id);
-    const complain = getComplainForPush(push);
-    if (complain) setSelectedComplain(complain);
+    if (!push.complainId) return;
+    try {
+      const result = await getComplaintDetail(push.complainId);
+      const complain = {
+        ...result.complain,
+        status: normalizeStatus(result.complain.status),
+      };
+      setSelectedComplain(complain);
+    } catch {
+      // 조회 실패 시 무시
+    }
   };
 
   if (selectedComplain) {

@@ -15,13 +15,15 @@ CREATE TYPE complain_state AS ENUM ('B', 'A', 'P', 'D');
 CREATE TYPE notice_category AS ENUM ('G', 'U', 'F');
 -- G: 공지, U: 업데이트, F: 점검
 
+CREATE TYPE member_log_action AS ENUM ('A', 'R', 'D', 'P');
+-- A : 회원가입 승인, R : 역할 변경, D: 부서 변경, P: 비밀번호 변경 
 
 -- ------------------------------------------------------------
 -- 1. member (회원)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS member (
     member_id       SERIAL          PRIMARY KEY,
-    login_id        VARCHAR(20)     NOT NULL UNIQUE,  -- 사번 (영어+숫자)
+    login_id        VARCHAR(20)     NOT NULL,  -- 사번 (영어+숫자)
     password        VARCHAR(255)    NOT NULL,
     name            VARCHAR(255)    NOT NULL,
     role            member_role     NOT NULL DEFAULT 'C',
@@ -41,9 +43,20 @@ COMMENT ON COLUMN member.is_approved   IS '관리자 승인 여부 (FALSE: 미�
 COMMENT ON COLUMN member.is_deleted    IS '논리적 탈퇴 여부';
 COMMENT ON COLUMN member.deleted_at    IS '탈퇴 일시';
 
+-- ------------------------------------------------------------
+-- 2. memember_log (회원 관리 로그 테이블)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS member_log (
+    log_id      SERIAL              PRIMARY KEY,
+    member_id   INTEGER             NOT NULL REFERENCES member(member_id),
+    action      member_log_action   NOT NULL,
+    done_by     VARCHAR(255)        NOT NULL,
+    detail      TEXT,
+    created_at  TIMESTAMP           NOT NULL DEFAULT NOW()
+);
 
 -- ------------------------------------------------------------
--- 2. complain_category (민원 카테고리)
+-- 3. complain_category (민원 카테고리)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS complain_category (
     category_id     SERIAL          PRIMARY KEY,
@@ -57,7 +70,7 @@ COMMENT ON COLUMN complain_category.dept  IS '담당 부서 - 처리자의 dept�
 
 
 -- ------------------------------------------------------------
--- 3. complain (민원)
+-- 4. complain (민원)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS complain (
     complain_id      SERIAL          PRIMARY KEY,
@@ -79,7 +92,7 @@ COMMENT ON COLUMN complain.complain_at   IS '작성 일시 (READ ONLY)';
 
 
 -- ------------------------------------------------------------
--- 4. complain_img (민원 첨부 이미지)
+-- 5. complain_img (민원 첨부 이미지)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS complain_img (
     complain_img_id    SERIAL          PRIMARY KEY,
@@ -98,7 +111,7 @@ COMMENT ON COLUMN complain_img.complain_id        IS '민원 삭제(is_deleted) 
 
 
 -- ------------------------------------------------------------
--- 5. complain_state_history (민원 상태 변경 이력)
+-- 6. complain_state_history (민원 상태 변경 이력)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS complain_state_history (
     state_history_id SERIAL          PRIMARY KEY,
@@ -116,7 +129,7 @@ COMMENT ON COLUMN complain_state_history.next_state  IS '변경 후 상태';
 
 
 -- ------------------------------------------------------------
--- 6. complaint_process (민원 처리 - 민원 1개당 1회)
+-- 7. complaint_process (민원 처리 - 민원 1개당 1회)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS complaint_process (
     process_id      SERIAL      PRIMARY KEY,
@@ -133,7 +146,7 @@ COMMENT ON COLUMN complaint_process.process_id  IS '민원 삭제(is_deleted) �
 
 
 -- ------------------------------------------------------------
--- 7. process_img (처리 첨부 이미지)
+-- 8. process_img (처리 첨부 이미지)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS process_img (
     process_img_id    SERIAL          PRIMARY KEY,
@@ -151,7 +164,7 @@ COMMENT ON COLUMN process_img.process_img_url   IS '서버 로컬 저장 경로 
 
 
 -- ------------------------------------------------------------
--- 8. notice (공지사항)
+-- 9. notice (공지사항)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notice (
     notice_id       SERIAL           PRIMARY KEY,
@@ -186,7 +199,7 @@ EXECUTE FUNCTION update_notice_updated_at();
 
 
 -- ------------------------------------------------------------
--- 9. push_notification (푸시 알림)
+-- 10. push_notification (푸시 알림)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS push_notification (
     push_id      SERIAL          PRIMARY KEY,
@@ -206,10 +219,27 @@ COMMENT ON COLUMN push_notification.push_content IS '형식: "[complain_title]�
 COMMENT ON COLUMN push_notification.is_read      IS '읽음 여부 (알림함 뱃지 표시용)';
 COMMENT ON COLUMN push_notification.read_at      IS '읽은 일시';
 
+-- ------------------------------------------------------------
+-- 11. push_subscription (푸시 주소 저장)
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS push_subscription (
+subscription_id  SERIAL       PRIMARY KEY,
+member_id        INTEGER      NOT NULL REFERENCES member(member_id),
+endpoint         TEXT         NOT NULL,
+p256dh           TEXT         NOT NULL,
+auth             TEXT         NOT NULL,
+created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
+UNIQUE(member_id, endpoint)
+);
+CREATE INDEX idx_push_subscription_member ON push_subscription(member_id);
 
 -- ------------------------------------------------------------
 -- 인덱스
 -- ------------------------------------------------------------
+-- 활성 회원 아이디 유니크 (탈퇴 회원 제외)
+CREATE UNIQUE INDEX idx_member_login_id_active ON member(login_id) WHERE is_deleted = FALSE;
+
 -- 민원 조회 최적화
 CREATE INDEX idx_complain_complain_by ON complain(complain_by);
 CREATE INDEX idx_complain_state       ON complain(state);
@@ -222,6 +252,9 @@ CREATE INDEX idx_state_history_complain_id ON complain_state_history(complain_id
 CREATE INDEX idx_push_member_id ON push_notification(member_id);
 CREATE INDEX idx_push_is_read   ON push_notification(is_read);
 
+
+-- 멤버 로그 아이디
+CREATE INDEX idx_member_log_member_id ON member_log(member_id);
 -- ------------------------------------------------------------
 -- 시드 데이터 (개발용)
 -- ------------------------------------------------------------

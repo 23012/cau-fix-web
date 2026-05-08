@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const memberModel = require('../models/memberModel');
+const memberLogModel = require('../models/memberLogModel');
 
 const VALID_DEPTS = ['전체', '건축/영선', '의료장비', '기계/소방', '전기/통신', '보안', '미화'];
 
@@ -34,7 +35,9 @@ const memberController = {
         return res.status(409).json({ message: '이미 승인된 회원입니다.' });
       }
 
+      const adminName = req.user.login_id || 'admin';
       const updated = await memberModel.approve(id);
+      await memberLogModel.create({ member_id: id, action: 'A', done_by: adminName });
       return res.status(200).json({ message: '승인이 완료되었습니다.', member: updated });
     } catch (err) {
       console.error(err);
@@ -62,6 +65,7 @@ const memberController = {
       }
 
       const updated = await memberModel.updateRole(id, role);
+      await memberLogModel.create({ member_id: id, action: 'R', done_by: req.user.login_id || 'admin', detail: `${member.role} → ${role}` });
       return res.status(200).json({ message: '권한이 변경되었습니다.', member: updated });
     } catch (err) {
       console.error(err);
@@ -106,7 +110,7 @@ const memberController = {
   // 내 정보 수정 (본인)
   updateProfile: async (req, res) => {
     try {
-      const { password, phone } = req.body;
+      const { password, phone, dept } = req.body;
       const member_id = req.user.member_id;
 
       if (!phone) {
@@ -126,9 +130,34 @@ const memberController = {
       const updated = await memberModel.updateProfile(member_id, {
         password: hashedPassword,
         phone,
+        dept: dept || member.dept,
       });
 
       return res.status(200).json({ message: '내 정보가 수정되었습니다.', member: updated });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+  },
+
+  // 비밀번호 초기화 (관리자)
+  resetPassword: async (req, res) => {
+    try {
+      if (req.user.role !== 'A') {
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+      }
+
+      const { id } = req.params;
+      const member = await memberModel.findById(id);
+      if (!member) {
+        return res.status(404).json({ message: '회원을 찾을 수 없습니다.' });
+      }
+
+      // 비밀번호를 아이디로 초기화
+      const hashedPassword = await bcrypt.hash(member.login_id, 10);
+      await memberModel.resetPassword(id, hashedPassword);
+      await memberLogModel.create({ member_id: id, action: 'P', done_by: req.user.login_id || 'admin' });
+      return res.status(200).json({ message: '비밀번호가 초기화되었습니다.' });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
@@ -149,6 +178,7 @@ const memberController = {
       }
 
       await memberModel.softDelete(id);
+      await memberLogModel.create({ member_id: id, action: 'D', done_by: req.user.login_id || 'admin' });
       return res.status(200).json({ message: '탈퇴 처리가 완료되었습니다.' });
     } catch (err) {
       console.error(err);
@@ -173,6 +203,21 @@ const memberController = {
           phone: member.phone,
         },
       });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+  },
+
+  // 회원 로그 조회 (관리자)
+  getLogs: async (req, res) => {
+    try {
+      if (req.user.role !== 'A') {
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+      }
+      const { id } = req.params;
+      const logs = await memberLogModel.findByMemberId(id);
+      return res.status(200).json({ logs });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: '서버 오류가 발생했습니다.' });

@@ -23,7 +23,7 @@ const toInputFormat = (date) => {
   return `${y}-${m}-${d}`;
 };
 
-const ChartSection = ({ data, onFavoriteClick, onDateRangeChange }) => {
+const ChartSection = ({ data, onFavoriteClick, onDateRangeChange, activeStatusTab }) => {
   const today = new Date();
   const currentYearString = today.getFullYear().toString();
   const currentMonthString = (today.getMonth() + 1).toString();
@@ -172,7 +172,7 @@ const ChartSection = ({ data, onFavoriteClick, onDateRangeChange }) => {
         })}
       </div>
 
-      <button className="favorite-btn" onClick={onFavoriteClick}>
+      <button className={`favorite-btn ${activeStatusTab === "즐겨찾기" ? "favorite-btn--active" : ""}`} onClick={onFavoriteClick}>
         <Star size={20} strokeWidth={2.5} />
         <span>즐겨찾기</span>
       </button>

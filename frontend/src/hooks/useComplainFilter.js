@@ -104,7 +104,7 @@ const useComplainFilter = (tableData) => {
   const handleYearChange = (e) => { setSelectedYear(e.target.value); setCurrentPage(1); };
   const handleMonthChange = (e) => { setSelectedMonth(e.target.value); setCurrentPage(1); };
   const handleFilterApply = (options) => { setFilterOptions(options); setCurrentPage(1); };
-  const handleStatusTabChange = (tab) => { setActiveStatusTab(tab); setCurrentPage(1); };
+  const handleStatusTabChange = (tab) => { setActiveStatusTab(prev => prev === tab ? "전체" : tab); setCurrentPage(1); };
 
   const toggleFavorite = (id) => {
     setFavorites((prev) => {

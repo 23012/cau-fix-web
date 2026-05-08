@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/global.css';
 import './styles/responsive.css';
@@ -17,51 +17,12 @@ import MyInfo from "./pages/myinfo/myinfo";
 import ComplainWrite from "./pages/complain-write/complain-write";
 
 function App() {
-  const cursorRef = useRef(null);
-
   // 이미 알림 권한이 granted인 경우 자동 구독 (재방문 시)
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && Notification.permission === 'granted') {
       subscribePush().catch(() => {});
     }
-  }, []);
-
-  useEffect(() => {
-    // 커스텀 커서 요소 생성
-    const cursor = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    document.body.appendChild(cursor);
-    cursorRef.current = cursor;
-
-    // 마우스 움직임 추적
-    const handleMouseMove = (e) => {
-      cursor.style.left = e.clientX - 15 + 'px';
-      cursor.style.top = e.clientY - 15 + 'px';
-    };
-
-    // 마우스 화면 밖으로 나갔을 때
-    const handleMouseLeave = () => {
-      cursor.style.opacity = '0.3';
-    };
-
-    // 마우스 다시 들어왔을 때
-    const handleMouseEnter = () => {
-      cursor.style.opacity = '1';
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    document.addEventListener('mouseenter', handleMouseEnter);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-      document.removeEventListener('mouseenter', handleMouseEnter);
-      if (cursorRef.current) {
-        document.body.removeChild(cursorRef.current);
-      }
-    };
   }, []);
 
   return (

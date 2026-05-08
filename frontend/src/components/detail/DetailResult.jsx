@@ -1,4 +1,28 @@
-const DetailResult = ({ data, formatDate, onShowProfile }) => {
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useState } from "react";
+
+const DetailResult = ({ data, formatDate, onShowProfile, processImages = [], setPreviewImage }) => {
+  const scrollRef = useRef(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowLeftArrow(el.scrollLeft > 0);
+    setShowRightArrow(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  };
+
+  const scrollBy = (dir) => {
+    scrollRef.current?.scrollBy({ left: dir * 200, behavior: 'smooth' });
+  };
+
+  const checkOverflow = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowRightArrow(el.scrollWidth > el.clientWidth);
+  };
+
   // 담당자도 없고 처리 내용도 없으면 표시 안함
   if (!data.result && !data.resultPerson) return null;
 
@@ -25,6 +49,38 @@ const DetailResult = ({ data, formatDate, onShowProfile }) => {
         <div className="detail-tab-content">
           <div className="detail-text-content">
             <p>{data.result}</p>
+            {processImages.length > 0 && (
+              <div className="detail-image-scroll-wrapper">
+                {showLeftArrow && (
+                  <button className="detail-image-arrow left" onClick={() => scrollBy(-1)}>
+                    <ChevronLeft size={20} />
+                  </button>
+                )}
+                <div
+                  className="detail-image-scroll"
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  onLoad={checkOverflow}
+                >
+                  {processImages.map((img, i) => (
+                    <img
+                      key={img.id || i}
+                      src={img.url}
+                      alt={`처리 사진 ${i + 1}`}
+                      className="detail-image-thumb"
+                      onClick={() => setPreviewImage?.(img.url)}
+                      onLoad={checkOverflow}
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ))}
+                </div>
+                {showRightArrow && (
+                  <button className="detail-image-arrow right" onClick={() => scrollBy(1)}>
+                    <ChevronRight size={20} />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       ) : (

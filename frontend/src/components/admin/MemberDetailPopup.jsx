@@ -1,8 +1,8 @@
 import FormPopup from "../form/FormPopup";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 import useCategories from "../../hooks/useCategories";
-import { approveMember, updateMemberRole, updateMemberDept, deleteMember } from "../../services/memberService";
+import { approveMember, updateMemberRole, updateMemberDept, deleteMember, resetMemberPassword, getMemberLogs } from "../../services/memberService";
 import { formatDateTime, getNow } from "../../utils/formatDate";
 import "./MemberDetailPopup.css";
 
@@ -14,6 +14,13 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedDept, setSelectedDept] = useState(null);
   const [deletePassword, setDeletePassword] = useState("");
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    if (isOpen && member?.member_id) {
+      getMemberLogs(member.member_id).then((res) => setLogs(res.logs || [])).catch(() => {});
+    }
+  }, [isOpen, member?.member_id]);
 
   if (!isOpen || !member) return null;
 
@@ -25,10 +32,11 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
   const handleApprove = async () => {
     try {
       await approveMember(member.member_id);
-      const admin = getAdmin();
       alert("승인이 완료되었습니다.");
-      onUpdate?.({ ...member, status: "승인", approvedBy: admin.name || "-", approvedAt: getNow() });
+      onUpdate?.({ ...member, status: "승인" });
       onRefresh?.();
+      const res = await getMemberLogs(member.member_id);
+      setLogs(res.logs || []);
     } catch (err) {
       alert(err.message || "승인 중 오류가 발생했습니다.");
     }
@@ -81,11 +89,16 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
           <span className="member-detail-label">아이디</span>
           <span className="member-detail-value">{member.id}</span>
           {member.status !== "탈퇴" && (
-            <button className="member-detail-reset-pw-btn" onClick={() => {
+            <button className="member-detail-reset-pw-btn" onClick={async () => {
               if (window.confirm("해당 회원의 아이디로 초기화됩니다. 초기화 하시겠습니까?")) {
-                const admin = getAdmin();
-                onUpdate?.({ ...member, pwResetBy: admin.name || "-", pwResetAt: getNow() });
-                alert("비밀번호가 초기화되었습니다.");
+                try {
+                  await resetMemberPassword(member.member_id);
+                  alert("비밀번호가 초기화되었습니다.");
+                  const res = await getMemberLogs(member.member_id);
+                  setLogs(res.logs || []);
+                } catch (err) {
+                  alert(err.message || "비밀번호 초기화 중 오류가 발생했습니다.");
+                }
               }
             }}>
               비밀번호 초기화
@@ -112,11 +125,14 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
           <span className="member-detail-label">마지막 로그인</span>
           <span className="member-detail-value">{formatDateTime(member.lastLogin)}</span>
         </div>
-        {member.pwResetBy && (
-          <div className="member-detail-row">
-            <span className="member-detail-sub-info">비밀번호 초기화 | 변경자: {member.pwResetBy} / {member.pwResetAt}</span>
-          </div>
-        )}
+        {(() => {
+          const pwLog = logs.find((l) => l.action === "P");
+          return pwLog ? (
+            <div className="member-detail-row">
+              <span className="member-detail-sub-info">비밀번호 초기화 | 변경자: {pwLog.done_by} / {formatDateTime(pwLog.created_at)}</span>
+            </div>
+          ) : null;
+        })()}
       </div>
 
       {/* 승인 여부 */}
@@ -128,9 +144,14 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
               <CheckCircle size={18} />
               <span>이미 승인된 회원입니다.</span>
             </div>
-            <p className="member-detail-sub-info">
-              승인자: {member.approvedBy || "-"} / 승인일자: {member.approvedAt || "-"}
-            </p>
+            {(() => {
+              const approveLog = logs.find((l) => l.action === "A");
+              return approveLog ? (
+                <p className="member-detail-sub-info">
+                  승인자: {approveLog.done_by} / 승인일자: {formatDateTime(approveLog.created_at)}
+                </p>
+              ) : null;
+            })()}
           </>
         )}
         {member.status === "대기" && (
@@ -148,9 +169,14 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
               <XCircle size={18} />
               <span>탈퇴된 회원입니다.</span>
             </div>
-            <p className="member-detail-sub-info">
-              처리자: {member.deletedBy || "-"} / 탈퇴일: {member.deletedAt || "-"}
-            </p>
+            {(() => {
+              const deleteLog = logs.find((l) => l.action === "D");
+              return deleteLog ? (
+                <p className="member-detail-sub-info">
+                  처리자: {deleteLog.done_by} / 탈퇴일: {formatDateTime(deleteLog.created_at)}
+                </p>
+              ) : null;
+            })()}
           </>
         )}
       </div>
@@ -197,8 +223,10 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
                   }
                   alert("변경이 완료되었습니다.");
                   const admin = getAdmin();
-                  onUpdate?.({ ...member, role: selectedRole || member.role, dept: newDept, roleChangedBy: admin.name || "-", roleChangedAt: getNow() });
+                  onUpdate?.({ ...member, role: selectedRole || member.role, dept: newDept });
                   onRefresh?.();
+                  const res = await getMemberLogs(member.member_id);
+                  setLogs(res.logs || []);
                   setSelectedRole(null);
                   setSelectedDept(null);
                 } catch (err) {
@@ -207,11 +235,14 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
               }}>변경</button>
             )}
           </div>
-          {member.roleChangedBy && (
-            <p className="member-detail-sub-info">
-              변경자: {member.roleChangedBy} / 변경일: {member.roleChangedAt || "-"}
-            </p>
-          )}
+          {(() => {
+            const roleLog = logs.find((l) => l.action === "R");
+            return roleLog ? (
+              <p className="member-detail-sub-info">
+                변경자: {roleLog.done_by} / 변경일: {formatDateTime(roleLog.created_at)}
+              </p>
+            ) : null;
+          })()}
         </div>
       )}
 
