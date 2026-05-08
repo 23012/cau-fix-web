@@ -327,7 +327,7 @@ const complainController = {
       // 웹 푸시 발송 (민원인에게)
       const stateText = { B: '접수전', A: '접수', P: '진행중', D: '완료' };
       webPushService.sendToMember(complain.complain_by, {
-        title: '민원 상태 변경',
+        title: '${complain.title}',
         body: `"${complain.title}"이(가) ${stateText[state] || state} 처리되었습니다.`,
         data: { complainId: id },
       }).catch(() => {});
