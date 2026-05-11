@@ -9,12 +9,10 @@ env:
   IMAGE_FRONTEND: ${{ secrets.DOCKER_USERNAME }}/facility-frontend
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Docker Hub 로그인
         uses: docker/login-action@v3
@@ -38,15 +36,20 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_FRONTEND }}:latest
 
-      - name: 서버에 배포
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          script: |
-            cd /opt/facility-app
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
+  deploy:
+    runs-on: self-hosted  # 로컬 서버 runner
+    needs: build
+    steps:
+      - name: .env 생성
+        run: |
+          echo "DB_NAME=${{ secrets.DB_NAME }}" > C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
+
+      - name: 배포
+        run: |
+          cd C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          docker image prune -f
