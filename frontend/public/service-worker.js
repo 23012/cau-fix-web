@@ -1,42 +1,39 @@
 // Service Worker for PWA
-const CACHE_NAME = 'facility-report-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/static/css/main.css',
-  '/static/js/main.js',
-  '/app-icon-192.png',
-  '/app-icon-512.png'
-];
+const CACHE_NAME = 'facility-report-v2';
 
-// Install event
+// Install event - 하드코딩된 캐시 목록 제거 (빌드 해시와 불일치 방지)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
-        console.log('Cache install failed:', error);
-      })
-  );
 });
 
-// Fetch event
+// Fetch event - Network First 전략 (네트워크 우선, 실패 시 캐시)
 self.addEventListener('fetch', (event) => {
+  // navigation 요청(HTML)은 항상 네트워크 우선
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // 그 외 리소스도 네트워크 우선, 실패 시 캐시
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        if (response) {
-          return response;
+        // 성공한 응답은 캐시에 저장
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        return fetch(event.request);
+        return response;
       })
+      .catch(() => caches.match(event.request))
   );
 });
 
-// Activate event
+// Activate event - 이전 캐시 삭제
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {

@@ -1,5 +1,5 @@
 # 개발
-FROM node:24-alpine AS development
+FROM node:20-alpine AS development
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -8,11 +8,12 @@ EXPOSE 3000
 CMD ["npm", "start"]
 
 # 빌드
-FROM node:24-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+ENV GENERATE_SOURCEMAP=false
 RUN npm run build
 
 # 운영
