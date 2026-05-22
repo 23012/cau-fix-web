@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import './MyMenuList.css';
 
@@ -9,13 +9,24 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
   const [phone, setPhone] = useState(user?.phone || '');
   const [dept, setDept] = useState(user?.dept || '');
 
+  useEffect(() => {
+    if (user) {
+      setPhone(user.phone || '');
+      setDept(user.dept || '');
+    }
+  }, [user]);
+
   const handleSubmit = async () => {
     if (password && password !== passwordConfirm) {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
+    if (!password && !phone.trim() && !dept.trim()) {
+      alert('수정할 항목을 입력해주세요.');
+      return;
+    }
     try {
-      await onUpdateProfile?.({ password: password || undefined, phone, dept });
+      await onUpdateProfile?.({ password: password || undefined, phone: phone || undefined, dept: dept || undefined });
       setPassword('');
       setPasswordConfirm('');
       setEditOpen(false);

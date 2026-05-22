@@ -113,8 +113,9 @@ const memberController = {
       const { password, phone, dept } = req.body;
       const member_id = req.user.member_id;
 
-      if (!phone) {
-        return res.status(400).json({ message: '전화번호를 입력해주세요.' });
+      // 하나도 입력 안 했으면 에러
+      if (!password && !phone && !dept) {
+        return res.status(400).json({ message: '수정할 항목을 입력해주세요.' });
       }
 
       const member = await memberModel.findById(member_id);
@@ -129,7 +130,7 @@ const memberController = {
 
       const updated = await memberModel.updateProfile(member_id, {
         password: hashedPassword,
-        phone,
+        phone: phone || member.phone,
         dept: dept || member.dept,
       });
 
@@ -157,6 +158,7 @@ const memberController = {
       const hashedPassword = await bcrypt.hash(member.login_id, 10);
       await memberModel.resetPassword(id, hashedPassword);
       await memberLogModel.create({ member_id: id, action: 'P', done_by: req.user.login_id || 'admin' });
+      //비밀번호 초기화 => db 데이터 
       return res.status(200).json({ message: '비밀번호가 초기화되었습니다.' });
     } catch (err) {
       console.error(err);
@@ -172,6 +174,19 @@ const memberController = {
       }
 
       const { id } = req.params;
+      const { password } = req.body;
+
+      if (!password) {
+        return res.status(400).json({ message: '비밀번호를 입력해주세요.' });
+      }
+
+      // 관리자 본인 비밀번호 확인
+      const admin = await memberModel.findByLoginId(req.user.login_id);
+      const isMatch = await bcrypt.compare(password, admin.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+      }
+
       const member = await memberModel.findById(id);
       if (!member) {
         return res.status(404).json({ message: '회원을 찾을 수 없습니다.' });

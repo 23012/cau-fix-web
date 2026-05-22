@@ -261,18 +261,18 @@ CREATE INDEX idx_member_log_member_id ON member_log(member_id);
 
 -- 카테고리
 INSERT INTO complain_category (category_name, dept) VALUES
-  ('건축/영선', '시설팀'),
-  ('의료장비', '물류관리팀'),
-  ('기계/소방', '시설팀'),
+  ('영선', '시설팀'),
+  ('기계', '시설팀'),
+  ('소방', '시설팀'),
   ('전기/통신', '시설팀'),
-  ('보안', '총무팀'),
+  ('의료장비', '물류관리팀'),
   ('미화', '총무팀');
 
 -- 관리자 계정 (비밀번호: admin1234!) -- 수정 필요
 INSERT INTO member (login_id, password, name, role, dept, phone, is_approved)
 VALUES (
-  'admin',
-  '$2b$10$3QxDjD1ylgPnRgQLhBrTaeqdsNaLxkk7gpdsFGUheGU2sXXoUrMq.',
+  'superadmin',
+  '$2b$10$k1.UtJ/OdgXrijhI/Qyp4OpLvBLKe76NUuu16CtfeV2WFkwkOePl6',
   '관리자',
   'A',
   '관리팀',

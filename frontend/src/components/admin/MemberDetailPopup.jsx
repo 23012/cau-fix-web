@@ -60,7 +60,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
     }
     if (window.confirm("정말 탈퇴 처리하시겠습니까?")) {
       try {
-        await deleteMember(member.member_id);
+        await deleteMember(member.member_id, deletePassword);
         const admin = getAdmin();
         alert("탈퇴 처리가 완료되었습니다.");
         setDeletePassword("");

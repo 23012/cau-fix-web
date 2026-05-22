@@ -73,19 +73,20 @@ const authController = {
       if (!login_id || !password) {
         return res.status(400).json({ message: '아이디와 비밀번호를 입력해주세요.' });
       }
-
+      // 아이디 확인
       const member = await memberModel.findByLoginId(login_id);
       if (!member) {
         return res.status(401).json({ message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
       }
 
-      if (!member.is_approved) {
-        return res.status(403).json({ message: '관리자 승인 대기 중입니다.' });
-      }
-
+      // 비밀번호 확인
       const isMatch = await bcrypt.compare(password, member.password);
       if (!isMatch) {
         return res.status(401).json({ message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+      }
+      
+      if (!member.is_approved) {
+        return res.status(403).json({ message: '관리자 승인 대기 중입니다.' });
       }
 
       await memberModel.updateLastLogin(member.member_id);

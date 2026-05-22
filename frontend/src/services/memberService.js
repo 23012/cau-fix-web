@@ -37,8 +37,11 @@ export async function updateMemberDept(id, dept) {
 /**
  * 회원 탈퇴 (관리자)
  */
-export async function deleteMember(id) {
-  return apiClient(`/members/${id}`, { method: 'DELETE' });
+export async function deleteMember(id, password) {
+  return apiClient(`/members/${id}`, {
+    method: 'DELETE',
+    body: JSON.stringify({ password }),
+  });
 }
 
 /**
