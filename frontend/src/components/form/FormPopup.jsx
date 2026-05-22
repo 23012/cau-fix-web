@@ -8,15 +8,14 @@ const FormPopup = ({ isOpen, onClose, title, children, onSubmit, submitLabel = "
     <div className="form-overlay" onClick={onClose}>
       <div className="form-container" onClick={(e) => e.stopPropagation()}>
         <div className="form-top-bar">
+          {title && <h2 className="form-title">{title}</h2>}
           <button className="form-close-btn" onClick={onClose}>
-            <X size={24} />
+            <X size={25} />
           </button>
         </div>
         <hr className="form-divider" />
 
         <div className="form-content">
-          {title && <h2 className="form-title">{title}</h2>}
-
           <div className="form-body">
             {children}
           </div>
