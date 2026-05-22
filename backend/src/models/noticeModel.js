@@ -64,7 +64,7 @@ const noticeModel = {
   update: async (notice_id, { notice_title, notice_category, notice_content }) => {
     const result = await pool.query(
       `UPDATE notice
-       SET notice_title = $1, notice_category = $2, notice_content = $3
+       SET notice_title = $1, notice_category = $2, notice_content = $3, noticed_at = NOW()
        WHERE notice_id = $4
        RETURNING *`,
       [notice_title, notice_category, notice_content, notice_id]

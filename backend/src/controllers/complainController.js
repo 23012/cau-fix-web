@@ -323,6 +323,14 @@ const complainController = {
         }
       }
 
+      // 진행(P) 시 처리 시간 업데이트
+      if (state === 'P') {
+        const existing = await complainModel.findProcess(id);
+        if (existing) {
+          await complainModel.updateProcessTime(id);
+        }
+      }
+
       await complainModel.createStateHistory({
         complain_id: id, changed_by: member_id, prev_state: prevState, next_state: state,
       });

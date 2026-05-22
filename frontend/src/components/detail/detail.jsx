@@ -171,7 +171,13 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // --- 수정 모드 렌더링 ---
   if (editMode) {
     return (
-      <FormPopup isOpen={true} onClose={() => { setEditMode(false); setShowCategory(false); }} submitLabel="수정" onSubmit={handleEditSubmit}>
+      <FormPopup isOpen={true} onClose={() => {
+        const hasChanges = editData.title.trim() || editData.category || editData.location.trim() || editData.content.trim() || editImages.length > 0;
+        if (hasChanges) {
+          if (!window.confirm("작성 중인 내용이 저장되지 않습니다. 나가시겠습니까?")) return;
+        }
+        setEditMode(false); setShowCategory(false);
+      }} submitLabel="수정" onSubmit={handleEditSubmit}>
         <div className="detail-tabs">
           <button className="detail-tab active">민원 내용</button>
           <button className="detail-tab" disabled>처리 내용</button>
@@ -312,7 +318,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
             try {
               await updateComplaintState(data.id, 'P');
               await refetch();
-              onUpdate?.({ ...data, status: "진행중" });
+              onUpdate?.({ ...data, status: "진행중", resultDate: new Date() });
               alert("진행중으로 변경되었습니다.");
             } catch (err) {
               alert(err.message || "상태 변경 중 오류가 발생했습니다.");

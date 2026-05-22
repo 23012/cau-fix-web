@@ -246,13 +246,13 @@
 .admin-table.notice-table th:nth-child(1),
 .admin-table.notice-table td:nth-child(1) { width: 100px; }
 .admin-table.notice-table th:nth-child(2),
-.admin-table.notice-table td:nth-child(2) { width: 120px; white-space: nowrap; }
+.admin-table.notice-table td:nth-child(2) { width: 180px; white-space: nowrap; }
 .admin-table.notice-table th:nth-child(4),
 .admin-table.notice-table td:nth-child(4) { width: 120px; white-space: nowrap; }
 .admin-table.notice-table th:nth-child(5),
-.admin-table.notice-table td:nth-child(5) { width: 140px; }
+.admin-table.notice-table td:nth-child(5) { width: 180px; }
 .admin-table.notice-table th:nth-child(6),
-.admin-table.notice-table td:nth-child(6) { width: 140px; }
+.admin-table.notice-table td:nth-child(6) { width: 180px; }
 
 /* 모바일 */
 @media (max-width: 768px) {

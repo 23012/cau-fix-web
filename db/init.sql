@@ -268,7 +268,7 @@ INSERT INTO complain_category (category_name, dept) VALUES
   ('보안', '총무팀'),
   ('미화', '총무팀');
 
--- 관리자 계정 (비밀번호: admin1234!)
+-- 관리자 계정 (비밀번호: admin1234!) -- 수정 필요
 INSERT INTO member (login_id, password, name, role, dept, phone, is_approved)
 VALUES (
   'admin',

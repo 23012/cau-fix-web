@@ -156,7 +156,8 @@
 
   .notice-td-category {
     font-size: 13px;
-    min-width: 50px;
+    min-width: 80px;
+    margin-left : 10px;
   }
 
   .notice-td-title {
@@ -165,6 +166,7 @@
 
   .notice-td-date {
     font-size: 13px;
+    margin-right : 10px;
   }
 
   .notice-row {

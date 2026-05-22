@@ -17,6 +17,10 @@ const ProcessForm = ({ isOpen, content, setContent, onCancel, onSubmit }) => {
   if (!isOpen) return null;
 
   const handleCancel = () => {
+    const hasContent = content.trim() || images.length > 0;
+    if (hasContent) {
+      if (!window.confirm("작성 중인 내용이 저장되지 않습니다. 나가시겠습니까?")) return;
+    }
     resetImages();
     onCancel();
   };
@@ -35,7 +39,7 @@ const ProcessForm = ({ isOpen, content, setContent, onCancel, onSubmit }) => {
           <div className="form-image-upload" onClick={() => fileInputRef.current?.click()}>
             <Camera size={28} color="#63C3D1" />
             <span className="form-image-count">{images.length} / 10</span>
-            <input ref={fileInputRef} type="file" accept="image/*" capture="environment" multiple hidden onChange={handleImageAdd} />
+            <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleImageAdd} />
           </div>
           {images.map((img, i) => (
             <div key={i} className="form-image-preview">

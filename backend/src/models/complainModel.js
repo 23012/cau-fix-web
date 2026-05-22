@@ -284,6 +284,18 @@ const complainModel = {
     return result.rows[0];
   },
 
+  // 처리 시간 업데이트 (상태 변경 시)
+  updateProcessTime: async (complain_id) => {
+    const result = await pool.query(
+      `UPDATE complaint_process
+       SET process_at = NOW()
+       WHERE complain_id = $1
+       RETURNING *`,
+      [complain_id]
+    );
+    return result.rows[0];
+  },
+
   // 처리 내용 작성 (완료 시)
   updateProcessContent: async (complain_id, process_content) => {
     const result = await pool.query(

@@ -39,6 +39,10 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const handleClose = () => {
+    const hasContent = formData.title.trim() || formData.category || formData.location.trim() || formData.content.trim() || images.length > 0;
+    if (hasContent) {
+      if (!window.confirm("작성 중인 내용이 저장되지 않습니다. 나가시겠습니까?")) return;
+    }
     setFormData({ title: "", category: "", location: "", content: "" });
     resetImages();
     setShowCategory(false);

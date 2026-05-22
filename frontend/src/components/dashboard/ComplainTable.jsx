@@ -44,6 +44,7 @@ const ComplainTable = ({
                 <th>번호</th>
                 {user?.role !== "처리자" && <th className="col-category">분류</th>}
                 <th>제목</th>
+                {(user?.role === "사용자" || user?.role === "처리자") && <th>처리자</th>}
                 <th>상태</th>
               </tr>
             </thead>
@@ -53,9 +54,10 @@ const ComplainTable = ({
                   <td className="col-fav" onClick={(e) => { e.stopPropagation(); onToggleFavorite(row.id); }}>
                     <Star size={18} className={`fav-icon ${favorites.includes(row.id) ? "fav-active" : ""}`} fill={favorites.includes(row.id) ? "#FFD23F" : "none"} color={favorites.includes(row.id) ? "#FFD23F" : "#ccc"} />
                   </td>
-                  <td>{(currentPage - 1) * 10 + index + 1}</td>
+                  <td>{row.id}</td>
                   {user?.role !== "처리자" && <td className="col-category">{row.category}</td>}
                   <td className="title">{row.title}</td>
+                  {(user?.role === "사용자" || user?.role === "처리자") && <td>{row.resultPerson || "-"}</td>}
                   <td><Status status={row.status} /></td>
                 </tr>
               ))}

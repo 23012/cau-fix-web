@@ -1,6 +1,6 @@
 const webpush = require('web-push');
 const pool = require('../config/db');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.env') });
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT || 'mailto:admin@caufix.com',

@@ -6,7 +6,7 @@ import { parseExcelDate } from "../../utils/parseExcelDate";
 import "./MyStorage.css";
 
 const ITEMS_PER_PAGE = 7;
-const STATUS_TABS = ["전체", "접수", "진행중", "완료"];
+const STATUS_TABS = ["전체", "접수중", "진행중", "완료"];
 const SORT_OPTIONS = ["번호순", "최신순", "오래된순", "상태순"];
 
 const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
@@ -14,7 +14,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState("전체");
-  const [sortOrder, setSortOrder] = useState("번호순");
+  const [sortOrder, setSortOrder] = useState("최신순");
   const [filterOpen, setFilterOpen] = useState(false);
   const [startDate, setStartDate] = useState({ year: "", month: "", day: "" });
   const [endDate, setEndDate] = useState({ year: "", month: "", day: "" });

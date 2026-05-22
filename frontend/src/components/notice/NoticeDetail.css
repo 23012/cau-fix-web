@@ -26,7 +26,7 @@
 .notice-detail-date {
   font-size: 16px;
   color: var(--back-color-2);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .notice-detail-author {
@@ -116,12 +116,12 @@
 
 @media (max-width: 768px) {
   .notice-detail {
-    padding: 1rem 16px;
+    padding: 1rem 20px;
     padding-bottom: 100px;
   }
 
   .notice-detail-title {
-    font-size: 20px;
+    font-size: 25px;
   }
 
   .notice-detail-content {

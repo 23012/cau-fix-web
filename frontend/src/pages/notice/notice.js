@@ -33,16 +33,23 @@ const Notice = () => {
 
   const handleEditSubmit = async (formData) => {
     try {
-      await updateNotice(editData.id, {
+      const result = await updateNotice(editData.id, {
         notice_title: formData.title,
         notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
         notice_content: formData.content,
       });
-      const updated = { ...editData, title: formData.title, category: formData.category, content: formData.content };
+      const updated = {
+        ...editData,
+        title: formData.title,
+        category: formData.category,
+        content: formData.content,
+        date: result.notice?.date || new Date().toISOString(),
+      };
       setEditFormOpen(false);
       setEditData(null);
       setSelectedNotice(updated);
       setRefreshKey((k) => k + 1);
+      alert("수정이 완료되었습니다.");
     } catch (err) {
       alert(err.message || "수정 중 오류가 발생했습니다.");
     }

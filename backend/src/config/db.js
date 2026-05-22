@@ -1,5 +1,5 @@
 const { Pool, types } = require('pg');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.env') });
 
 // TIMESTAMP 타입을 문자열 그대로 반환 (UTC 변환 방지)
 types.setTypeParser(1114, (val) => val);

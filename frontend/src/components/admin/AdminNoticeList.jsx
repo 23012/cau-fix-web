@@ -13,7 +13,7 @@ const AdminNoticeList = ({ onSelect }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("번호순");
+  const [sortOrder, setSortOrder] = useState("최신순");
   const [currentPage, setCurrentPage] = useState(1);
   const [noticeFormOpen, setNoticeFormOpen] = useState(false);
   const itemsPerPage = 15;

@@ -4,7 +4,7 @@ import { parseExcelDate } from "../utils/parseExcelDate";
 
 const useComplainFilter = (tableData) => {
   const [user, setUser] = useState(null);
-  const [sortOrder, setSortOrder] = useState("번호순");
+  const [sortOrder, setSortOrder] = useState("최신순");
   const [selectedYear, setSelectedYear] = useState("전체");
   const [selectedMonth, setSelectedMonth] = useState("전체");
   const [activeStatusTab, setActiveStatusTab] = useState("전체");
