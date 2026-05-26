@@ -163,28 +163,14 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
             <button className="member-detail-approve-btn" onClick={handleApprove}>승인</button>
           </>
         )}
-        {member.status === "탈퇴" && (
-          <>
-            <div className="member-detail-status-badge withdrawn">
-              <XCircle size={18} />
-              <span>탈퇴된 회원입니다.</span>
-            </div>
-            {(() => {
-              const deleteLog = logs.find((l) => l.action === "D");
-              return deleteLog ? (
-                <p className="member-detail-sub-info">
-                  처리자: {deleteLog.done_by} / 탈퇴일: {formatDateTime(deleteLog.created_at)}
-                </p>
-              ) : null;
-            })()}
-          </>
-        )}
       </div>
 
       {/* 권한 변경 */}
       {member.status !== "탈퇴" && (
-        <div className="member-detail-section">
+      <div className="member-detail-section">
           <h3 className="member-detail-section-title">권한 변경</h3>
+          <div className = "member-detail-role-row">
+          {/*변경 항목*/}
           <div className="member-detail-role-radios">
             {["사용자", "처리자"].map((role) => (
               <label key={role} className="member-detail-radio">
@@ -210,8 +196,11 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
                 ))}
               </select>
             )}
-            {(roleChanged || (selectedDept !== null && selectedDept !== member.dept)) && (
+          </div>
+          {/*변경 버튼*/}
+          {(roleChanged || (selectedDept !== null && selectedDept !== member.dept)) && (
               <button className="member-detail-role-confirm-btn" onClick={async () => {
+                if (!window.confirm("변경 시 해당 사용자 활동 내역이 모두 사라집니다. \n그래도 변경 하시겠습니까?")) return;
                 try {
                   const roleCode = selectedRole === "처리자" ? "E" : "C";
                   if (roleChanged) {
@@ -233,9 +222,9 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
                   alert(err.message || "변경 중 오류가 발생했습니다.");
                 }
               }}>변경</button>
-            )}
-          </div>
-          {(() => {
+          )}
+        </div>
+        {(() => {
             const roleLog = logs.find((l) => l.action === "R");
             return roleLog ? (
               <p className="member-detail-sub-info">
@@ -243,7 +232,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
               </p>
             ) : null;
           })()}
-        </div>
+        </div>  
       )}
 
       {/* 회원 탈퇴 */}

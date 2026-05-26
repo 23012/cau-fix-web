@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
+import useCategories from '../../hooks/useCategories';
 import './MyMenuList.css';
 
 const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user }) => {
@@ -8,6 +9,7 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [phone, setPhone] = useState(user?.phone || '');
   const [dept, setDept] = useState(user?.dept || '');
+  const { categories } = useCategories();
 
   useEffect(() => {
     if (user) {
@@ -24,6 +26,11 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
     if (!password && !phone.trim() && !dept.trim()) {
       alert('수정할 항목을 입력해주세요.');
       return;
+    }
+    // 부서가 변경된 경우에만 confirm
+    const deptChanged = dept && dept !== (user?.dept || '');
+    if (deptChanged) {
+      if (!window.confirm('소속 부서를 변경하시겠습니까?')) return;
     }
     try {
       await onUpdateProfile?.({ password: password || undefined, phone: phone || undefined, dept: dept || undefined });
@@ -77,13 +84,26 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
           </div>
           <div className="myinfo-edit-field">
             <label className="myinfo-edit-label">부서</label>
-            <input
-              type="text"
-              className="myinfo-edit-input"
-              placeholder="부서 입력"
-              value={dept}
-              onChange={(e) => setDept(e.target.value)}
-            />
+            {user?.role === "처리자" ? (
+              <select
+                className="myinfo-edit-input"
+                value={dept}
+                onChange={(e) => setDept(e.target.value)}
+              >
+                <option value="전체">전체</option>
+                {categories.map((cat) => (
+                  <option key={cat.category_id} value={cat.category_name}>{cat.category_name}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                className="myinfo-edit-input"
+                placeholder="부서 입력"
+                value={dept}
+                onChange={(e) => setDept(e.target.value)}
+              />
+            )}
           </div>
           <div className="myinfo-edit-actions">
             <button className="myinfo-edit-submit" onClick={handleSubmit}>
