@@ -202,12 +202,12 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
               <button className="member-detail-role-confirm-btn" onClick={async () => {
                 if (!window.confirm("변경 시 해당 사용자 활동 내역이 모두 사라집니다. \n그래도 변경 하시겠습니까?")) return;
                 try {
-                  const roleCode = selectedRole === "처리자" ? "E" : "C";
+                  const currentRoleCode = (selectedRole || member.role) === "처리자" ? "E" : "C";
                   if (roleChanged) {
-                    await updateMemberRole(member.member_id, roleCode);
+                    await updateMemberRole(member.member_id, currentRoleCode);
                   }
                   const newDept = selectedDept ?? member.dept;
-                  if (roleCode === "E" && (selectedDept !== null && selectedDept !== member.dept)) {
+                  if (currentRoleCode === "E" && (selectedDept !== null && selectedDept !== member.dept)) {
                     await updateMemberDept(member.member_id, newDept);
                   }
                   alert("변경이 완료되었습니다.");

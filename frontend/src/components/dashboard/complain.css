@@ -393,19 +393,23 @@
 
 /* 컬럼 너비 — col-fav 클래스로 통합 */
 .col-fav {
-  width: 60px;
+  width: 90px;
   text-align: center;
   cursor: pointer;
+  padding-left: 24px;
 }
 
-.table th:nth-child(2),
-.table td:nth-child(2) {
-  width: 120px;
+ .col-category {
+    width: 80px;
+  }
+
+.col-handler {
+  width: 100px;
 }
 
 .table th:last-child,
 .table td:last-child {
-  width: 200px;
+  width: 100px;
 }
 
 .title {
@@ -414,7 +418,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 200px;
 }
 
 /* FAVORITE in TABLE */
@@ -648,34 +651,12 @@
   }
 
   .col-fav {
-    width: 30px;
-    padding: 8px 2px 8px 8px;
-  }
-
-  .table th:nth-child(2),
-  .table td:nth-child(2) {
     width: 50px;
-  }
-
-  .table th:nth-child(4),
-  .table td:nth-child(4) {
-    width: 100px;
-  }
-  .table th:last-child,
-  .table td:last-child {
-    width: 90px;
-  }
-
-  .title {
-    max-width: none;
+    padding: 8px 2px 8px 16px;
   }
 
   .table {
     min-width: 100%;
-  }
-
-  .col-category {
-    display: none;
   }
 
   .status-tab {

@@ -5,7 +5,7 @@ import apiClient from '../services/apiClient';
  * 로그인 후 호출하여 브라우저 푸시를 활성화합니다.
  */
 export async function subscribePush() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
     console.log('[Push] 미지원 브라우저');
     return false;
   }

@@ -20,7 +20,7 @@ function App() {
   // 이미 알림 권한이 granted인 경우 자동 구독 (재방문 시)
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token && Notification.permission === 'granted') {
+    if (token && 'Notification' in window && Notification.permission === 'granted') {
       subscribePush().catch(() => {});
     }
   }, []);

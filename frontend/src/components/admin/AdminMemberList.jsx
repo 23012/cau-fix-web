@@ -189,10 +189,25 @@ const AdminMemberList = () => {
         onClose={() => setSelectedMember(null)}
         member={selectedMember}
         onUpdate={(updated) => {
-          setMembers((prev) => prev.map((m) => m.no === updated.no ? updated : m));
-          setSelectedMember(updated);
+          setMembers((prev) => prev.map((m) => m.member_id === updated.member_id ? { ...m, ...updated } : m));
+          setSelectedMember((prev) => prev ? { ...prev, ...updated } : prev);
         }}
-        onRefresh={loadData}
+        onRefresh={async () => {
+          await loadData();
+          // loadData 후 selectedMember도 최신 데이터로 갱신
+          if (selectedMember) {
+            const result = await getMembers();
+            const fresh = (result.members || []).find((m) => m.member_id === selectedMember.member_id);
+            if (fresh) {
+              setSelectedMember((prev) => ({
+                ...prev,
+                role: normalizeRole(fresh.role || ""),
+                dept: fresh.dept || "",
+                status: getMemberStatus(fresh.is_approved, false),
+              }));
+            }
+          }
+        }}
       />
     </div>
   );

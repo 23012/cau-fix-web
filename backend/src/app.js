@@ -16,8 +16,17 @@ const uploadRouter = require('./routes/uploads');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// API 응답 캐시 비활성화 (304 방지)
+app.set('etag', false);
+
 // 미들웨어
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  }
+  next();
+});
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());

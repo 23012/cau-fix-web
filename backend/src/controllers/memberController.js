@@ -1,8 +1,7 @@
 const bcrypt = require('bcrypt');
 const memberModel = require('../models/memberModel');
 const memberLogModel = require('../models/memberLogModel');
-
-const VALID_DEPTS = ['전체', '건축/영선', '의료장비', '기계/소방', '전기/통신', '보안', '미화'];
+const categoryModel = require('../models/categoryModel');
 
 const memberController = {
   // 회원 목록 조회 (관리자)
@@ -83,10 +82,14 @@ const memberController = {
       const { id } = req.params;
       const { dept } = req.body;
 
-      if (!dept || !VALID_DEPTS.includes(dept)) {
+      // DB에서 유효한 카테고리 목록 조회
+      const categories = await categoryModel.findAll();
+      const validDepts = ['전체', ...categories.map((c) => c.category_name)];
+
+      if (!dept || !validDepts.includes(dept)) {
         return res.status(400).json({
           message: '유효하지 않은 카테고리입니다.',
-          valid: VALID_DEPTS,
+          valid: validDepts,
         });
       }
 
