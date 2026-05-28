@@ -2,7 +2,7 @@
 .detail-tabs {
   display: flex;
   gap: 0;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   border-bottom: 2px solid var(--back-color);
 }
 
@@ -516,4 +516,101 @@
 
 .detail-image-arrow:hover {
   background: #f5f5f5;
+}
+
+/* 수정 요청 인라인 에러 메시지 */
+.edit-request-error {
+  color: #e53935;
+  font-size: 13px;
+  margin: 8px 0 0 0;
+  text-align: left;
+}
+
+
+/* 수정 요청 섹션 */
+.edit-request-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.edit-request-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.edit-request-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.edit-request-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.edit-request-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.edit-request-btn.approve {
+  background: var(--main-color);
+  color: white;
+}
+
+.edit-request-btn.approve:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.edit-request-btn.reject {
+  background: #e53935;
+  color: white;
+}
+
+.edit-request-btn.reject:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* 수정 요청 제출 성공 알림 */
+.edit-request-alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4caf50;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

@@ -38,12 +38,12 @@ const DetailContent = ({
         </div>
         <div className="detail-header-right">
           <Status status={data.status} />
-          {isEditor && (
+          {(isEditor || fromStorage) && (
             <button className="detail-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
               <MoreVertical size={20} />
             </button>
           )}
-          {menuOpen && isEditor && (
+          {menuOpen && (isEditor || fromStorage) && (
             <DetailMenu
               isEditor={isEditor}
               fromStorage={fromStorage}

@@ -67,8 +67,8 @@ const PushComplainView = ({ data, onBack }) => {
               <h3 className="pcv-title">{data.title}</h3>
               <Status status={data.status} />
             </div>
-            <div className="pcv-row"><span className="pcv-label">신고자</span><span className="pcv-value">{data.reporterName || "-"}</span></div>
-            <div className="pcv-row"><span className="pcv-label">부서</span><span className="pcv-value">{data.dept || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">신고자</span><span className="pcv-value">{data.memberName || data.reporterName || "-"}</span></div>
+            <div className="pcv-row"><span className="pcv-label">부서</span><span className="pcv-value">{data.memberDept || data.dept || "-"}</span></div>
             <div className="pcv-row"><span className="pcv-label">구분</span><span className="pcv-value">{data.category || "-"}</span></div>
             <div className="pcv-row"><span className="pcv-label">장소</span><span className="pcv-value">{data.location || "-"}</span></div>
             <div className="pcv-row"><span className="pcv-label">시간</span><span className="pcv-value">{formatDate(data.date)}</span></div>

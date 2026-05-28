@@ -1,0 +1,284 @@
+/* 수정 요청 모달 오버레이 */
+.edit-request-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* 모달 컨테이너 */
+.edit-request-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 헤더 */
+.edit-request-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.edit-request-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #333;
+  margin: 0;
+}
+
+.edit-request-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.edit-request-close-btn:hover {
+  color: #333;
+  background: #f5f5f5;
+}
+
+/* 본문 */
+.edit-request-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-request-label {
+  font-size: 16px;
+  color: #555;
+  margin: 0;
+}
+
+/* 라디오 그룹 */
+.edit-request-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 라디오 행 */
+.edit-request-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.edit-request-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.edit-request-radio-item:hover {
+  background: #f8f9fa;
+}
+
+.edit-request-radio-item input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--main-color);
+  cursor: pointer;
+}
+
+.edit-request-radio-label {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 인라인 입력 필드 (라디오 옆) */
+.edit-request-inline-field {
+  display: flex;
+  align-items: center;
+}
+
+.edit-request-inline-field--text {
+  flex: 1;
+  min-width: 0;
+}
+
+.edit-request-select-inline {
+  padding: 6px 10px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.edit-request-select-inline:focus {
+  outline: none;
+  border-color: var(--main-color);
+}
+
+.edit-request-input-inline {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.edit-request-input-inline:focus {
+  outline: none;
+  border-color: var(--main-color);
+}
+
+.edit-request-input-inline::placeholder {
+  color: #aaa;
+}
+
+.edit-request-loading-inline {
+  font-size: 13px;
+  color: #999;
+}
+
+.edit-request-error-inline {
+  font-size: 13px;
+  color: #e53935;
+}
+
+/* 상세 입력 필드 */
+.edit-request-detail-field {
+  margin-top: 4px;
+  display: flex;
+}
+
+/* 카테고리 드롭다운 */
+.edit-request-select {
+  width: 150px;
+  padding: 10px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+}
+
+.edit-request-select:focus {
+  outline: none;
+  border-color: var(--main-color);
+}
+
+/* 기타 사유 textarea */
+.edit-request-textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.edit-request-textarea:focus {
+  outline: none;
+  border-color: var(--main-color);
+}
+
+.edit-request-textarea::placeholder {
+  color: #aaa;
+}
+
+/* 글자 수 카운트 */
+.edit-request-char-count {
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+}
+
+/* 로딩 텍스트 */
+.edit-request-loading {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+  padding: 8px 0;
+}
+
+/* 에러 메시지 */
+.edit-request-error {
+  font-size: 13px;
+  color: #e53935;
+  margin: 0;
+  padding: 4px 0;
+}
+
+/* 푸터 */
+.edit-request-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.edit-request-submit-btn {
+  padding: 10px 32px;
+  background: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.edit-request-submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.edit-request-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .edit-request-modal {
+    max-width: 95%;
+    padding: 20px;
+  }
+
+  .edit-request-title {
+    font-size: 16px;
+  }
+
+  .edit-request-radio-label {
+    font-size: 14px;
+  }
+}

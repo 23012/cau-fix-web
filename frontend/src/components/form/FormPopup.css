@@ -35,8 +35,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 25px;
-  padding-bottom: 20px;
+  padding-top: 12px;
+  padding-bottom: 8px;
 }
 
 .form-close-btn {
@@ -50,6 +50,7 @@
   justify-content: center;
   transition: color 0.2s;
   margin-top : -5px;
+  margin-left: auto;
 }
 
 .form-close-btn:hover {

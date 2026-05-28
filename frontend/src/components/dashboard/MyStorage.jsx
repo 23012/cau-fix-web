@@ -77,8 +77,6 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
   return (
     <div className="my-storage-overlay" onClick={onClose}>
       <div className="my-storage-popup" onClick={(e) => e.stopPropagation()}>
-        <button className="my-storage-close" onClick={onClose}><X size={22} /></button>
-
         <div className="my-storage-header">
           <FolderOpen size={24} color="#63C3D1" />
           <h2>내 처리함</h2>
@@ -95,6 +93,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
               </div>
               <button className="my-storage-icon-btn" onClick={toggleSearch}><SearchIcon size={22}/></button>
             </div>
+            <button className="my-storage-icon-btn" onClick={onClose}><X size={22} /></button>
           </div>
         </div>
 

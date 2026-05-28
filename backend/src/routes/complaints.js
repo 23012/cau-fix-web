@@ -27,4 +27,11 @@ router.put('/:id/state', authMiddleware, complainController.updateState);
 // 민원 처리 등록 (처리자/관리자)
 router.post('/:id/process', authMiddleware, complainController.createProcess);
 
+// 수정 요청 제출 (처리자)
+const editRequestController = require('../controllers/editRequestController');
+router.post('/:id/edit-request', authMiddleware, editRequestController.submit);
+
+// 수정 요청 조회
+router.get('/:id/edit-request', authMiddleware, editRequestController.get);
+
 module.exports = router;

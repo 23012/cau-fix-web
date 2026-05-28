@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
-const stateMap = { B: '접수전', A: '접수', P: '진행중', D: '완료' };
-const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D' };
+const stateMap = { B: '접수전', A: '접수', P: '진행중', D: '완료', R: '수정요청' };
+const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D', '수정요청': 'R' };
 
 const formatComplain = (row) => ({
   id: row.complain_id,

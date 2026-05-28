@@ -141,6 +141,15 @@ const memberModel = {
     );
     return result.rows[0];
   },
+
+  // 역할별 회원 조회
+  findByRole: async (role) => {
+    const result = await pool.query(
+      'SELECT member_id, name, dept FROM member WHERE role = $1 AND is_deleted = FALSE AND is_approved = TRUE',
+      [role]
+    );
+    return result.rows;
+  },
 };
 
 module.exports = memberModel;

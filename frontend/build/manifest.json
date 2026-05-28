@@ -1,7 +1,7 @@
 {
-  "short_name": "시설고장신고",
-  "name": "시설 고장 신고 앱",
-  "description": "중앙대학교 광명병원 시설 고장 신고 및 관리 시스템",
+  "short_name": "민원 처리 앱",
+  "name": "민원 처리 플랫폼",
+  "description": "중앙대학교 광명병원 민원 처리 및 관리 시스템",
   "icons": [
     {
       "src": "app-icon-192.png",

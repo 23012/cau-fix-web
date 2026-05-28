@@ -1,5 +1,6 @@
 import "./detail.css";
 import { ChevronRight, Camera } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import FormPopup from "../form/FormPopup";
 import ProfilePopup from "./ProfilePopup";
 import ImagePreview from "../common/ImagePreview";
@@ -10,9 +11,13 @@ import DetailResult from "./DetailResult";
 import StatusChangePopup from "./StatusChangePopup";
 import ProcessForm from "./ProcessForm";
 import LoadingPopup from "../common/LoadingPopup";
+import EditRequestModal from "./EditRequestModal";
+import EditRequestSection from "./EditRequestSection";
+import RejectionModal from "./RejectionModal";
 import { useState, useMemo } from "react";
 import useCategories from "../../hooks/useCategories";
 import useComplainDetail from "../../hooks/useComplainDetail";
+import useEditRequest from "../../hooks/useEditRequest";
 import { updateComplaint, deleteComplaint, updateComplaintState, createProcess, uploadProcessImages, deleteComplainImage } from "../../services/complainService";
 import { getMemberProfile } from "../../services/memberService";
 import { formatDate } from "../../utils/formatDate";
@@ -23,6 +28,7 @@ import useImageUpload from "../../hooks/useImageUpload";
  * 민원 상세 팝업 (읽기 + 수정 모드)
  */
 const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromStorage = false }) => {
+  const navigate = useNavigate();
   const { categories } = useCategories();
   const { detail: apiDetail, refetch } = useComplainDetail(isOpen && data?.id ? data.id : null);
   const detailData = apiDetail || data;
@@ -32,9 +38,16 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   }, []);
   const isEditor = user?.role !== "처리자";
 
+  // 수정 요청 훅
+  const { editRequest, approving, approve, refetch: refetchEditRequest } = useEditRequest(isOpen && data?.id ? data.id : null);
+
   const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // 수정 요청 모달 상태
+  const [editRequestModalOpen, setEditRequestModalOpen] = useState(false);
+  const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
 
   // 수정 모드
   const [editMode, setEditMode] = useState(false);
@@ -262,7 +275,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           isEditor={isEditor} fromStorage={fromStorage} user={user}
           onStatusChange={() => setShowStatusChange(true)}
           onDelete={() => setShowDeleteConfirm(true)}
-          onEdit={handleEdit}
+          onEdit={isEditor ? handleEdit : () => setEditRequestModalOpen(true)}
           onAddFolder={() => setShowAddFolder(true)}
           onAlreadyMine={() => setShowAlreadyMine(true)}
           onHasOtherPerson={() => setShowHasOtherPerson(true)}
@@ -290,6 +303,24 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           });
           setShowProfile(true);
         }} />
+      )}
+
+      {/* 수정 요청 섹션 (수정 요청 데이터 존재 시) */}
+      {editRequest && (
+        <EditRequestSection
+          editRequest={editRequest}
+          isAdmin={isEditor && (user?.role === "관리자" || user?.role === "admin" || user?.role === "A")}
+          approving={approving}
+          onApprove={async () => {
+            try {
+              await approve();
+              navigate(`/complaint/${data.id}/edit`);
+            } catch (err) {
+              // 에러는 useEditRequest 훅에서 처리됨
+            }
+          }}
+          onReject={() => setRejectionModalOpen(true)}
+        />
       )}
 
       {/* 처리자 + 접수전: 접수하기 버튼 */}
@@ -382,6 +413,30 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
       {/* 접수전 - 담당자 미배정 */}
       <ConfirmPopup isOpen={showNoResultPopup} message="담당자가 아직 배정되지 않았습니다." onConfirm={() => setShowNoResultPopup(false)} />
+
+      {/* 수정 요청 모달 */}
+      <EditRequestModal
+        isOpen={editRequestModalOpen}
+        onClose={() => setEditRequestModalOpen(false)}
+        complaintId={data.id}
+        currentCategory={displayData.category}
+        onSuccess={() => {
+          setEditRequestModalOpen(false);
+          refetchEditRequest();
+          alert("수정 요청이 완료되었습니다.");
+        }}
+      />
+
+      {/* 거절 모달 */}
+      <RejectionModal
+        isOpen={rejectionModalOpen}
+        onClose={() => setRejectionModalOpen(false)}
+        complaintId={data.id}
+        onSuccess={() => {
+          setRejectionModalOpen(false);
+          navigate("/complain-dashboard");
+        }}
+      />
     </FormPopup>
   );
 };
