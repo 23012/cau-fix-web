@@ -56,12 +56,19 @@
 }
 
 .detail-title {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
   color: #333;
   margin: 0;
   flex: 1;
   min-width: 0;
+}
+
+.detail-id {
+  color: var(--main-color);
+  font-size: 28px;
+  font-weight: 600;
+  margin-right : 12px;
 }
 
 .detail-header-right {
@@ -213,7 +220,7 @@
   }
 
   .detail-title {
-    font-size: 18px;
+    font-size: 24px;
   }
 
   .detail-header-right {

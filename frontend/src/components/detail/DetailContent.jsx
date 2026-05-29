@@ -34,7 +34,7 @@ const DetailContent = ({
     <>
       <div className="detail-header">
         <div className="detail-header-left">
-          <h2 className="detail-title">{data.title || "-"}</h2>
+          <h2 className="detail-title"><span className="detail-id">#{data.id}</span>{data.title || "-"}</h2>
         </div>
         <div className="detail-header-right">
           <Status status={data.status} />
