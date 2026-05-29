@@ -28,9 +28,9 @@ const editRequestController = {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
 
-      // 접수중 또는 진행중 상태만 수정 요청 가능
-      if (complain.status !== '접수중' && complain.status !== '진행중' && complain.status !== '접수') {
-        return res.status(400).json({ message: '접수중 또는 진행중 상태의 민원만 수정 요청할 수 있습니다.' });
+      // 접수 또는 진행중 상태만 수정 요청 가능
+      if (complain.status !== '접수' && complain.status !== '진행중') {
+        return res.status(400).json({ message: '접수 또는 진행중 상태의 민원만 수정 요청할 수 있습니다.' });
       }
 
       // 이미 PENDING 상태의 수정 요청이 있는지 확인
@@ -41,12 +41,20 @@ const editRequestController = {
 
       await editRequestModel.ensureTable();
 
+      // prev_state 저장 (한글 → 코드 변환)
+      const { stateReverseMap } = require('../models/complainModel');
+      const prevStateCode = stateReverseMap[complain.status] || null;
+
       const editRequest = await editRequestModel.create({
         complaint_id: id,
         requester_id: member_id,
         reason_type: reasonType,
         detail: detail || '',
+        prev_state: prevStateCode,
       });
+
+      // 민원 상태를 'R'(수정중)로 변경
+      await complainModel.updateState(id, 'R');
 
       // 관리자에게 알림 발송
       try {

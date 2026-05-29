@@ -38,12 +38,7 @@ const EditRequestSection = ({ editRequest, isAdmin, approving, onApprove, onReje
       </div>
 
       <div className="detail-row">
-        <div className="detail-label">상세 내용</div>
-        <div className="detail-value">{editRequest.detail || "-"}</div>
-      </div>
-
-      <div className="detail-row">
-        <div className="detail-label">제출 시간</div>
+        <div className="detail-label">요청 시간</div>
         <div className="detail-value">{formatDateTime(editRequest.createdAt)}</div>
       </div>
 

@@ -281,46 +281,48 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           onHasOtherPerson={() => setShowHasOtherPerson(true)}
         />
       ) : (
-        <DetailResult data={displayData} formatDate={formatDate} processImages={detailData?.processImages || []} setPreviewImage={setPreviewImage} onShowProfile={async () => {
-          const personId = detailData?.process?.process_by || displayData.resultPersonId;
-          if (personId) {
-            try {
-              const res = await getMemberProfile(personId);
-              if (res.profile) {
-                setProfileData(res.profile);
-                setShowProfile(true);
-                return;
+        <>
+          <DetailResult data={displayData} formatDate={formatDate} processImages={detailData?.processImages || []} setPreviewImage={setPreviewImage} onShowProfile={async () => {
+            const personId = detailData?.process?.process_by || displayData.resultPersonId;
+            if (personId) {
+              try {
+                const res = await getMemberProfile(personId);
+                if (res.profile) {
+                  setProfileData(res.profile);
+                  setShowProfile(true);
+                  return;
+                }
+              } catch (err) {
+                console.error('[Profile] API error:', err.status, err.message);
               }
-            } catch (err) {
-              console.error('[Profile] API error:', err.status, err.message);
             }
-          }
-          // API 실패 시 process에서 가져온 정보로 fallback
-          setProfileData({
-            name: displayData.resultPerson || "-",
-            dept: detailData?.process?.resultDept || null,
-            phone: detailData?.process?.resultPhone || null,
-          });
-          setShowProfile(true);
-        }} />
-      )}
+            // API 실패 시 process에서 가져온 정보로 fallback
+            setProfileData({
+              name: displayData.resultPerson || "-",
+              dept: detailData?.process?.resultDept || null,
+              phone: detailData?.process?.resultPhone || null,
+            });
+            setShowProfile(true);
+          }} />
 
-      {/* 수정 요청 섹션 (수정 요청 데이터 존재 시) */}
-      {editRequest && (
-        <EditRequestSection
-          editRequest={editRequest}
-          isAdmin={isEditor && (user?.role === "관리자" || user?.role === "admin" || user?.role === "A")}
-          approving={approving}
-          onApprove={async () => {
-            try {
-              await approve();
-              navigate(`/complaint/${data.id}/edit`);
-            } catch (err) {
-              // 에러는 useEditRequest 훅에서 처리됨
-            }
-          }}
-          onReject={() => setRejectionModalOpen(true)}
-        />
+          {/* 수정 요청 섹션 (처리 내용 탭 내에서만 표시) */}
+          {editRequest && (
+            <EditRequestSection
+              editRequest={editRequest}
+              isAdmin={isEditor && (user?.role === "관리자" || user?.role === "admin" || user?.role === "A")}
+              approving={approving}
+              onApprove={async () => {
+                try {
+                  await approve();
+                  navigate(`/complaint/${data.id}/edit`);
+                } catch (err) {
+                  // 에러는 useEditRequest 훅에서 처리됨
+                }
+              }}
+              onReject={() => setRejectionModalOpen(true)}
+            />
+          )}
+        </>
       )}
 
       {/* 처리자 + 접수전: 접수하기 버튼 */}

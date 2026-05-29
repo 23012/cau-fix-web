@@ -9,14 +9,17 @@
 CREATE TYPE member_role AS ENUM ('C', 'E', 'A');
 -- C: 사용자(user), E: 처리자(manager), A: 관리자(admin, 별도 지정)
 
-CREATE TYPE complain_state AS ENUM ('B', 'A', 'P', 'D');
--- B: 접수전, A: 접수, P: 진행중, D: 완료
+CREATE TYPE complain_state AS ENUM ('B', 'A', 'P', 'D', 'R');
+-- B: 접수전, A: 접수, P: 진행중, D: 완료, R: 수정중
 
 CREATE TYPE notice_category AS ENUM ('G', 'U', 'F');
 -- G: 공지, U: 업데이트, F: 점검
 
 CREATE TYPE member_log_action AS ENUM ('A', 'R', 'D', 'P');
 -- A : 회원가입 승인, R : 역할 변경, D: 부서 변경, P: 비밀번호 변경 
+
+CREATE TYPE edit_request_status AS ENUM ('P', 'A', 'R', 'C');
+-- P: 대기(Pending), A: 승인(Approved), R: 거절(Rejected), C: 수정 완료(Completed)
 
 -- ------------------------------------------------------------
 -- 1. member (회원)
@@ -234,6 +237,73 @@ UNIQUE(member_id, endpoint)
 );
 CREATE INDEX idx_push_subscription_member ON push_subscription(member_id);
 
+COMMENT ON TABLE  push_subscription              IS '알림 주소';
+COMMENT ON COLUMN push_subscription.member_id  IS '알림 받는 회원 아이디';
+COMMENT ON COLUMN push_subscription.endpoint        IS '알림 주소';
+COMMENT ON COLUMN push_subscription.p256dh IS 'VAPID P-256 DH 공개키';
+COMMENT ON COLUMN push_subscription.auth    IS 'VAPID 인증 시크릿';
+COMMENT ON COLUMN push_subscription.created_at      IS '생성 일시';
+-- ------------------------------------------------------------
+-- 12. complaint_edit_requests (처리자 수정 요청)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS complaint_edit_requests (
+    id              SERIAL          PRIMARY KEY,
+    complaint_id    INTEGER         NOT NULL REFERENCES complain(complain_id),
+    requester_id    INTEGER         NOT NULL REFERENCES member(member_id),
+    reason_type     VARCHAR(50)     NOT NULL,
+    detail          TEXT            DEFAULT '',
+    status          edit_request_status NOT NULL DEFAULT 'P',
+    prev_state      CHAR(1)         DEFAULT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE  complaint_edit_requests                IS '처리자 수정 요청';
+COMMENT ON COLUMN complaint_edit_requests.reason_type    IS '수정 요청 사유 유형 (처리 담당자 변경, 분류 항목 변경, 기타)';
+COMMENT ON COLUMN complaint_edit_requests.detail         IS '상세 사유';
+COMMENT ON COLUMN complaint_edit_requests.status         IS 'PENDING | APPROVED | REJECTED | COMPLETED';
+COMMENT ON COLUMN complaint_edit_requests.prev_state     IS '수정 요청 전 민원 상태 (A 또는 P) - 거절/완료 시 복원용';
+
+CREATE INDEX idx_edit_requests_complaint_id ON complaint_edit_requests(complaint_id);
+CREATE INDEX idx_edit_requests_status ON complaint_edit_requests(status);
+
+
+-- ------------------------------------------------------------
+-- 13. complaint_edit_request_reviews (관리자 승인/거절)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS complaint_edit_request_reviews (
+    id                SERIAL          PRIMARY KEY,
+    edit_request_id   INTEGER         NOT NULL REFERENCES complaint_edit_requests(id),
+    reviewer_id       INTEGER         NOT NULL REFERENCES member(member_id),
+    decision          VARCHAR(20)     NOT NULL,
+    reject_reason     TEXT,
+    reviewed_at       TIMESTAMP       NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE  complaint_edit_request_reviews              IS '관리자 수정 요청 승인/거절 기록';
+COMMENT ON COLUMN complaint_edit_request_reviews.decision     IS 'APPROVED | REJECTED';
+COMMENT ON COLUMN complaint_edit_request_reviews.reject_reason IS '거절 시 사유 (승인 시 NULL)';
+
+
+-- ------------------------------------------------------------
+-- 14. complaint_edit_history (민원 수정 이력 스냅샷)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS complaint_edit_history (
+    id                SERIAL          PRIMARY KEY,
+    edit_request_id   INTEGER         NOT NULL REFERENCES complaint_edit_requests(id),
+    complaint_id      INTEGER         NOT NULL REFERENCES complain(complain_id),
+    changed_by        INTEGER         NOT NULL REFERENCES member(member_id),
+    before_data       JSONB           NOT NULL,
+    after_data        JSONB           NOT NULL,
+    changed_at        TIMESTAMP       NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE  complaint_edit_history              IS '민원 수정 이력 (before/after 스냅샷)';
+COMMENT ON COLUMN complaint_edit_history.before_data  IS '수정 전 데이터 (title, content, location, category_id)';
+COMMENT ON COLUMN complaint_edit_history.after_data   IS '수정 후 데이터 (title, content, location, category_id)';
+
+CREATE INDEX idx_edit_history_complaint_id ON complaint_edit_history(complaint_id);
+
+
 -- ------------------------------------------------------------
 -- 인덱스
 -- ------------------------------------------------------------
@@ -273,9 +343,9 @@ INSERT INTO member (login_id, password, name, role, dept, phone, is_approved)
 VALUES (
   'superadmin',
   '$2b$10$k1.UtJ/OdgXrijhI/Qyp4OpLvBLKe76NUuu16CtfeV2WFkwkOePl6',
-  '관리자',
+  '슈퍼관리자',
   'A',
-  '관리팀',
+  '시설관리팀',
   '010-0000-0000',
   TRUE
 );

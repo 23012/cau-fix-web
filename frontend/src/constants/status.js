@@ -4,6 +4,7 @@ export const STATUS_CODE_TO_LABEL = {
   "A": "접수중",
   "P": "진행중",
   "D": "완료",
+  "R": "수정중",
 };
 
 // 라벨 → 코드 매핑
@@ -12,6 +13,7 @@ export const STATUS_LABEL_TO_CODE = {
   "접수중": "A",
   "진행중": "P",
   "완료": "D",
+  "수정중": "R",
 };
 
 export const STATUSES = ["접수전", "접수중", "진행중", "완료"];
@@ -23,6 +25,7 @@ export const STATUS_ORDER = {
   "접수중": 1,
   "진행중": 2,
   "완료": 3,
+  "수정중": 4,
 };
 
 export const STATUS_COLORS = {
@@ -30,6 +33,7 @@ export const STATUS_COLORS = {
   "접수중": "#FFC107",
   "진행중": "#63BE7B",
   "완료": "#006EB7",
+  "수정중": "#9C27B0",
 };
 
 export const STATUS_CLASS = {
@@ -37,6 +41,7 @@ export const STATUS_CLASS = {
   "접수중": "received",
   "진행중": "progress",
   "완료": "done",
+  "수정중": "edit-request",
 };
 
 /**

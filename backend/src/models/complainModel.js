@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
-const stateMap = { B: '접수전', A: '접수', P: '진행중', D: '완료', R: '수정요청' };
-const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D', '수정요청': 'R' };
+const stateMap = { B: '접수전', A: '접수', P: '진행중', D: '완료', R: '수정중' };
+const stateReverseMap = { '접수전': 'B', '접수': 'A', '진행중': 'P', '완료': 'D', '수정중': 'R' };
 
 const formatComplain = (row) => ({
   id: row.complain_id,
@@ -115,21 +115,31 @@ const complainModel = {
   },
 
   // 민원 목록 조회 - 사용자(C): 본인만
+  // 사용자에게는 '수정중(R)' 상태를 이전 상태로 보여줌
   findByMember: async (member_id) => {
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
               m.name AS member_name, m.dept AS member_dept,
-              cp.process_by, pm.name AS process_by_name
+              cp.process_by, pm.name AS process_by_name,
+              er.prev_state AS edit_prev_state
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id
        LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
        LEFT JOIN member pm ON cp.process_by = pm.member_id
+       LEFT JOIN complaint_edit_requests er ON c.complain_id = er.complaint_id AND er.status IN ('P', 'A')
        WHERE c.complain_by = $1 AND c.is_deleted = FALSE
        ORDER BY c.complain_at DESC`,
       [member_id]
     );
-    return result.rows.map(formatComplain);
+    return result.rows.map(row => {
+      const formatted = formatComplain(row);
+      // 사용자에게는 수정중 상태를 이전 상태로 표시
+      if (row.state === 'R' && row.edit_prev_state) {
+        formatted.status = stateMap[row.edit_prev_state] || formatted.status;
+      }
+      return formatted;
+    });
   },
 
   // 민원 목록 조회 - 처리자(E): 담당 카테고리만

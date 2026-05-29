@@ -214,6 +214,29 @@ const complainController = {
       }
       // 관리자(A)는 모든 민원 접근 가능
 
+      // 사용자(C)에게는 '수정중' 상태를 이전 상태로 표시
+      if (role === 'C' && complain.status === '수정중') {
+        const editRequestModel = require('../models/editRequestModel');
+        const { EDIT_REQUEST_STATUS } = require('../models/editRequestModel');
+        // PENDING 또는 APPROVED 상태의 수정 요청에서 prev_state 가져오기
+        const editReq = await editRequestModel.findPendingByComplaintId(id);
+        if (editReq && editReq.prevState) {
+          const { stateMap } = require('../models/complainModel');
+          complain.status = stateMap[editReq.prevState] || complain.status;
+        } else {
+          // APPROVED 상태도 확인
+          const pool = require('../config/db');
+          const result = await pool.query(
+            `SELECT prev_state FROM complaint_edit_requests WHERE complaint_id = $1 AND status = $2 LIMIT 1`,
+            [id, EDIT_REQUEST_STATUS.APPROVED]
+          );
+          if (result.rows[0] && result.rows[0].prev_state) {
+            const { stateMap } = require('../models/complainModel');
+            complain.status = stateMap[result.rows[0].prev_state] || complain.status;
+          }
+        }
+      }
+
       const process = await complainModel.findProcess(id);
       const images = await complainModel.findImages(id);
       let processImages = [];

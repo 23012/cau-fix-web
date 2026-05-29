@@ -2,120 +2,108 @@
 
 ## Introduction
 
-처리자가 민원 처리 플랫폼에서 접수중/진행중 상태의 민원에 대해 수정 요청을 제출하고, 관리자가 해당 요청을 승인 또는 거절할 수 있는 프론트엔드 기능을 추가한다. 기존에는 처리자가 관리자에게 개인 연락처로 문의해야 했던 프로세스를 플랫폼 내에서 처리할 수 있도록 개선한다.
+처리자 수정 요청 기능은 민원 처리자가 이미 접수/진행 중인 민원의 내용 수정을 관리자에게 요청하고, 관리자가 이를 승인 또는 거절할 수 있는 워크플로우를 제공한다. 승인 후 처리자가 실제 민원을 수정하면 변경 전후 스냅샷이 이력으로 기록된다. 승인/거절 결과는 처리자와 민원인 모두에게 Web Push 및 인앱 알림으로 전달된다.
 
 ## Glossary
 
-- **Edit_Request_Modal**: 처리자가 수정 요청 사유를 입력하는 모달 컴포넌트
-- **Rejection_Modal**: 관리자가 거절 사유를 입력하는 모달 컴포넌트
-- **Detail_Menu**: 민원 상세 페이지의 더보기(⋮) 버튼 클릭 시 표시되는 드롭다운 메뉴 컴포넌트
-- **Complaint_Detail_Page**: 민원 상세 정보를 표시하는 페이지 컴포넌트
-- **Edit_Request_Section**: 관리자 민원 상세 페이지에 표시되는 수정 요청 사유 확인 영역
-- **Notification_Component**: 알림 메시지를 동적으로 표시하는 컴포넌트
-- **Handler**: 민원을 처리하는 역할의 사용자 (처리자)
-- **Admin**: 시설관리팀 소속으로 민원을 관리하는 역할의 사용자 (관리자)
-- **Edit_Request_API**: 수정 요청 관련 백엔드 API 엔드포인트 집합
+- **System**: 민원 관리 웹 애플리케이션 (React 19 프론트엔드 + Node.js/Express 백엔드 + PostgreSQL)
+- **Processor**: 민원 처리자 (role = 'E')
+- **Admin**: 관리자 (role = 'A')
+- **Complainant**: 민원인 (role = 'C')
+- **Edit_Request**: complaint_edit_requests 테이블에 저장되는 수정 요청 레코드
+- **Review**: complaint_edit_request_reviews 테이블에 저장되는 관리자 승인/거절 결정 레코드
+- **Edit_History**: complaint_edit_history 테이블에 저장되는 수정 전후 스냅샷 레코드
+- **Complaint**: complain 테이블에 저장되는 민원 레코드
+- **Web_Push**: VAPID 기반 Web Push 알림
+- **In_App_Notification**: push_notification 테이블에 저장되는 인앱 알림
 
 ## Requirements
 
-### Requirement 1: 처리자 수정 요청 메뉴 표시
+### Requirement 1: 수정 요청 상태 관리
 
-**User Story:** As a Handler, I want to see an "수정 요청" menu item in the detail menu, so that I can initiate a complaint edit request from the platform.
-
-#### Acceptance Criteria
-
-1. WHILE the complaint status is "접수중" or "진행중", AND the logged-in user is a Handler who has the complaint in their processing list, THE Detail_Menu SHALL display the "수정 요청" menu item
-2. WHILE the complaint status is not "접수중" and not "진행중", THE Detail_Menu SHALL hide the "수정 요청" menu item even if the logged-in user is a Handler who has the complaint in their processing list
-3. WHEN the Handler clicks the more(⋮) button on the Complaint_Detail_Page, THE Detail_Menu SHALL render the dropdown menu within 200ms containing the "수정 요청" option if the complaint status is "접수중" or "진행중" and the complaint is in the Handler's processing list
-4. IF the Handler does not have the complaint in their processing list, THEN THE Detail_Menu SHALL display the "내 처리현황에 추가" menu item instead of the "수정 요청" menu item
-5. WHEN the Handler clicks outside the Detail_Menu or selects a menu item, THE Detail_Menu SHALL close the dropdown menu
-
-### Requirement 2: 수정 요청 사유 입력 모달
-
-**User Story:** As a Handler, I want to enter a reason for my edit request through a modal form, so that the admin can understand why the complaint needs modification.
+**User Story:** As a Processor, I want the complaint status to change to "수정요청(R)" when I submit an edit request, so that all stakeholders can see the complaint is pending modification.
 
 #### Acceptance Criteria
 
-1. WHEN the Handler clicks the "수정 요청" menu item, THE Edit_Request_Modal SHALL render with a radio button group containing three options: "담당자 변경", "카테고리 변경 요청", "기타"
-2. WHEN the Handler selects "카테고리 변경 요청" radio option, THE Edit_Request_Modal SHALL display a category selection dropdown below the radio group, populated with the system category list retrieved from GET /api/categories excluding the complaint's current category
-3. WHEN the Handler selects "기타" radio option, THE Edit_Request_Modal SHALL display a textarea input field below the radio group with a maximum input length of 500 characters
-4. WHEN the Handler selects "담당자 변경" radio option, THE Edit_Request_Modal SHALL not display additional input fields
-5. IF no radio option is selected, THEN THE Edit_Request_Modal SHALL disable the submit button
-6. IF "카테고리 변경 요청" is selected and no category is chosen from the dropdown, THEN THE Edit_Request_Modal SHALL disable the submit button
-7. IF "기타" is selected and the textarea is empty or contains only whitespace characters, THEN THE Edit_Request_Modal SHALL disable the submit button
-8. WHILE the category list API call is in progress after selecting "카테고리 변경 요청", THE Edit_Request_Modal SHALL display a loading state in the dropdown until categories are loaded
+1. WHEN Processor submits an edit request for a Complaint, THE System SHALL change the Complaint state to 'R' (수정요청).
+2. WHILE a Complaint is in state 'R', THE System SHALL prevent Processor from submitting another edit request for the same Complaint.
+3. WHILE a Complaint is in state 'R', THE System SHALL display "수정요청" as the status label in the complaint list and detail views.
 
-### Requirement 3: 수정 요청 제출
+### Requirement 2: 수정 요청 제출
 
-**User Story:** As a Handler, I want to submit my edit request, so that the admin receives and reviews it.
+**User Story:** As a Processor, I want to submit an edit request with a reason, so that the admin can understand why the complaint needs modification.
 
 #### Acceptance Criteria
 
-1. WHEN the Handler clicks the submit button with valid input, THE Edit_Request_Modal SHALL call POST /api/complaints/:id/edit-request with the selected reason type and detail content
-2. WHEN the API call succeeds, THE Complaint_Detail_Page SHALL display a confirmation alert with the message "수정 요청이 완료되었습니다. 관리자가 요청을 완료할 때까지 대기 바랍니다." for 3 seconds before automatically dismissing
-3. WHEN the API call succeeds, THE Edit_Request_Modal SHALL close
-4. IF the API call fails, THEN THE Edit_Request_Modal SHALL display an error message indicating the submission failure to the Handler without closing the modal and without clearing the previously entered form data
-5. IF the Handler clicks the submit button while a previous submission is still in progress, THEN THE Edit_Request_Modal SHALL not send a duplicate API request
+1. WHEN Processor submits an edit request, THE System SHALL store the request in the complaint_edit_requests table with complaint_id, requester_id, reason_type, detail, and status 'PENDING'.
+2. THE System SHALL require reason_type to be provided when creating an Edit_Request.
+3. WHILE a Complaint is in state 'B' (접수전), THE System SHALL reject edit request submissions for that Complaint.
+4. WHILE a Complaint is in state 'D' (완료), THE System SHALL reject edit request submissions for that Complaint.
+5. IF an Edit_Request with status 'PENDING' already exists for the same Complaint, THEN THE System SHALL reject the new submission with a conflict error.
 
-### Requirement 4: 관리자 수정 요청 사유 확인 섹션
+### Requirement 3: 관리자 승인/거절 처리
 
-**User Story:** As an Admin, I want to view the edit request details on the complaint detail page, so that I can make an informed decision on whether to approve or reject the request.
-
-#### Acceptance Criteria
-
-1. WHEN a complaint has a pending edit request, THE Complaint_Detail_Page SHALL display the Edit_Request_Section with the request reason type ("담당자 변경", "카테고리 변경 요청", or "기타"), the detail content (selected category or free-text reason), and the request submission timestamp
-2. IF the user role is Admin, THEN THE Edit_Request_Section SHALL display an "승인" button and a "거절" button
-3. WHILE the user role is not Admin, THE Edit_Request_Section SHALL hide the "승인" and "거절" buttons but still display the request reason, detail content, and timestamp as read-only
-4. WHEN the Admin navigates to the complaint detail page, THE Complaint_Detail_Page SHALL call GET /api/complaints/:id/edit-request to fetch the edit request data
-5. IF the complaint has no pending edit request, THEN THE Complaint_Detail_Page SHALL not display the Edit_Request_Section
-6. IF the GET /api/complaints/:id/edit-request API call fails, THEN THE Complaint_Detail_Page SHALL display an error message indicating that the edit request data could not be loaded
-
-### Requirement 5: 관리자 수정 요청 승인 처리
-
-**User Story:** As an Admin, I want to approve an edit request, so that the complaint can be modified according to the handler's request.
+**User Story:** As an Admin, I want to approve or reject edit requests, so that I can control which complaints are allowed to be modified.
 
 #### Acceptance Criteria
 
-1. WHEN the Admin clicks the "승인" button, THE Complaint_Detail_Page SHALL call POST /api/complaints/:id/edit-request/approve
-2. WHILE the approval API call is in progress, THE Complaint_Detail_Page SHALL disable the "승인" button and the "거절" button to prevent duplicate submissions
-3. WHEN the approval API call succeeds, THE Complaint_Detail_Page SHALL navigate to the complaint edit page (/complaint/:id/edit) regardless of the edit request reason type ("담당자 변경", "카테고리 변경 요청", or "기타")
-4. IF the approval API call fails, THEN THE Complaint_Detail_Page SHALL display an error message indicating that the approval could not be processed, and SHALL re-enable the "승인" and "거절" buttons
-5. IF the approval API call returns a conflict status indicating the edit request has already been processed, THEN THE Complaint_Detail_Page SHALL display an error message indicating the request was already handled and SHALL refresh the edit request section
+1. WHEN Admin approves an Edit_Request, THE System SHALL create a Review record in complaint_edit_request_reviews with decision 'APPROVED', reviewer_id, and reviewed_at timestamp.
+2. WHEN Admin rejects an Edit_Request, THE System SHALL create a Review record in complaint_edit_request_reviews with decision 'REJECTED', reviewer_id, reject_reason, and reviewed_at timestamp.
+3. WHEN Admin approves an Edit_Request, THE System SHALL update the Edit_Request status from 'PENDING' to 'APPROVED'.
+4. WHEN Admin rejects an Edit_Request, THE System SHALL update the Edit_Request status from 'PENDING' to 'REJECTED'.
+5. WHEN Admin rejects an Edit_Request, THE System SHALL revert the Complaint state from 'R' to the previous state before the edit request was submitted.
+6. THE System SHALL restrict edit request review actions to users with Admin role only.
 
-### Requirement 6: 관리자 수정 요청 거절 처리
+### Requirement 4: 승인 후 민원 수정 및 이력 기록
 
-**User Story:** As an Admin, I want to reject an edit request with a reason, so that the handler understands why the request was denied.
-
-#### Acceptance Criteria
-
-1. WHEN the Admin clicks the "거절" button, THE Rejection_Modal SHALL render with a textarea for entering the rejection reason
-2. WHILE the Rejection_Modal is open, THE Rejection_Modal SHALL display a "취소" button and a "완료" button
-3. IF the rejection reason textarea is empty or contains only whitespace characters, THEN THE Rejection_Modal SHALL disable the "완료" button
-4. WHEN the Admin clicks the "완료" button with a rejection reason containing at least 1 non-whitespace character and at most 500 characters, THE Rejection_Modal SHALL call POST /api/complaints/:id/edit-request/reject with the rejection reason
-5. WHEN the rejection API call succeeds, THE Complaint_Detail_Page SHALL navigate to the complaint list page
-6. WHEN the Admin clicks the "취소" button, THE Rejection_Modal SHALL close without making an API call
-7. IF the rejection API call fails, THEN THE Rejection_Modal SHALL display an error message indicating the rejection could not be processed, retain the entered rejection reason, and remain open
-8. WHILE the rejection API call is in progress, THE Rejection_Modal SHALL disable the "완료" button to prevent duplicate submissions
-
-### Requirement 7: 알림 메시지 동적 표시
-
-**User Story:** As a user of the platform, I want to receive contextual notifications about edit request status changes, so that I stay informed about complaint modifications.
+**User Story:** As a Processor, I want to edit the complaint after approval and have the changes recorded, so that there is an audit trail of all modifications.
 
 #### Acceptance Criteria
 
-1. WHEN an edit request is approved by the Admin, THE Notification_Component SHALL persist a notification with the message "{민원제목}이(가) 처리자 요청에 의해 {사유} 처리 되었습니다." to the complaint reporter within 5 seconds of the approval action
-2. WHEN an edit request is approved, THE Notification_Component SHALL persist a notification with the message "{민원제목} 수정 완료 되었습니다." to the Handler who submitted the edit request within 5 seconds of the approval action
-3. WHEN an edit request is rejected, THE Notification_Component SHALL persist a notification with the message "{민원제목} 수정 요청이 거절되었습니다. 사유: {거절사유}" to the Handler who submitted the edit request within 5 seconds of the rejection action
-4. WHEN a new edit request is submitted by a Handler, THE Notification_Component SHALL persist a notification with the message "{민원제목}이(가) 수정 요청 되었습니다." to the Admin within 5 seconds of the submission
+1. WHILE an Edit_Request status is 'APPROVED', THE System SHALL allow Processor to modify the associated Complaint fields (title, content, location, category).
+2. WHEN Processor saves modifications to an approved Complaint, THE System SHALL create an Edit_History record in complaint_edit_history containing the before-snapshot and after-snapshot of modified fields.
+3. WHEN Processor completes the modification, THE System SHALL change the Complaint state from 'R' back to the previous state (접수 or 진행중).
+4. WHEN Processor completes the modification, THE System SHALL update the Edit_Request status from 'APPROVED' to 'COMPLETED'.
+5. THE System SHALL store the Edit_History record with edit_request_id, complaint_id, changed_by, before_data (JSON), after_data (JSON), and changed_at timestamp.
 
-### Requirement 8: 수정 요청 모달 UI 상호작용
+### Requirement 5: 수정 요청 제출 시 관리자 알림
 
-**User Story:** As a Handler, I want the edit request modal to provide clear visual feedback, so that I can complete the form without confusion.
+**User Story:** As an Admin, I want to receive notifications when a processor submits an edit request, so that I can review it promptly.
 
 #### Acceptance Criteria
 
-1. WHEN the Handler opens the Edit_Request_Modal, THE Edit_Request_Modal SHALL display with no radio option pre-selected and the submit button disabled
-2. WHEN the Handler selects a different radio option, THE Edit_Request_Modal SHALL clear any previously entered detail content (reset category selection to unselected state and clear textarea text to empty string)
-3. WHEN the Handler clicks the overlay area outside the Edit_Request_Modal or clicks the close button (X), THE Edit_Request_Modal SHALL close without submitting and discard any unsaved input
-4. WHILE an API call for the edit request submission is in progress, THE Edit_Request_Modal SHALL disable the submit button and display a loading indicator until the API call completes or fails
-5. IF the edit request API call fails, THEN THE Edit_Request_Modal SHALL re-enable the submit button, hide the loading indicator, and display an error message indicating the submission failure
+1. WHEN Processor submits an Edit_Request, THE System SHALL create an In_App_Notification for all Admin users with the complaint title and "수정 요청" context.
+2. WHEN Processor submits an Edit_Request, THE System SHALL send a Web_Push notification to all Admin users containing the complaint title and edit request information.
+
+### Requirement 6: 승인/거절 시 처리자 및 민원인 알림
+
+**User Story:** As a Processor and Complainant, I want to be notified when an edit request is approved or rejected, so that I know the outcome and can take appropriate action.
+
+#### Acceptance Criteria
+
+1. WHEN Admin approves an Edit_Request, THE System SHALL create an In_App_Notification for the Processor who submitted the request with approval message.
+2. WHEN Admin approves an Edit_Request, THE System SHALL create an In_App_Notification for the Complainant who owns the Complaint with approval message.
+3. WHEN Admin approves an Edit_Request, THE System SHALL send a Web_Push notification to the Processor and the Complainant.
+4. WHEN Admin rejects an Edit_Request, THE System SHALL create an In_App_Notification for the Processor who submitted the request with rejection reason.
+5. WHEN Admin rejects an Edit_Request, THE System SHALL create an In_App_Notification for the Complainant who owns the Complaint with rejection message.
+6. WHEN Admin rejects an Edit_Request, THE System SHALL send a Web_Push notification to the Processor and the Complainant.
+
+### Requirement 7: DB 스키마 - complaint_edit_request_reviews
+
+**User Story:** As a system administrator, I want a dedicated table for review decisions, so that approval/rejection history is properly tracked.
+
+#### Acceptance Criteria
+
+1. THE System SHALL maintain a complaint_edit_request_reviews table with columns: id (PK), edit_request_id (FK to complaint_edit_requests), reviewer_id (FK to member), decision (APPROVED or REJECTED), reject_reason (nullable text), and reviewed_at (timestamp).
+2. THE System SHALL enforce a foreign key constraint from edit_request_id to complaint_edit_requests.id.
+3. THE System SHALL enforce a foreign key constraint from reviewer_id to member.member_id.
+
+### Requirement 8: DB 스키마 - complaint_edit_history
+
+**User Story:** As a system administrator, I want a dedicated table for edit history snapshots, so that all complaint modifications are auditable.
+
+#### Acceptance Criteria
+
+1. THE System SHALL maintain a complaint_edit_history table with columns: id (PK), edit_request_id (FK to complaint_edit_requests), complaint_id (FK to complain), changed_by (FK to member), before_data (JSONB), after_data (JSONB), and changed_at (timestamp, default NOW()).
+2. THE System SHALL enforce foreign key constraints from edit_request_id, complaint_id, and changed_by to their respective parent tables.
+3. THE System SHALL store before_data and after_data as JSONB containing the modified complaint fields (title, content, location, category_id).

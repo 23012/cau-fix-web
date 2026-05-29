@@ -540,7 +540,6 @@
   padding: 20px;
   background: #f8f9fa;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
 }
 
 .edit-request-section-title {
@@ -592,23 +591,6 @@
 
 .edit-request-btn.reject:hover:not(:disabled) {
   opacity: 0.85;
-}
-
-/* 수정 요청 제출 성공 알림 */
-.edit-request-alert {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #4caf50;
-  color: white;
-  padding: 14px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 10000;
-  animation: slideDown 0.3s ease;
 }
 
 @keyframes slideDown {
