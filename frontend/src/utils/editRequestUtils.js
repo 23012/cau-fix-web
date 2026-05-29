@@ -132,10 +132,12 @@ export function getEditRequestSectionVisibility(editRequest, userRole) {
   }
 
   const isAdmin = userRole === '관리자';
+  // PENDING 상태일 때만 승인/거절 버튼 표시
+  const isPending = editRequest.status === 'P';
 
   return {
     showSection: true,
-    showButtons: isAdmin,
+    showButtons: isAdmin && isPending,
   };
 }
 

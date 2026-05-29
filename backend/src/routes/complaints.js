@@ -34,4 +34,13 @@ router.post('/:id/edit-request', authMiddleware, editRequestController.submit);
 // 수정 요청 조회
 router.get('/:id/edit-request', authMiddleware, editRequestController.get);
 
+// 수정 요청 승인 (관리자)
+router.post('/:id/edit-request/approve', authMiddleware, editRequestController.approve);
+
+// 수정 요청 거절 (관리자)
+router.post('/:id/edit-request/reject', authMiddleware, editRequestController.reject);
+
+// 수정 요청 완료 (처리자 - 담당자변경/기타)
+router.put('/:id/edit-request/complete', authMiddleware, editRequestController.completeEdit);
+
 module.exports = router;

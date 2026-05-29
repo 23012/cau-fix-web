@@ -32,6 +32,15 @@ const PushPopup = ({ onClose }) => {
         <PushComplainView
           data={selectedComplain}
           onBack={() => setSelectedComplain(null)}
+          onRefresh={async () => {
+            try {
+              const result = await getComplaintDetail(selectedComplain.id);
+              setSelectedComplain({
+                ...result.complain,
+                status: normalizeStatus(result.complain.status),
+              });
+            } catch {}
+          }}
         />
       </div>
     );

@@ -32,6 +32,8 @@ export default function useEditRequest(complaintId) {
     setError(null);
     try {
       await approveEditRequest(complaintId);
+      // 승인 성공 후 수정 요청 데이터 갱신 (status가 APPROVED로 변경됨)
+      await fetchEditRequest();
     } catch (err) {
       if (err.status === 409) {
         setError("이미 처리된 요청입니다.");

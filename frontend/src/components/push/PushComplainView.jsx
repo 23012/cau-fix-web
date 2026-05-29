@@ -4,16 +4,18 @@ import ProgressBar from "../detail/ProgressBar";
 import Status from "../common/Status";
 import ImagePreview from "../common/ImagePreview";
 import RejectionModal from "../detail/RejectionModal";
+import EditComplaintPopup from "../detail/EditComplaintPopup";
 import useEditRequest from "../../hooks/useEditRequest";
 import { STATUS_CODE_TO_LABEL } from "../../constants/status";
 import { parseExcelDate } from "../../utils/parseExcelDate";
 import "./PushComplainView.css";
 
-const PushComplainView = ({ data, onBack }) => {
+const PushComplainView = ({ data, onBack, onRefresh }) => {
   const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const user = useMemo(() => {
     const stored = localStorage.getItem("user");
@@ -71,7 +73,18 @@ const PushComplainView = ({ data, onBack }) => {
         {editRequest && (
           <div className="pcv-edit-request-reason">
             <span className="pcv-edit-request-reason-text">
-              {editRequest.reasonType}
+              {editRequest.reasonType === '분류 항목 변경' && (
+                <>분류항목변경 : {editRequest.detail || '-'}</>
+              )}
+              {editRequest.reasonType === '기타' && (
+                <>기타 : {editRequest.detail || '-'}</>
+              )}
+              {editRequest.reasonType === '처리 담당자 변경' && (
+                <>처리 담당자 변경</>
+              )}
+              {!['분류 항목 변경', '기타', '처리 담당자 변경'].includes(editRequest.reasonType) && (
+                <>{editRequest.reasonType}</>
+              )}
             </span>
           </div>
         )}
@@ -133,8 +146,14 @@ const PushComplainView = ({ data, onBack }) => {
               onClick={async () => {
                 try {
                   await approve();
-                  alert("수정 요청이 승인되었습니다.");
                   refetchEditRequest();
+                  onRefresh?.();
+                  // 담당자 변경 또는 기타면 수정 폼 표시
+                  if (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') {
+                    setShowEditForm(true);
+                  } else {
+                    alert("수정 요청이 승인되었습니다.");
+                  }
                 } catch (err) {}
               }}
               disabled={approving}
@@ -154,6 +173,22 @@ const PushComplainView = ({ data, onBack }) => {
 
       <ImagePreview src={previewImage} alt="민원 사진" onClose={() => setPreviewImage(null)} />
 
+      {/* 승인 후 민원 수정 폼 (담당자 변경 / 기타) */}
+      {showEditForm && (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') && (
+        <EditComplaintPopup
+          isOpen={true}
+          onClose={() => setShowEditForm(false)}
+          complaintId={data.id}
+          editRequest={editRequest}
+          currentData={data}
+          onComplete={async () => {
+            setShowEditForm(false);
+            refetchEditRequest();
+            onRefresh?.();
+          }}
+        />
+      )}
+
       {/* 거절 모달 */}
       <RejectionModal
         isOpen={rejectionModalOpen}
@@ -162,6 +197,7 @@ const PushComplainView = ({ data, onBack }) => {
         onSuccess={() => {
           setRejectionModalOpen(false);
           refetchEditRequest();
+          onRefresh?.();
           alert("수정 요청이 거절되었습니다.");
         }}
       />

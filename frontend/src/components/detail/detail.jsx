@@ -12,6 +12,7 @@ import ProcessForm from "./ProcessForm";
 import LoadingPopup from "../common/LoadingPopup";
 import EditRequestModal from "./EditRequestModal";
 import EditRequestSection from "./EditRequestSection";
+import EditComplaintPopup from "./EditComplaintPopup";
 import RejectionModal from "./RejectionModal";
 import { useState, useMemo } from "react";
 import useCategories from "../../hooks/useCategories";
@@ -47,6 +48,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // 수정 요청 모달 상태
   const [editRequestModalOpen, setEditRequestModalOpen] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   // 수정 모드
   const [editMode, setEditMode] = useState(false);
@@ -313,7 +315,13 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
               onApprove={async () => {
                 try {
                   await approve();
-                  navigate(`/complaint/${data.id}/edit`);
+                  await refetch();
+                  refetchEditRequest();
+                  onUpdate?.({ ...data, status: displayData.status });
+                  // 담당자 변경 또는 기타면 수정 폼 표시
+                  if (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') {
+                    setShowEditForm(true);
+                  }
                 } catch (err) {
                   // 에러는 useEditRequest 훅에서 처리됨
                 }
@@ -321,7 +329,26 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
               onReject={() => setRejectionModalOpen(true)}
             />
           )}
+
+          {/* 승인된 수정 요청: 민원 수정 폼 (담당자 변경 / 기타) */}
         </>
+      )}
+
+      {/* 승인된 수정 요청: 민원 수정 폼 - 담당자 변경/기타 시 승인 버튼 누르면 표시 */}
+      {showEditForm && (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') && (
+        <EditComplaintPopup
+          isOpen={true}
+          onClose={() => setShowEditForm(false)}
+          complaintId={data.id}
+          editRequest={editRequest}
+          currentData={displayData}
+          onComplete={async () => {
+            setShowEditForm(false);
+            await refetch();
+            refetchEditRequest();
+            onUpdate?.({ ...data, status: displayData.status });
+          }}
+        />
       )}
 
       {/* 처리자 + 접수전: 접수하기 버튼 */}
@@ -332,7 +359,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
               await updateComplaintState(data.id, 'A');
               await refetch();
               onUpdate?.({ ...data, resultPersonId: user?.member_id, resultPerson: user?.name, status: "접수" });
-              alert("접수가 완료되었습니다. 내 처리함에서 확인하세요.");
+              alert("접수가 완료되었습니다.\n내 처리함에서 확인하세요.");
               setActiveTab("result");
             } catch (err) {
               alert(err.message || "접수 처리 중 오류가 발생했습니다.");
@@ -420,6 +447,8 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         onSuccess={() => {
           setEditRequestModalOpen(false);
           refetchEditRequest();
+          refetch();
+          onUpdate?.({ ...data, status: "수정중" });
           alert("수정 요청이 완료되었습니다.");
         }}
       />
