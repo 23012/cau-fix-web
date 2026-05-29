@@ -8,7 +8,6 @@ import ProgressBar from "./ProgressBar";
 import ConfirmPopup from "./ConfirmPopup";
 import DetailContent from "./DetailContent";
 import DetailResult from "./DetailResult";
-import StatusChangePopup from "./StatusChangePopup";
 import ProcessForm from "./ProcessForm";
 import LoadingPopup from "../common/LoadingPopup";
 import EditRequestModal from "./EditRequestModal";
@@ -21,7 +20,7 @@ import useEditRequest from "../../hooks/useEditRequest";
 import { updateComplaint, deleteComplaint, updateComplaintState, createProcess, uploadProcessImages, deleteComplainImage } from "../../services/complainService";
 import { getMemberProfile } from "../../services/memberService";
 import { formatDate } from "../../utils/formatDate";
-import { STATUS_LABEL_TO_CODE } from "../../constants/status";
+import { STATUS_LABEL_TO_CODE, STATUS_CODE_TO_LABEL } from "../../constants/status";
 import useImageUpload from "../../hooks/useImageUpload";
 
 /**
@@ -246,7 +245,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   // --- 읽기 모드 렌더링 ---
   return (
     <FormPopup isOpen={true} onClose={onClose} hideSubmit>
-      {showProgress && <ProgressBar status={data.status} />}
+      {showProgress && <ProgressBar status={editRequest?.prevState ? (STATUS_CODE_TO_LABEL[editRequest.prevState] || data.status) : data.status} />}
 
       <div className="detail-tabs">
         <button className={`detail-tab ${activeTab === "content" ? "active" : ""}`} onClick={() => setActiveTab("content")}>민원 내용</button>
@@ -403,10 +402,6 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       {/* 이미 내 민원 / 다른 담당자 */}
       <ConfirmPopup isOpen={showAlreadyMine} message={<>{data.resultPerson || user?.name} 님이 담당자입니다.<br />내 폴더에서 확인 바랍니다.</>} onConfirm={() => setShowAlreadyMine(false)} />
       <ConfirmPopup isOpen={showHasOtherPerson} message={<>이미 담당자({data.resultPerson})가 배정되어 있어<br />내 폴더에 추가할 수 없습니다.</>} onConfirm={() => setShowHasOtherPerson(false)} />
-
-      {/* 상태 변경 */}
-      <StatusChangePopup isOpen={showStatusChange} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onCancel={() => { setShowStatusChange(false); setSelectedStatus(""); }} onNext={handleStatusNext} />
-      <ConfirmPopup isOpen={showStatusSuccess} message="민원 진행 상태가 변경되었습니다." onConfirm={() => setShowStatusSuccess(false)} />
 
       {/* 처리 내용 작성 */}
       <ProcessForm isOpen={showProcessForm} content={processContent} setContent={setProcessContent} onCancel={() => setShowProcessForm(false)} onSubmit={handleProcessSubmit} />

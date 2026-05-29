@@ -56,7 +56,7 @@ const EditRequestSection = ({ editRequest, isAdmin, approving, onApprove, onReje
             onClick={onReject}
             disabled={approving}
           >
-            거절
+            반려
           </button>
         </div>
       )}

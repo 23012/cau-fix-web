@@ -116,3 +116,70 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+.edit-title{
+  font-size : 16px;
+  font-weight : 700;
+  margin-top : 10px;
+}
+/* 수정 요청 사유  */
+.pcv-edit-request-reason {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 12px 0 4px;
+  background: var(--back-color);
+  border-radius: 8px;
+}
+
+
+.pcv-edit-request-reason-text {
+  font-size: 16px;
+  color: var(--warning);
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+/* 수정 요청 승인/거절 버튼 */
+.pcv-edit-request-actions {
+  display: flex;
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  gap : 10px;
+}
+
+.pcv-edit-request-btn {
+  padding: 6px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.pcv-edit-request-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pcv-edit-request-btn.approve {
+  background: var(--main-color);
+  color: white;
+}
+
+.pcv-edit-request-btn.approve:hover:not(:disabled) {
+  background: #75c1f4;
+}
+
+.pcv-edit-request-btn.reject {
+  background: #e53935;
+  color: white;
+}
+
+.pcv-edit-request-btn.reject:hover:not(:disabled) {
+  background: rgb(254, 183, 183);
+}
