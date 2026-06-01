@@ -42,6 +42,17 @@ const EditRequestSection = ({ editRequest, isAdmin, approving, onApprove, onReje
         <div className="detail-value">{formatDateTime(editRequest.createdAt)}</div>
       </div>
 
+      <div className="detail-row">
+        <div className="detail-value">
+          {(editRequest.reasonType === '처리 담당자 변경') && (
+                <>{''}</>
+          )}
+          {(editRequest.reasonType === '기타' || editRequest.reasonType === '분류 항목 변경') && (
+                <>{editRequest.detail}</>
+          )}
+        </div>
+      </div>
+
       {showButtons && (
         <div className="edit-request-actions">
           <button
