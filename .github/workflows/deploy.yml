@@ -1,28 +1,133 @@
-name: Deploy to Production
+name: CI/CD Pipeline
 
-# 수동 실행만 가능 (CI/CD 재구성 전까지 비활성화)
 on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
-env:
-
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 18 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 프론트엔드 의존성 설치 및 빌드
+        run: cd frontend && npm install && npm run build
+
+      - name: 백엔드 의존성 설치
+        run: cd backend && npm install
 
   deploy:
-    runs-on: self-hosted  # 로컬 서버 runner
-    needs: build
+    runs-on: self-hosted
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        shell: powershell
     steps:
-      - name: .env 생성
+      - name: 시크릿 검증
         run: |
-          echo "DB_NAME=${{ secrets.DB_NAME }}" > C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> C:\Users\Administrator\Documents\cau-fix\cau-fix-web\.env
+          $secrets = @{
+            "DB_NAME" = "${{ secrets.DB_NAME }}"
+            "DB_USER" = "${{ secrets.DB_USER }}"
+            "DB_PASSWORD" = "${{ secrets.DB_PASSWORD }}"
+            "JWT_SECRET" = "${{ secrets.JWT_SECRET }}"
+          }
+          $missing = @()
+          foreach ($key in $secrets.Keys) {
+            if ([string]::IsNullOrEmpty($secrets[$key])) {
+              $missing += $key
+            }
+          }
+          if ($missing.Count -gt 0) {
+            Write-Error "Missing secrets: $($missing -join ', ')"
+            exit 1
+          }
+          Write-Host "All required secrets are configured."
 
-      - name: 배포
+      - name: 코드 업데이트
+        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+        run: git pull origin main
+
+      - name: 환경변수 파일 생성
+        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
         run: |
-          cd C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+          $envContent = @(
+            "DB_NAME=${{ secrets.DB_NAME }}"
+            "DB_USER=${{ secrets.DB_USER }}"
+            "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            "JWT_SECRET=${{ secrets.JWT_SECRET }}"
+          )
+          $envContent | Set-Content -Path ".env" -Encoding UTF8
+          Write-Host ".env file created successfully."
+
+      - name: 백엔드 의존성 설치
+        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+        run: |
+          Set-Location backend
+          npm install
+          Write-Host "Backend dependencies installed successfully."
+
+      - name: 프론트엔드 의존성 설치 및 빌드
+        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+        run: |
+          Set-Location frontend
+          npm install
+          npm run build
+          Write-Host "Frontend build completed successfully."
+
+      - name: PM2 백엔드 재시작
+        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+        run: |
+          $processList = pm2 jlist 2>$null | ConvertFrom-Json
+          $backendProcess = $processList | Where-Object { $_.name -eq "cau-fix-backend" }
+          if ($backendProcess) {
+            Write-Host "PM2 process 'cau-fix-backend' found. Reloading..."
+            pm2 reload cau-fix-backend
+          } else {
+            Write-Host "PM2 process 'cau-fix-backend' not found. Starting with ecosystem.config.js..."
+            pm2 start ecosystem.config.js
+          }
+          Write-Host "Backend service updated successfully."
+
+      - name: nginx 설정 배포 및 reload
+        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
+        run: |
+          $nginxConfSource = "nginx\nginx.prod.conf"
+          $nginxConfDest = "C:\nginx\conf\nginx.conf"
+          $nginxConfBackup = "C:\nginx\conf\nginx.conf.bak"
+
+          # 기존 설정 백업
+          if (Test-Path $nginxConfDest) {
+            Copy-Item -Path $nginxConfDest -Destination $nginxConfBackup -Force
+            Write-Host "Existing nginx config backed up."
+          }
+
+          # 새 설정 파일 복사
+          Copy-Item -Path $nginxConfSource -Destination $nginxConfDest -Force
+          Write-Host "nginx config copied to $nginxConfDest"
+
+          # 설정 파일 문법 검증
+          $testResult = & nginx -t 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "nginx config validation passed."
+            & nginx -s reload
+            Write-Host "nginx reloaded successfully."
+          } else {
+            Write-Host "nginx config validation FAILED:"
+            Write-Host $testResult
+            # 검증 실패 시 백업에서 기존 설정 복원
+            if (Test-Path $nginxConfBackup) {
+              Copy-Item -Path $nginxConfBackup -Destination $nginxConfDest -Force
+              Write-Host "Restored previous nginx config from backup."
+            }
+            exit 1
+          }
