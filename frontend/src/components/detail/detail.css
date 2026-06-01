@@ -602,3 +602,27 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+
+/* 반려 사유 (모바일 알림 상세) */
+.pcv-edit-request-reason {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 4px 0 12px;
+  background: var(--back-color);
+  border-radius: 8px;
+}
+
+.pcv-edit-request-reason-text {
+  font-size: 16px;
+  color: var(--warning);
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.edit-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 10px;
+}

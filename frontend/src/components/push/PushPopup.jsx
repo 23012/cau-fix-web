@@ -4,16 +4,28 @@ import usePush from "../../hooks/usePush";
 import PushItem from "./PushItem";
 import PushComplainView from "./PushComplainView";
 import { getComplaintDetail } from "../../services/complainService";
+import { getRejectionReason } from "../../services/editRequestService";
 import { normalizeStatus } from "../../constants/status";
 import "./PushPopup.css";
 
 const PushPopup = ({ onClose }) => {
   const { recentPush, todayPush, earlierPush, unreadCount, handleMarkAsRead, handleMarkAllAsRead } = usePush();
   const [selectedComplain, setSelectedComplain] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState(null);
 
   const handlePushClick = async (push) => {
     if (!push.read) handleMarkAsRead(push.id);
     if (!push.complainId) return;
+
+    // 반려 알림이면 거절 사유를 API에서 조회
+    let rejection = null;
+    if (push.desc && push.desc.includes("반려")) {
+      try {
+        const res = await getRejectionReason(push.complainId);
+        rejection = res.rejection?.reason || null;
+      } catch {}
+    }
+
     try {
       const result = await getComplaintDetail(push.complainId);
       const complain = {
@@ -21,8 +33,13 @@ const PushPopup = ({ onClose }) => {
         status: normalizeStatus(result.complain.status),
       };
       setSelectedComplain(complain);
+      setRejectionReason(rejection);
     } catch {
-      // 조회 실패 시 무시
+      // 조회 실패 시 — 반려 알림이면 최소 정보로 표시
+      if (rejection) {
+        setSelectedComplain({ id: push.complainId, title: push.title, status: "접수전" });
+        setRejectionReason(rejection);
+      }
     }
   };
 
@@ -31,7 +48,8 @@ const PushPopup = ({ onClose }) => {
       <div className="push-popup">
         <PushComplainView
           data={selectedComplain}
-          onBack={() => setSelectedComplain(null)}
+          rejectionReason={rejectionReason}
+          onBack={() => { setSelectedComplain(null); setRejectionReason(null); }}
           onRefresh={async () => {
             try {
               const result = await getComplaintDetail(selectedComplain.id);

@@ -10,7 +10,7 @@ import { STATUS_CODE_TO_LABEL } from "../../constants/status";
 import { parseExcelDate } from "../../utils/parseExcelDate";
 import "./PushComplainView.css";
 
-const PushComplainView = ({ data, onBack, onRefresh }) => {
+const PushComplainView = ({ data, onBack, onRefresh, rejectionReason }) => {
   const [activeTab, setActiveTab] = useState("content");
   const [imageError, setImageError] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -86,6 +86,18 @@ const PushComplainView = ({ data, onBack, onRefresh }) => {
                 {!['분류 항목 변경', '기타', '처리 담당자 변경'].includes(editRequest.reasonType) && (
                   <>{editRequest.reasonType}</>
                 )}
+              </span>
+            </div>
+          </>
+        )}
+
+        {/* 반려 사유 */}
+        {rejectionReason && (
+          <>
+            <div className="edit-title">반려 사유</div>
+            <div className="pcv-edit-request-reason">
+              <span className="pcv-edit-request-reason-text">
+                {rejectionReason}
               </span>
             </div>
           </>
@@ -192,7 +204,7 @@ const PushComplainView = ({ data, onBack, onRefresh }) => {
         />
       )}
 
-      {/* 거절 모달 */}
+      {/* 반려 모달 */}
       <RejectionModal
         isOpen={rejectionModalOpen}
         onClose={() => setRejectionModalOpen(false)}
@@ -201,7 +213,7 @@ const PushComplainView = ({ data, onBack, onRefresh }) => {
           setRejectionModalOpen(false);
           refetchEditRequest();
           onRefresh?.();
-          alert("수정 요청이 거절되었습니다.");
+          alert("수정 요청이 반려되었습니다.");
         }}
       />
     </>

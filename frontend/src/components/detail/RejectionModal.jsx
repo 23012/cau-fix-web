@@ -31,7 +31,7 @@ const RejectionModal = ({ isOpen, onClose, complaintId, onSuccess }) => {
       setError(null);
       onSuccess();
     } catch (err) {
-      setError(err.message || "거절 처리에 실패했습니다.");
+      setError(err.message || "반려 처리에 실패했습니다.");
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +50,7 @@ const RejectionModal = ({ isOpen, onClose, complaintId, onSuccess }) => {
         className="detail-confirm-popup detail-process-popup"
         onClick={(e) => e.stopPropagation()}
       >
-        <p>거절 사유</p>
+        <p>반려 사유</p>
         <textarea
           className="detail-process-textarea"
           placeholder="내용을 입력하세요"

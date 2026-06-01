@@ -210,9 +210,24 @@ const complainController = {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
       if (role === 'E' && complain.category !== dept && dept !== '전체') {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+        // 해당 민원의 처리 담당자이거나 수정 요청자이거나 알림을 받은 사람이면 접근 허용
+        const pool = require('../config/db');
+        const processCheck = await pool.query(
+          `SELECT 1 FROM complaint_process WHERE complain_id = $1 AND process_by = $2`,
+          [id, member_id]
+        );
+        const editReqCheck = await pool.query(
+          `SELECT 1 FROM complaint_edit_requests WHERE complaint_id = $1 AND requester_id = $2`,
+          [id, member_id]
+        );
+        const pushCheck = await pool.query(
+          `SELECT 1 FROM push_notification WHERE complain_id = $1 AND member_id = $2`,
+          [id, member_id]
+        );
+        if (processCheck.rows.length === 0 && editReqCheck.rows.length === 0 && pushCheck.rows.length === 0) {
+          return res.status(403).json({ message: '접근 권한이 없습니다.' });
+        }
       }
-      // 관리자(A)는 모든 민원 접근 가능
 
       // 사용자(C)에게는 '수정중' 상태를 이전 상태로 표시
       if (role === 'C' && complain.status === '수정중') {

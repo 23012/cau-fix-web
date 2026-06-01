@@ -4,6 +4,7 @@ import Header from "../../components/common/Header";
 import PushItem from "../../components/push/PushItem";
 import usePush from "../../hooks/usePush";
 import { getComplaintDetail } from "../../services/complainService";
+import { getRejectionReason } from "../../services/editRequestService";
 import { normalizeStatus } from "../../constants/status";
 import "./push-list.css";
 import "../../styles/global.css";
@@ -17,16 +18,25 @@ const PushList = () => {
 
   const handlePushClick = async (push) => {
     if (!push.complainId) return;
+
+    // 반려 알림이면 거절 사유 조회
+    let rejectionReason = null;
+    if (push.desc && push.desc.includes("반려")) {
+      try {
+        const res = await getRejectionReason(push.complainId);
+        rejectionReason = res.rejection?.reason || null;
+      } catch {}
+    }
+
     try {
       const result = await getComplaintDetail(push.complainId);
       const complain = {
         ...result.complain,
         status: normalizeStatus(result.complain.status),
       };
-      navigate("/complain-detail", { state: { data: complain, showProgress: true } });
+      navigate("/complain-detail", { state: { data: complain, showProgress: true, rejectionReason } });
     } catch {
-      // 상세 조회 실패 시 ID만으로 이동
-      navigate("/complain-detail", { state: { data: { id: push.complainId }, showProgress: true } });
+      navigate("/complain-detail", { state: { data: { id: push.complainId }, showProgress: true, rejectionReason } });
     }
   };
 

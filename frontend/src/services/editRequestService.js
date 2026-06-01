@@ -66,3 +66,12 @@ export async function completeEditRequest(complaintId, data) {
     body: JSON.stringify(data),
   });
 }
+
+/**
+ * 거절 사유 조회
+ * @param {number} complaintId - 민원 ID
+ * @returns {Promise<{rejection: {reason: string, reviewerName: string, reviewedAt: string}|null}>}
+ */
+export async function getRejectionReason(complaintId) {
+  return apiClient(`/complaints/${complaintId}/edit-request/rejection`);
+}

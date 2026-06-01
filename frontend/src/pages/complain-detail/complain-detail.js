@@ -7,6 +7,7 @@ const ComplainDetail = () => {
   const navigate = useNavigate();
   const complainData = location.state?.data;
   const showProgress = location.state?.showProgress || false;
+  const rejectionReason = location.state?.rejectionReason || null;
 
   const handleClose = () => {
     navigate(-1); // 이전 페이지로 돌아가기
@@ -19,6 +20,7 @@ const ComplainDetail = () => {
         onClose={handleClose} 
         data={complainData}
         showProgress={showProgress}
+        rejectionReason={rejectionReason}
       />
     </div>
   );

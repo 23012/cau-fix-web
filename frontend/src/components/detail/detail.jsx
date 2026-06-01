@@ -27,7 +27,7 @@ import useImageUpload from "../../hooks/useImageUpload";
 /**
  * 민원 상세 팝업 (읽기 + 수정 모드)
  */
-const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromStorage = false }) => {
+const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromStorage = false, rejectionReason = null }) => {
   const navigate = useNavigate();
   const { categories } = useCategories();
   const { detail: apiDetail, refetch } = useComplainDetail(isOpen && data?.id ? data.id : null);
@@ -248,7 +248,15 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   return (
     <FormPopup isOpen={true} onClose={onClose} hideSubmit>
       {showProgress && <ProgressBar status={editRequest?.prevState ? (STATUS_CODE_TO_LABEL[editRequest.prevState] || data.status) : data.status} />}
-
+      {/* 반려 사유 (모바일 알림에서 전달) */}
+      {rejectionReason && (
+        <div style={{ padding: '0 5px' }}>
+          <div className="edit-title">반려 사유</div>
+          <div className="pcv-edit-request-reason">
+            <span className="pcv-edit-request-reason-text">{rejectionReason}</span>
+          </div>
+        </div>
+      )}
       <div className="detail-tabs">
         <button className={`detail-tab ${activeTab === "content" ? "active" : ""}`} onClick={() => setActiveTab("content")}>민원 내용</button>
         <button className={`detail-tab ${activeTab === "result" ? "active" : ""}`} onClick={() => {

@@ -43,4 +43,7 @@ router.post('/:id/edit-request/reject', authMiddleware, editRequestController.re
 // 수정 요청 완료 (처리자 - 담당자변경/기타)
 router.put('/:id/edit-request/complete', authMiddleware, editRequestController.completeEdit);
 
+// 거절 사유 조회
+router.get('/:id/edit-request/rejection', authMiddleware, editRequestController.getRejection);
+
 module.exports = router;
