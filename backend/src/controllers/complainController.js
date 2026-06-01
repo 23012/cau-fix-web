@@ -37,7 +37,7 @@ const complainController = {
           // 웹 푸시 발송 (담당 처리자들에게)
           webPushService.sendToMembers(
             managers.map((m) => m.member_id),
-            { title: '새 민원 접수', body: `새 민원이 접수되었습니다: "${title}"`, data: { complainId: complain.id } }
+            { title: '새 민원 접수', body: `새 민원이 접수되었습니다`, data: { complainId: complain.id } }
           ).catch(() => {});
         }
       }
