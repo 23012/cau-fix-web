@@ -313,17 +313,17 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
               isAdmin={isEditor && (user?.role === "관리자" || user?.role === "admin" || user?.role === "A")}
               approving={approving}
               onApprove={async () => {
-                try {
-                  await approve();
-                  await refetch();
-                  refetchEditRequest();
-                  onUpdate?.({ ...data, status: displayData.status });
-                  // 담당자 변경 또는 기타면 수정 폼 표시
-                  if (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') {
-                    setShowEditForm(true);
-                  }
-                } catch (err) {
-                  // 에러는 useEditRequest 훅에서 처리됨
+                // 담당자 변경 또는 기타: API 호출 없이 바로 수정 폼 표시
+                if (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') {
+                  setShowEditForm(true);
+                } else {
+                  // 분류 항목 변경: 즉시 처리
+                  try {
+                    await approve();
+                    await refetch();
+                    refetchEditRequest();
+                    onUpdate?.({ ...data, status: displayData.status });
+                  } catch (err) {}
                 }
               }}
               onReject={() => setRejectionModalOpen(true)}

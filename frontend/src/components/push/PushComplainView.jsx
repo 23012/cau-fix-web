@@ -69,24 +69,26 @@ const PushComplainView = ({ data, onBack, onRefresh }) => {
 
       {/* 수정 요청 사유 */}
       <div className="pcv-body">
-        <div className = "edit-title">수정 요청 사유</div>
         {editRequest && (
-          <div className="pcv-edit-request-reason">
-            <span className="pcv-edit-request-reason-text">
-              {editRequest.reasonType === '분류 항목 변경' && (
-                <>분류항목변경 : {editRequest.detail || '-'}</>
-              )}
-              {editRequest.reasonType === '기타' && (
-                <>기타 : {editRequest.detail || '-'}</>
-              )}
-              {editRequest.reasonType === '처리 담당자 변경' && (
-                <>처리 담당자 변경</>
-              )}
-              {!['분류 항목 변경', '기타', '처리 담당자 변경'].includes(editRequest.reasonType) && (
-                <>{editRequest.reasonType}</>
-              )}
-            </span>
-          </div>
+          <>
+            <div className="edit-title">수정 요청 사유</div>
+            <div className="pcv-edit-request-reason">
+              <span className="pcv-edit-request-reason-text">
+                {editRequest.reasonType === '분류 항목 변경' && (
+                  <>분류항목변경 : {editRequest.detail || '-'}</>
+                )}
+                {editRequest.reasonType === '기타' && (
+                  <>기타 : {editRequest.detail || '-'}</>
+                )}
+                {editRequest.reasonType === '처리 담당자 변경' && (
+                  <>처리 담당자 변경</>
+                )}
+                {!['분류 항목 변경', '기타', '처리 담당자 변경'].includes(editRequest.reasonType) && (
+                  <>{editRequest.reasonType}</>
+                )}
+              </span>
+            </div>
+          </>
         )}
 
         <ProgressBar status={progressStatus} />
@@ -144,17 +146,18 @@ const PushComplainView = ({ data, onBack, onRefresh }) => {
             <button
               className="pcv-edit-request-btn approve"
               onClick={async () => {
-                try {
-                  await approve();
-                  refetchEditRequest();
-                  onRefresh?.();
-                  // 담당자 변경 또는 기타면 수정 폼 표시
-                  if (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') {
-                    setShowEditForm(true);
-                  } else {
+                // 담당자 변경 또는 기타: API 호출 없이 바로 수정 폼 표시
+                if (editRequest?.reasonType === '처리 담당자 변경' || editRequest?.reasonType === '기타') {
+                  setShowEditForm(true);
+                } else {
+                  // 분류 항목 변경: 즉시 처리
+                  try {
+                    await approve();
+                    refetchEditRequest();
+                    onRefresh?.();
                     alert("수정 요청이 승인되었습니다.");
-                  }
-                } catch (err) {}
+                  } catch (err) {}
+                }
               }}
               disabled={approving}
             >

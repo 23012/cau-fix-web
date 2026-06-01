@@ -32,6 +32,11 @@
   box-sizing: border-box;
 }
 
+.edit-complaint-select{
+   background-color: var(--back-color);
+   font-weight : 800;
+}
+
 .edit-complaint-textarea {
   width: 100%;
   padding: 10px 12px;

@@ -65,7 +65,7 @@ const editRequestController = {
         const admins = await memberModel.findByRole('A');
         if (admins && admins.length > 0) {
           const adminIds = admins.map((a) => a.member_id);
-          const customContent = `${requesterName}님이 "${complain.title}" 수정을 요청했습니다.`;
+          const customContent = `${requesterName}님이 수정을 요청했습니다.`;
           await notificationModel.createForManagers({
             complain_id: id,
             manager_ids: adminIds,

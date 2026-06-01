@@ -28,19 +28,23 @@ const EditComplaintForm = ({ complaintId, editRequest, currentData, onComplete, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 담당자 변경 시 처리자 목록 로드
+  // 담당자 변경 시 처리자 목록 로드 (민원 카테고리명 === 처리자 dept)
   useEffect(() => {
     if (reasonType === "처리 담당자 변경") {
       getMembers()
         .then((res) => {
-          const list = (res.members || res || []).filter(
+          const categoryName = currentData?.category || null;
+          const allProcessors = (res.members || res || []).filter(
             (m) => (m.role === "E" || m.role === "처리자") && m.is_approved
           );
-          setProcessors(list);
+          const list = categoryName
+            ? allProcessors.filter((m) => m.dept === categoryName)
+            : allProcessors;
+          setProcessors(list.length > 0 ? list : allProcessors);
         })
         .catch(() => {});
     }
-  }, [reasonType]);
+  }, [reasonType, currentData]);
 
   const handleSubmit = async () => {
     setError("");
@@ -60,7 +64,6 @@ const EditComplaintForm = ({ complaintId, editRequest, currentData, onComplete, 
         body.title = formData.title;
         body.content = formData.content;
         body.location = formData.location;
-        body.category_id = formData.category_id;
       }
 
       await completeEditRequest(complaintId, body);
@@ -85,7 +88,7 @@ const EditComplaintForm = ({ complaintId, editRequest, currentData, onComplete, 
             <option value="">처리자를 선택하세요</option>
             {processors.map((p) => (
               <option key={p.member_id} value={p.member_id}>
-                {p.name} ({p.dept || "-"})
+                {p.name}
               </option>
             ))}
           </select>
@@ -117,7 +120,7 @@ const EditComplaintForm = ({ complaintId, editRequest, currentData, onComplete, 
             <select
               className="edit-complaint-select"
               value={formData.category_id || ""}
-              onChange={(e) => setFormData((p) => ({ ...p, category_id: Number(e.target.value) }))}
+              disabled
             >
               <option value="">카테고리 선택</option>
               {categories.map((cat) => (
