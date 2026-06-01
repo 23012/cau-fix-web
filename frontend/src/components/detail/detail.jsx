@@ -49,6 +49,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   const [editRequestModalOpen, setEditRequestModalOpen] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showEditCompletePopup, setShowEditCompletePopup] = useState(false);
 
   // 수정 모드
   const [editMode, setEditMode] = useState(false);
@@ -132,7 +133,6 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       }
       setEditMode(false);
       await refetch();
-      onUpdate?.({ ...data, ...editData, category: editData.category });
       setShowEditSuccess(true);
     } catch (err) {
       alert(err.message || "수정 중 오류가 발생했습니다.");
@@ -355,6 +355,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
             await refetch();
             refetchEditRequest();
             onUpdate?.({ ...data, status: displayData.status });
+            setShowEditCompletePopup(true);
           }}
         />
       )}
@@ -415,7 +416,10 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       <ImagePreview src={previewImage} alt="민원 사진" onClose={() => setPreviewImage(null)} />
 
       {/* 수정 완료 */}
-      <ConfirmPopup isOpen={showEditSuccess} message="수정이 완료되었습니다." onConfirm={() => { setShowEditSuccess(false); onUpdate?.({ ...data, ...editData, category: editData.category }); }} />
+      <ConfirmPopup isOpen={showEditSuccess} message="수정이 완료되었습니다." onConfirm={() => setShowEditSuccess(false)} />
+
+      {/* 수정 요청 처리 완료 */}
+      <ConfirmPopup isOpen={showEditCompletePopup} message="민원 수정이 완료되었습니다." onConfirm={() => setShowEditCompletePopup(false)} />
 
       {/* 삭제 확인/완료 */}
       <ConfirmPopup isOpen={showDeleteConfirm} message={isEditor ? <>삭제된 민원은 복구할 수 없습니다.<br />정말 삭제하시겠습니까?</> : "내 폴더에서 삭제하시겠습니까?"} cancelLabel="취소" onCancel={() => setShowDeleteConfirm(false)} confirmLabel="삭제" confirmType="delete" onConfirm={async () => {

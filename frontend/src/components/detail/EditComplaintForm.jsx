@@ -67,7 +67,6 @@ const EditComplaintForm = ({ complaintId, editRequest, currentData, onComplete, 
       }
 
       await completeEditRequest(complaintId, body);
-      alert("민원 수정이 완료되었습니다.");
       onComplete?.();
     } catch (err) {
       setError(err.message || "수정 완료 중 오류가 발생했습니다.");

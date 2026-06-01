@@ -10,7 +10,7 @@ import Detail from "../detail/detail";
 import Search from "../common/search";
 
 const AdminComplainList = () => {
-  const { tableData, setTableData } = useComplainData();
+  const { tableData, setTableData, refetch } = useComplainData();
   const { categories: deptCategories } = useCategories(true);
   const [statusFilter, setStatusFilter] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
@@ -198,7 +198,7 @@ const AdminComplainList = () => {
 
       <Detail
         isOpen={!!selectedComplain}
-        onClose={() => setSelectedComplain(null)}
+        onClose={() => { setSelectedComplain(null); refetch(); }}
         data={selectedComplain}
         onUpdate={(updated) => {
           if (updated._deleted) {

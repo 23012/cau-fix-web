@@ -139,7 +139,7 @@ const Complain = () => {
 
       <Detail
         isOpen={!!selectedComplain}
-        onClose={() => setSelectedComplain(null)}
+        onClose={() => { setSelectedComplain(null); refetch(); }}
         data={selectedComplain}
         fromStorage={fromStorage}
         onUpdate={async (updated) => {
