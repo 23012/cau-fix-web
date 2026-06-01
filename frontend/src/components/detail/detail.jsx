@@ -49,7 +49,6 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
   const [editRequestModalOpen, setEditRequestModalOpen] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
-  const [showEditCompletePopup, setShowEditCompletePopup] = useState(false);
 
   // 수정 모드
   const [editMode, setEditMode] = useState(false);
@@ -330,7 +329,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
                     await approve();
                     await refetch();
                     refetchEditRequest();
-                    onUpdate?.({ ...data, status: displayData.status });
+                    alert("수정 요청이 승인되었습니다.");
                   } catch (err) {}
                 }
               }}
@@ -354,8 +353,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
             setShowEditForm(false);
             await refetch();
             refetchEditRequest();
-            onUpdate?.({ ...data, status: displayData.status });
-            setShowEditCompletePopup(true);
+            alert("민원 수정이 완료되었습니다.");
           }}
         />
       )}
@@ -418,9 +416,6 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       {/* 수정 완료 */}
       <ConfirmPopup isOpen={showEditSuccess} message="수정이 완료되었습니다." onConfirm={() => setShowEditSuccess(false)} />
 
-      {/* 수정 요청 처리 완료 */}
-      <ConfirmPopup isOpen={showEditCompletePopup} message="민원 수정이 완료되었습니다." onConfirm={() => setShowEditCompletePopup(false)} />
-
       {/* 삭제 확인/완료 */}
       <ConfirmPopup isOpen={showDeleteConfirm} message={isEditor ? <>삭제된 민원은 복구할 수 없습니다.<br />정말 삭제하시겠습니까?</> : "내 폴더에서 삭제하시겠습니까?"} cancelLabel="취소" onCancel={() => setShowDeleteConfirm(false)} confirmLabel="삭제" confirmType="delete" onConfirm={async () => {
         try {
@@ -472,7 +467,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         complaintId={data.id}
         onSuccess={() => {
           setRejectionModalOpen(false);
-          navigate("/complain-dashboard");
+          refetch();
+          refetchEditRequest();
+          alert("반려 처리 되었습니다.");
         }}
       />
     </FormPopup>
