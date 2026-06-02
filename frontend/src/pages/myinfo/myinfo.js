@@ -22,7 +22,6 @@ const MyInfo = () => {
 
   const handleTogglePush = async () => {
     const next = !pushEnabled;
-    console.log('[Push] 토글:', next);
     setPushEnabled(next);
     localStorage.setItem('pushEnabled', next.toString());
     try {
@@ -32,7 +31,7 @@ const MyInfo = () => {
         await unsubscribePush();
       }
     } catch (err) {
-      console.error('[Push] 토글 에러:', err);
+      // 푸시 토글 실패
     }
   };
 

@@ -55,7 +55,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
 
   const handleDelete = async () => {
     if (!deletePassword.trim()) {
-      alert("비밀번호를 입력해주세요.");
+      alert("관리자님 비밀번호를 입력해주세요.");
       return;
     }
     if (window.confirm("정말 탈퇴 처리하시겠습니까?")) {
@@ -142,7 +142,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
           <>
             <div className="member-detail-status-badge approved">
               <CheckCircle size={18} />
-              <span>이미 승인된 회원입니다.</span>
+              <span>승인 완료된 회원입니다.</span>
             </div>
             {(() => {
               const approveLog = logs.find((l) => l.action === "A");

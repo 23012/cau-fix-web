@@ -92,19 +92,16 @@ const Header = () => {
 
   const handleTogglePush = async () => {
     const next = !pushEnabled;
-    console.log('[Push] 토글:', next);
     setPushEnabled(next);
     localStorage.setItem("pushEnabled", next.toString());
     try {
       if (next) {
-        const result = await subscribePush();
-        console.log('[Push] 구독 결과:', result);
+        await subscribePush();
       } else {
-        const result = await unsubscribePush();
-        console.log('[Push] 해제 결과:', result);
+        await unsubscribePush();
       }
     } catch (err) {
-      console.error('[Push] 토글 에러:', err);
+      // 푸시 토글 실패
     }
   };
 

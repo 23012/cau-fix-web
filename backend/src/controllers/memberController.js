@@ -137,6 +137,11 @@ const memberController = {
         dept: dept || member.dept,
       });
 
+      // 비밀번호 변경 시 본인 아이디로 로그 기록 (초기화 상태 해제용)
+      if (password) {
+        await memberLogModel.create({ member_id, action: 'P', done_by: req.user.login_id });
+      }
+
       return res.status(200).json({ message: '내 정보가 수정되었습니다.', member: updated });
     } catch (err) {
       console.error(err);

@@ -11,6 +11,54 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
 
+  // 인라인 유효성 검사 상태
+  const [idError, setIdError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordConfirmError, setPasswordConfirmError] = useState("");
+
+  // 아이디 검증: 숫자(사번)만 허용
+  const validateId = (value) => {
+    if (!value.trim()) {
+      setIdError("");
+      return;
+    }
+    if (!/^\d+$/.test(value)) {
+      setIdError("사번은 숫자만 입력 가능합니다.");
+    } else {
+      setIdError("");
+    }
+  };
+
+  // 비밀번호 검증: 영어 소문자 + 숫자 포함 10자 이상
+  const validatePassword = (value) => {
+    if (!value.trim()) {
+      setPasswordError("");
+      return;
+    }
+    const hasLowercase = /[a-z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const isLongEnough = value.length >= 10;
+
+    if (!hasLowercase || !hasNumber || !isLongEnough) {
+      setPasswordError("영어 소문자 및 숫자를 포함하여 10자 이상이어야 합니다.");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  // 비밀번호 확인 검증
+  const validatePasswordConfirm = (value) => {
+    if (!value.trim()) {
+      setPasswordConfirmError("");
+      return;
+    }
+    if (value !== formData.password) {
+      setPasswordConfirmError("비밀번호가 일치하지 않습니다.");
+    } else {
+      setPasswordConfirmError("");
+    }
+  };
+
   const handleSubmit = (e) => {
     onSubmit(e, passwordConfirm);
   };
@@ -24,30 +72,49 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
           placeholder="아이디"
           value={formData.id}
           onChange={onChange}
+          onBlur={(e) => validateId(e.target.value)}
           disabled={loading}
-          className="input"
+          className={`input ${idError ? "input-error" : ""}`}
         />
         <button type="button" className="signup-check-btn" onClick={onCheckDuplicate} disabled={loading}>
           중복 확인
         </button>
       </div>
-      <p className="signup-policy-text">
-        ※ 사번 입력
-      </p>
+      {idError ? (
+        <p className="signup-validation-error">{idError}</p>
+      ) : (
+        <p className="signup-policy-text">※ 사번 입력</p>
+      )}
 
-      <input type="password" name="password" placeholder="비밀번호" value={formData.password} onChange={onChange} disabled={loading} className="input" />
-      <p className="signup-policy-text">
-        ※ 영어 소문자 및 숫자 포함 10자 이상
-      </p>
+      <input
+        type="password"
+        name="password"
+        placeholder="비밀번호"
+        value={formData.password}
+        onChange={onChange}
+        onBlur={(e) => validatePassword(e.target.value)}
+        disabled={loading}
+        className={`input ${passwordError ? "input-error" : ""}`}
+      />
+      {passwordError ? (
+        <p className="signup-validation-error">{passwordError}</p>
+      ) : (
+        <p className="signup-policy-text">※ 영어 소문자 및 숫자 포함 10자 이상</p>
+      )}
+
       <input
         type="password"
         name="passwordConfirm"
         placeholder="비밀번호 확인"
         value={passwordConfirm}
         onChange={(e) => setPasswordConfirm(e.target.value)}
+        onBlur={(e) => validatePasswordConfirm(e.target.value)}
         disabled={loading}
-        className="input"
+        className={`input ${passwordConfirmError ? "input-error" : ""}`}
       />
+      {passwordConfirmError && (
+        <p className="signup-validation-error">{passwordConfirmError}</p>
+      )}
 
       <div className="signup-role-row">
         <span className="signup-role-label">권한</span>

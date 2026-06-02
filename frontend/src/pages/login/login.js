@@ -40,7 +40,14 @@ const Login = () => {
       }));
       // 로그인 버튼 클릭(사용자 제스처) 안에서 푸시 구독 등록
       subscribePush().catch(() => {});
-      navigate("/complain-dashboard");
+
+      // 비밀번호 초기화 상태인 경우 경고 후 내 정보 페이지로 이동
+      if (result.member.password_reset) {
+        alert("관리자에 의해 비밀번호가 사번으로 초기화 되었습니다. 개인 정보 보호를 위해 \n비밀번호를 재설정 해주세요.");
+        navigate("/myinfo");
+      } else {
+        navigate("/complain-dashboard");
+      }
     } catch (err) {
       if (err.status === 403) {
         alert("관리자 승인 대기 중입니다.");

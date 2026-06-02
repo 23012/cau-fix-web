@@ -160,7 +160,7 @@ const complainController = {
         const imageUrlCell = row.getCell('imageUrls');
         if (c.imageList && c.imageList.length > 0) {
           if (c.imageList.length === 1) {
-            imageUrlCell.value = { text: c.imageList[0], hyperlink: `http://localhost${c.imageList[0]}` };
+            imageUrlCell.value = { text: c.imageList[0], hyperlink: c.imageList[0] };
             imageUrlCell.font = { color: { argb: 'FF0000FF' }, underline: true };
           } else {
             imageUrlCell.value = c.imageList.map((url, i) => `[이미지${i + 1}] ${url}`).join('\n');

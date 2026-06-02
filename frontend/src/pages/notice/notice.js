@@ -4,7 +4,7 @@ import NoticeList from '../../components/notice/NoticeList';
 import NoticeDetail from '../../components/notice/NoticeDetail';
 import AdminNoticeList from '../../components/admin/AdminNoticeList';
 import NoticeForm from '../../components/admin/NoticeForm';
-import { updateNotice, deleteNotice } from '../../services/noticeService';
+import { createNotice, updateNotice, deleteNotice } from '../../services/noticeService';
 import { normalizeRole } from '../../constants/roles';
 import './notice.css';
 import '../../styles/global.css';
@@ -15,7 +15,7 @@ const Notice = () => {
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [user, setUser] = useState(null);
   const [editData, setEditData] = useState(null);
-  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -26,32 +26,53 @@ const Notice = () => {
   const role = normalizeRole(user?.role || "");
   const userName = user?.name || "";
 
-  const handleEdit = (notice) => {
-    setEditData(notice);
-    setEditFormOpen(true);
+  // 작성 버튼 클릭
+  const handleWrite = () => {
+    setEditData(null);
+    setFormOpen(true);
   };
 
-  const handleEditSubmit = async (formData) => {
+  // 수정 버튼 클릭
+  const handleEdit = (notice) => {
+    setEditData(notice);
+    setFormOpen(true);
+  };
+
+  // 작성/수정 제출 통합
+  const handleFormSubmit = async (formData) => {
     try {
-      const result = await updateNotice(editData.id, {
-        notice_title: formData.title,
-        notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
-        notice_content: formData.content,
-      });
-      const updated = {
-        ...editData,
-        title: formData.title,
-        category: formData.category,
-        content: formData.content,
-        date: result.notice?.date || new Date().toISOString(),
-      };
-      setEditFormOpen(false);
-      setEditData(null);
-      setSelectedNotice(updated);
-      setRefreshKey((k) => k + 1);
-      alert("수정이 완료되었습니다.");
+      if (editData) {
+        // 수정
+        const result = await updateNotice(editData.id, {
+          notice_title: formData.title,
+          notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
+          notice_content: formData.content,
+        });
+        const updated = {
+          ...editData,
+          title: formData.title,
+          category: formData.category,
+          content: formData.content,
+          date: result.notice?.date || new Date().toISOString(),
+        };
+        setFormOpen(false);
+        setEditData(null);
+        setSelectedNotice(updated);
+        setRefreshKey((k) => k + 1);
+        alert("수정이 완료되었습니다.");
+      } else {
+        // 작성
+        await createNotice({
+          notice_title: formData.title,
+          notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
+          notice_content: formData.content,
+        });
+        setFormOpen(false);
+        setRefreshKey((k) => k + 1);
+        alert("공지사항이 등록되었습니다.");
+      }
     } catch (err) {
-      alert(err.message || "수정 중 오류가 발생했습니다.");
+      alert(err.message || "처리 중 오류가 발생했습니다.");
     }
   };
 
@@ -79,7 +100,7 @@ const Notice = () => {
       );
     }
     if (role === "관리자") {
-      return <AdminNoticeList key={refreshKey} onSelect={(notice) => setSelectedNotice(notice)} />;
+      return <AdminNoticeList key={refreshKey} onSelect={(notice) => setSelectedNotice(notice)} onWrite={handleWrite} />;
     }
     return <NoticeList key={refreshKey} onSelect={(notice) => setSelectedNotice(notice)} />;
   };
@@ -92,9 +113,9 @@ const Notice = () => {
       </div>
 
       <NoticeForm
-        isOpen={editFormOpen}
-        onClose={() => { setEditFormOpen(false); setEditData(null); }}
-        onSubmit={handleEditSubmit}
+        isOpen={formOpen}
+        onClose={() => { setFormOpen(false); setEditData(null); }}
+        onSubmit={handleFormSubmit}
         editData={editData}
       />
     </div>

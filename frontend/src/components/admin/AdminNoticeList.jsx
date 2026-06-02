@@ -1,21 +1,18 @@
 import "./AdminTable.css";
 import { useState, useEffect, useMemo } from "react";
-import { getNotices, createNotice } from "../../services/noticeService";
+import { getNotices } from "../../services/noticeService";
 import { parseExcelDate } from "../../utils/parseExcelDate";
-import NoticeForm from "./NoticeForm";
 import Search from "../common/search";
 import { Plus } from "lucide-react";
 
 const TABS = ["전체", "공지", "업데이트", "점검"];
-const CATEGORY_LABEL_TO_CODE = { "공지": "G", "업데이트": "U", "점검": "F" };
 
-const AdminNoticeList = ({ onSelect }) => {
+const AdminNoticeList = ({ onSelect, onWrite }) => {
   const [notices, setNotices] = useState([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("최신순");
   const [currentPage, setCurrentPage] = useState(1);
-  const [noticeFormOpen, setNoticeFormOpen] = useState(false);
   const itemsPerPage = 15;
 
   const loadData = async () => {
@@ -48,21 +45,6 @@ const AdminNoticeList = ({ onSelect }) => {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const handleCreateNotice = async (formData) => {
-    try {
-      await createNotice({
-        notice_title: formData.title,
-        notice_category: CATEGORY_LABEL_TO_CODE[formData.category] || "G",
-        notice_content: formData.content,
-      });
-      setNoticeFormOpen(false);
-      alert("공지사항이 등록되었습니다.");
-      loadData();
-    } catch (err) {
-      alert(err.message || "공지사항 등록 중 오류가 발생했습니다.");
-    }
-  };
-
   return (
     <div className="admin-page">
       <div className="admin-mobile-header">
@@ -90,7 +72,7 @@ const AdminNoticeList = ({ onSelect }) => {
             placeholder="제목을 입력하세요"
             className="search-container search-pc"
           />
-          <button className="admin-write-btn" onClick={() => setNoticeFormOpen(true)}>
+          <button className="admin-write-btn" onClick={() => onWrite?.()}>
             <span>작성하기</span>
           </button>
         </div>
@@ -139,14 +121,8 @@ const AdminNoticeList = ({ onSelect }) => {
         <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}>다음</button>
       </div>
 
-      <NoticeForm
-        isOpen={noticeFormOpen}
-        onClose={() => setNoticeFormOpen(false)}
-        onSubmit={handleCreateNotice}
-      />
-
       <div className="admin-fab">
-        <button className="fab-btn" onClick={() => setNoticeFormOpen(true)}><Plus /></button>
+        <button className="fab-btn" onClick={() => onWrite?.()}><Plus /></button>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const memberModel = require('../models/memberModel');
+const memberLogModel = require('../models/memberLogModel');
 require('dotenv').config();
 
 const authController = {
@@ -35,6 +36,13 @@ const authController = {
         return res.status(400).json({ message: '필수 항목을 입력해주세요.' });
       }
 
+      // 비밀번호 정책: 영어 소문자 및 숫자 포함 10자 이상
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      if (!hasLowercase || !hasNumber || password.length < 10) {
+        return res.status(400).json({ message: '비밀번호는 영어 소문자 및 숫자를 포함하여 10자 이상이어야 합니다.' });
+      }
+
       if (!['C', 'E'].includes(role)) {
         return res.status(400).json({ message: '유효하지 않은 권한입니다.' });
       }
@@ -56,7 +64,7 @@ const authController = {
       });
 
       return res.status(201).json({
-        message: '회원가입이 완료되었습니다. 관리자 승인 후 로그인 가능합니다.',
+        message: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인 가능합니다.',
         member,
       });
     } catch (err) {
@@ -91,6 +99,10 @@ const authController = {
 
       await memberModel.updateLastLogin(member.member_id);
 
+      // 비밀번호 초기화 여부 확인: 마지막 P 로그의 done_by가 본인(login_id)이 아니면 관리자가 초기화한 것
+      const lastPwLog = await memberLogModel.findLastPasswordLog(member.member_id);
+      const passwordReset = lastPwLog ? lastPwLog.done_by !== member.login_id : false;
+
       const token = jwt.sign(
         {
           member_id: member.member_id,
@@ -112,6 +124,7 @@ const authController = {
           role: member.role,
           dept: member.dept,
           phone: member.phone,
+          password_reset: passwordReset,
         },
       });
     } catch (err) {

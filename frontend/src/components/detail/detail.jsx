@@ -301,7 +301,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
                   return;
                 }
               } catch (err) {
-                console.error('[Profile] API error:', err.status, err.message);
+                // 프로필 조회 실패 - fallback 사용
               }
             }
             // API 실패 시 process에서 가져온 정보로 fallback

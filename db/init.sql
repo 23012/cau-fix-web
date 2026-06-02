@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS member (
 );
 
 COMMENT ON TABLE  member               IS '회원';
-COMMENT ON COLUMN member.login_id      IS '사번 - 영어+숫자, 로그인 아이디';
+COMMENT ON COLUMN member.login_id      IS '사번 (숫자), 로그인 아이디';
 COMMENT ON COLUMN member.role          IS 'C: 사용자, E: 처리자, A: 관리자(별도 지정)';
 COMMENT ON COLUMN member.is_approved   IS '관리자 승인 여부 (FALSE: 미승인 - 로그인 불가)';
 COMMENT ON COLUMN member.is_deleted    IS '논리적 탈퇴 여부';

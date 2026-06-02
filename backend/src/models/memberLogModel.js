@@ -22,6 +22,18 @@ const memberLogModel = {
     );
     return result.rows;
   },
+
+  // 마지막 비밀번호 변경 로그 조회 (P = 비밀번호 변경)
+  findLastPasswordLog: async (member_id) => {
+    const result = await pool.query(
+      `SELECT * FROM member_log
+       WHERE member_id = $1 AND action = 'P'
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [member_id]
+    );
+    return result.rows[0] || null;
+  },
 };
 
 module.exports = memberLogModel;

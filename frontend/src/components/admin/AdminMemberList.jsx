@@ -1,10 +1,9 @@
 import "./AdminTable.css";
 import { useState, useEffect, useMemo } from "react";
 import { getMembers } from "../../services/memberService";
-import { normalizeRole, ROLES } from "../../constants/roles";
+import { normalizeRole } from "../../constants/roles";
 import { formatDateTime } from "../../utils/formatDate";
 import MemberDetailPopup from "./MemberDetailPopup";
-import MemberAddForm from "./MemberAddForm";
 import Search from "../common/search";
 
 /**
@@ -25,13 +24,9 @@ const AdminMemberList = () => {
   const [members, setMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("전체");
-  const [roleFilter, setRoleFilter] = useState("전체");
   const [sortOrder, setSortOrder] = useState("번호순");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMember, setSelectedMember] = useState(null);
-  const [addFormOpen, setAddFormOpen] = useState(false);
   const itemsPerPage = 15;
 
   const loadData = async () => {
@@ -62,7 +57,6 @@ const AdminMemberList = () => {
       if (statusFilter !== "전체") {
         if (m.status !== statusFilter) return false;
       }
-      if (roleFilter !== "전체" && m.role !== roleFilter) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (
@@ -70,16 +64,6 @@ const AdminMemberList = () => {
           !m.name.toLowerCase().includes(q) &&
           !m.dept.toLowerCase().includes(q)
         ) return false;
-      }
-      if (startDate || endDate) {
-        const created = m.createdAt ? new Date(m.createdAt) : null;
-        if (!created || isNaN(created.getTime())) return false;
-        if (startDate && created < new Date(startDate)) return false;
-        if (endDate) {
-          const end = new Date(endDate);
-          end.setHours(23, 59);
-          if (created > end) return false;
-        }
       }
       return true;
     });
@@ -90,7 +74,7 @@ const AdminMemberList = () => {
       default: result.sort((a, b) => a.no - b.no);
     }
     return result;
-  }, [members, statusFilter, roleFilter, searchQuery, sortOrder, startDate, endDate]);
+  }, [members, statusFilter, searchQuery, sortOrder]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
