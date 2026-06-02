@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronRight, Camera } from "lucide-react";
 import FormPopup from "./FormPopup";
 import ImagePreview from "../common/ImagePreview";
@@ -13,13 +13,16 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const { images, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();
 
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const dateStr = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  }, [isOpen]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  //민원 제출
   const handleSubmit = async () => {
     if (!formData.title.trim()) { alert("제목을 입력해주세요."); return; }
     if (!formData.category) { alert("구분을 선택해주세요."); return; }
@@ -38,6 +41,7 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
     }
   };
 
+  //팝업창 나가기
   const handleClose = () => {
     const hasContent = formData.title.trim() || formData.category || formData.location.trim() || formData.content.trim() || images.length > 0;
     if (hasContent) {
@@ -70,7 +74,8 @@ const ComplainForm = ({ isOpen, onClose, onSubmit }) => {
           </div>
         )}
       </div>
-
+      
+      {/*민원 입력 창*/}
       <div className="form-field form-field-readonly">
         <span className="form-field-value">{dateStr}</span>
       </div>

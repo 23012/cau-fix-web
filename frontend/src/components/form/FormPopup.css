@@ -184,16 +184,15 @@
 
 /* ===== 이미지 첨부 ===== */
 .form-images {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
   padding: 16px 5px 0;
-  flex-wrap: wrap;
   margin-bottom: 0;
 }
 
 .form-image-upload {
-  width: 100px;
-  height: 100px;
+  aspect-ratio: 1;
   border: 1px dashed #ccc;
   border-radius: 8px;
   display: flex;
@@ -203,7 +202,6 @@
   cursor: pointer;
   gap: 4px;
   transition: border-color 0.2s;
-  flex-shrink: 0;
 }
 
 .form-image-upload:hover {
@@ -217,12 +215,10 @@
 }
 
 .form-image-preview {
-  width: 100px;
-  height: 100px;
+  aspect-ratio: 1;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
-  flex-shrink: 0;
 }
 
 .form-image-preview img {

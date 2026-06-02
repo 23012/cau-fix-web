@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import "./Form.css";
-import "../form/FormPopup.css";
+import "./FormPopup.css";
 import useCategories from "../../hooks/useCategories";
 
 const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDuplicate }) => {

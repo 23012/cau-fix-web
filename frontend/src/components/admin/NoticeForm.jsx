@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { ChevronRight } from "lucide-react";
 import FormPopup from "../form/FormPopup";
 import { NOTICE_CATEGORIES } from "../../constants/noticeCategories";
@@ -23,8 +23,10 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
     }
   }, [isOpen, editData]);
 
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const dateStr = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  }, [isOpen]);
 
   const handleChange = (field, value) => {
     if (field === "title" && value.length > 50) {
@@ -79,9 +81,6 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
     const content = contentRef.current?.innerHTML || "";
     if (!content.trim() || content === "<br>") { alert("내용을 입력해주세요."); return; }
     onSubmit?.({ ...formData, content, date: dateStr, ...(editData ? { id: editData.id } : {}) });
-    setFormData({ title: "", category: "" });
-    if (contentRef.current) contentRef.current.innerHTML = "";
-    onClose();
   };
 
   const handleClose = () => {
@@ -90,8 +89,6 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
     if (hasContent) {
       if (!window.confirm("작성 중인 내용이 저장되지 않습니다. 나가시겠습니까?")) return;
     }
-    setFormData({ title: "", category: "" });
-    if (contentRef.current) contentRef.current.innerHTML = "";
     setShowCategory(false);
     onClose();
   };
