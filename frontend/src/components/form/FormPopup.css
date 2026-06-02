@@ -363,6 +363,8 @@
 /* 공지사항 내용 textarea */
 .notice-form-textarea {
   min-height: 300px;
+  white-space: pre-wrap;
+  overflow-y: auto;
 }
 
 .notice-form-textarea[contenteditable]:empty::before {

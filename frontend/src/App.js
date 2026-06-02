@@ -4,7 +4,6 @@ import './styles/global.css';
 import './styles/responsive.css';
 import './styles/variables.css';
 import { subscribePush } from './utils/pushSubscription';
-import Main from "./pages/main/main";
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
 import ComplainDashboard from "./pages/complain-dashboard/complain-dashboard";

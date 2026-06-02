@@ -138,7 +138,7 @@ const AdminMemberList = () => {
           </thead>
           <tbody>
             {currentData.map((row) => (
-              <tr key={row.no} onClick={(e) => { e.stopPropagation(); setSelectedMember(row); }} style={{ cursor: "pointer" }}>
+              <tr key={row.no} onClick={(e) => { e.stopPropagation(); setSelectedMember(row); }}>
                 <td>{row.no}</td>
                 <td>{row.id}</td>
                 <td className="member-col-dept">{row.dept}</td>

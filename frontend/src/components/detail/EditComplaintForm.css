@@ -32,8 +32,8 @@
   box-sizing: border-box;
 }
 
-.edit-complaint-select{
-   background-color: var(--back-color);
+.edit-complaint-select {
+  background-color: var(--back-color);
 }
 
 .edit-complaint-textarea {

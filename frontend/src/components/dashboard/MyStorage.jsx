@@ -112,7 +112,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
 
         {/* 필터/정렬 */}
         <div className="my-storage-controls">
-          <div style={{ position: "relative" }}>
+          <div className="my-storage-filter-wrapper">
             <button className="my-storage-icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
               <FilterIcon size={18} />
             </button>
@@ -159,7 +159,7 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
                 <tr><td colSpan={3} className="my-storage-empty">민원이 없습니다.</td></tr>
               ) : (
                 currentData.map((row) => (
-                  <tr key={row.id} onClick={() => onSelect?.(row)} style={{ cursor: "pointer" }}>
+                  <tr key={row.id} onClick={() => onSelect?.(row)}>
                     <td>{row.id}</td>
                     <td className="my-storage-title">{row.title}</td>
                     <td><Status status={row.status} /></td>

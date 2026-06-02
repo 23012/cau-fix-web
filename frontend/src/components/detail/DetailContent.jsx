@@ -131,10 +131,9 @@ const DetailContent = ({
               <img
                 src={imagePath}
                 alt="민원 사진"
-                className="detail-image"
+                className="detail-image detail-image-clickable"
                 onClick={() => setPreviewImage(imagePath)}
                 onError={() => setImageError(true)}
-                style={{ cursor: "pointer" }}
               />
             </div>
           )}

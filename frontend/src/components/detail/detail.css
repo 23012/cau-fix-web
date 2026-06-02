@@ -16,9 +16,6 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
-}
-
-.detail-tab {
   color: var(--back-color-2);
 }
 
@@ -196,6 +193,18 @@
   height: auto;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-image-clickable {
+  cursor: pointer;
+}
+
+.detail-rejection-wrapper {
+  padding: 0 5px;
+}
+
+.detail-no-content {
+  color: #999;
 }
 
 /* 모바일 */

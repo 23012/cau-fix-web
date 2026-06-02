@@ -151,6 +151,10 @@
   background: #fafafa;
 }
 
+.admin-table tbody tr {
+  cursor: pointer;
+}
+
 .admin-title-cell,
 .admin-content-cell {
   max-width: 160px;

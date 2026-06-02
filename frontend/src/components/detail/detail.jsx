@@ -249,7 +249,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
       {showProgress && <ProgressBar status={editRequest?.prevState ? (STATUS_CODE_TO_LABEL[editRequest.prevState] || data.status) : data.status} />}
       {/* 반려 사유 (모바일 알림에서 전달) */}
       {rejectionReason && (
-        <div style={{ padding: '0 5px' }}>
+        <div className="detail-rejection-wrapper">
           <div className="edit-title">반려 사유</div>
           <div className="pcv-edit-request-reason">
             <span className="pcv-edit-request-reason-text">{rejectionReason}</span>

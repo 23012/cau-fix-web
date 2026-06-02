@@ -39,6 +39,7 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="list-form">
+      {/*아이디*/}
       <input
         type="text"
         name="id"
@@ -48,6 +49,7 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
         disabled={loading}
         className="input"
       />
+      {/*비밀번호*/}
       <input
         type="password"
         name="password"
@@ -57,7 +59,7 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
         disabled={loading}
         className="input"
       />
-      
+      {/*아이디 기억하기*/}
       <div className="remember-me">
         <label className="remember-me-label">
           <input
@@ -69,7 +71,8 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
           <span>아이디 기억하기</span>
         </label>
       </div>
-
+      
+      {/*로그인 및 회원가입 버튼*/}
       {error && <p className="error-message">{error}</p>}
       <button type="submit" className="btn" disabled={loading}>
         {loading ? "로그인 중..." : "로그인"}

@@ -54,6 +54,7 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
 
       <h1 className="admin-page-title">공지사항</h1>
 
+      {/*필터링*/}
       <div className="admin-filters">
         <div className="admin-filters-left">
           <div className="admin-tabs admin-category-tabs">
@@ -65,7 +66,8 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
             ))}
           </div>
         </div>
-
+      
+      {/*검색 및 작성하기 버튼*/}
         <div className="admin-filters-right">
           <Search
             onSearchChange={(q) => { setSearchQuery(q); setCurrentPage(1); }}
@@ -77,7 +79,8 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
           </button>
         </div>
       </div>
-
+      
+      {/*정렬*/}
       <div className="admin-filters-row">
         <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
           <option value="번호순">번호순</option>
@@ -85,7 +88,8 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
           <option value="오래된순">오래된순</option>
         </select>
       </div>
-
+      
+      {/*테이블*/}
       <div className="admin-table-wrapper">
         <table className="admin-table notice-table">
           <thead>
@@ -96,7 +100,7 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
           </thead>
           <tbody>
             {currentData.map((row) => (
-              <tr key={row.id} onClick={() => onSelect?.(row)} style={{ cursor: "pointer" }}>
+              <tr key={row.id} onClick={() => onSelect?.(row)}>
                 <td>{row.id}</td>
                 <td>{row.category}</td>
                 <td className="admin-title-cell">{row.title}</td>
@@ -115,6 +119,7 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
         </table>
       </div>
 
+      {/*페이지네이션*/}
       <div className="admin-pagination">
         <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>이전</button>
         <span>{currentPage} / {totalPages}</span>

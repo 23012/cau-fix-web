@@ -86,7 +86,7 @@ const DetailResult = ({ data, formatDate, onShowProfile, processImages = [], set
       ) : (
         <div className="detail-tab-content">
           <div className="detail-text-content">
-            <p style={{ color: "#999" }}>아직 처리 내용이 작성되지 않았습니다.</p>
+            <p className="detail-no-content">아직 처리 내용이 작성되지 않았습니다.</p>
           </div>
         </div>
       )}

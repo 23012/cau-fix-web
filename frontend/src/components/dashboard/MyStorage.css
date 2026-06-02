@@ -176,6 +176,11 @@
   cursor: pointer;
 }
 
+/* 필터 래퍼 */
+.my-storage-filter-wrapper {
+  position: relative;
+}
+
 /* 기간 필터 패널 */
 .my-storage-filter-panel {
   position: absolute;
@@ -306,6 +311,7 @@
 .my-storage-table tbody tr {
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.12s;
+  cursor: pointer;
 }
 
 .my-storage-table tbody tr:hover {

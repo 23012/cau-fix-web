@@ -65,6 +65,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
 
   return (
     <form onSubmit={handleSubmit} className="list-form">
+      {/*아이디*/}
       <div className="signup-field-row">
         <input
           type="text"
@@ -102,6 +103,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
         <p className="signup-policy-text">※ 영어 소문자 및 숫자 포함 10자 이상</p>
       )}
 
+      {/*비밀번호*/}
       <input
         type="password"
         name="passwordConfirm"
@@ -116,6 +118,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
         <p className="signup-validation-error">{passwordConfirmError}</p>
       )}
 
+      {/*권한*/}
       <div className="signup-role-row">
         <span className="signup-role-label">권한</span>
         <label className="signup-radio">
@@ -160,6 +163,7 @@ const SignupForm = ({ formData, error, loading, onChange, onSubmit, onCheckDupli
 
       {error && <p className="signup-error-message">{error}</p>}
 
+      {/*회원가입 버튼*/}
       <button type="submit" className="signup-btn" disabled={loading}>
         {loading ? "가입 중..." : "회원가입"}
       </button>

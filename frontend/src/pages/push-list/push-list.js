@@ -19,7 +19,7 @@ const PushList = () => {
   const handlePushClick = async (push) => {
     if (!push.complainId) return;
 
-    // 반려 알림이면 거절 사유 조회
+    // 반려 알림이면 사유 조회
     let rejectionReason = null;
     if (push.desc && push.desc.includes("반려")) {
       try {
@@ -63,6 +63,7 @@ const PushList = () => {
                   ))}
                 </div>
               )}
+              {/* 알람 리스트 */}
               {earlierPush.length > 0 && (
                 <div className="push-section">
                   <h2 className="push-section-title">이번 주</h2>

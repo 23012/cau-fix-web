@@ -31,7 +31,6 @@ const MyInfo = () => {
         await unsubscribePush();
       }
     } catch (err) {
-      // 푸시 토글 실패
     }
   };
 
@@ -47,7 +46,9 @@ const MyInfo = () => {
       <Header />
       <div className="page-content">
         <div className="myinfo-page">
+          {/* 상단 회원 정보 카드 */}
           <MyProfileCard name={user?.name} dept={user?.dept} />
+          {/* 회원 정보 수정 & push 알림 설정 */}
           <MyMenuList
             pushEnabled={pushEnabled}
             onTogglePush={handleTogglePush}

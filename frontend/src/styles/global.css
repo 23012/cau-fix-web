@@ -28,9 +28,11 @@ body {
   color: #000;
   margin: 0;
   overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* 스크롤바 숨기기 (공간은 유지) */
+/* 스크롤바 숨기기 */
 html::-webkit-scrollbar {
   width: 0px;
   background: transparent;
@@ -38,11 +40,6 @@ html::-webkit-scrollbar {
 
 body::-webkit-scrollbar {
   display: none;
-}
-
-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 /* 공통 정렬 클래스 */

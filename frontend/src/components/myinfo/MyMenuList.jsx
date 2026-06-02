@@ -50,6 +50,7 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
         {editOpen ? <ChevronDown size={20} color="#999" /> : <ChevronRight size={20} color="#999" />}
       </button>
 
+      {/* 회원 정보 수정 */}
       {editOpen && (
         <div className="myinfo-edit-section">
           <div className="myinfo-edit-field">
@@ -113,6 +114,7 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
         </div>
       )}
 
+      {/*알림 설정*/}
       <div className="myinfo-menu-item" onClick={onTogglePush}>
         <span>Push 알림 설정</span>
         <div className={`myinfo-toggle ${pushEnabled ? "on" : ""}`}>

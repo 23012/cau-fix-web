@@ -171,7 +171,7 @@ const AdminComplainList = () => {
           </thead>
           <tbody>
             {currentData.map((row) => (
-              <tr key={row.id} onClick={() => setSelectedComplain(row)} style={{ cursor: "pointer" }}>
+              <tr key={row.id} onClick={() => setSelectedComplain(row)}>
                 <td>{row.id}</td>
                 <td>{row.dept}</td>
                 <td>{row.location}</td>

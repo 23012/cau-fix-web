@@ -112,6 +112,7 @@ const Notice = () => {
         {renderContent()}
       </div>
 
+      {/*공지사항 작성 또는 수정*/}
       <NoticeForm
         isOpen={formOpen}
         onClose={() => { setFormOpen(false); setEditData(null); }}

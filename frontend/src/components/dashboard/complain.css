@@ -387,6 +387,10 @@
   white-space: nowrap;
 }
 
+.table tbody tr {
+  cursor: pointer;
+}
+
 .table tbody tr:hover {
   background: #fafafa;
 }
