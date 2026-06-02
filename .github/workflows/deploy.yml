@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  DEPLOY_PATH: /home/ubuntu/cau-fix-web
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -31,103 +34,78 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     defaults:
       run:
-        shell: powershell
+        shell: bash
     steps:
       - name: 시크릿 검증
         run: |
-          $secrets = @{
-            "DB_NAME" = "${{ secrets.DB_NAME }}"
-            "DB_USER" = "${{ secrets.DB_USER }}"
-            "DB_PASSWORD" = "${{ secrets.DB_PASSWORD }}"
-            "JWT_SECRET" = "${{ secrets.JWT_SECRET }}"
-          }
-          $missing = @()
-          foreach ($key in $secrets.Keys) {
-            if ([string]::IsNullOrEmpty($secrets[$key])) {
-              $missing += $key
-            }
-          }
-          if ($missing.Count -gt 0) {
-            Write-Error "Missing secrets: $($missing -join ', ')"
+          missing=""
+          if [ -z "${{ secrets.DB_NAME }}" ]; then missing="$missing DB_NAME"; fi
+          if [ -z "${{ secrets.DB_USER }}" ]; then missing="$missing DB_USER"; fi
+          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then missing="$missing DB_PASSWORD"; fi
+          if [ -z "${{ secrets.JWT_SECRET }}" ]; then missing="$missing JWT_SECRET"; fi
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets:$missing"
             exit 1
-          }
-          Write-Host "All required secrets are configured."
+          fi
+          echo "All required secrets are configured."
 
       - name: 코드 업데이트
-        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
-        run: git pull origin main
+        run: |
+          cd $DEPLOY_PATH
+          git pull origin main
 
       - name: 환경변수 파일 생성
-        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
         run: |
-          $envContent = @(
-            "DB_NAME=${{ secrets.DB_NAME }}"
-            "DB_USER=${{ secrets.DB_USER }}"
-            "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
-            "JWT_SECRET=${{ secrets.JWT_SECRET }}"
-          )
-          $envContent | Set-Content -Path ".env" -Encoding UTF8
-          Write-Host ".env file created successfully."
+          cat > $DEPLOY_PATH/.env << EOF
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          EOF
+          echo ".env file created successfully."
 
       - name: 백엔드 의존성 설치
-        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
         run: |
-          Set-Location backend
+          cd $DEPLOY_PATH/backend
           npm install
-          Write-Host "Backend dependencies installed successfully."
+          echo "Backend dependencies installed successfully."
 
       - name: 프론트엔드 의존성 설치 및 빌드
-        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
         run: |
-          Set-Location frontend
+          cd $DEPLOY_PATH/frontend
           npm install
-          npm run build
-          Write-Host "Frontend build completed successfully."
+          CI=false npm run build
+          echo "Frontend build completed successfully."
 
       - name: PM2 백엔드 재시작
-        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
         run: |
-          $processList = pm2 jlist 2>$null | ConvertFrom-Json
-          $backendProcess = $processList | Where-Object { $_.name -eq "cau-fix-backend" }
-          if ($backendProcess) {
-            Write-Host "PM2 process 'cau-fix-backend' found. Reloading..."
+          cd $DEPLOY_PATH
+          if pm2 describe cau-fix-backend > /dev/null 2>&1; then
+            echo "PM2 process 'cau-fix-backend' found. Reloading..."
             pm2 reload cau-fix-backend
-          } else {
-            Write-Host "PM2 process 'cau-fix-backend' not found. Starting with ecosystem.config.js..."
+          else
+            echo "PM2 process 'cau-fix-backend' not found. Starting..."
             pm2 start ecosystem.config.js
-          }
-          Write-Host "Backend service updated successfully."
+          fi
+          pm2 save
+          echo "Backend service updated successfully."
 
       - name: nginx 설정 배포 및 reload
-        working-directory: C:\Users\Administrator\Documents\cau-fix\cau-fix-web
         run: |
-          $nginxConfSource = "nginx\nginx.prod.conf"
-          $nginxConfDest = "C:\nginx\conf\nginx.conf"
-          $nginxConfBackup = "C:\nginx\conf\nginx.conf.bak"
-
+          cd $DEPLOY_PATH
           # 기존 설정 백업
-          if (Test-Path $nginxConfDest) {
-            Copy-Item -Path $nginxConfDest -Destination $nginxConfBackup -Force
-            Write-Host "Existing nginx config backed up."
-          }
+          sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
           # 새 설정 파일 복사
-          Copy-Item -Path $nginxConfSource -Destination $nginxConfDest -Force
-          Write-Host "nginx config copied to $nginxConfDest"
+          sudo cp nginx/nginx.prod.conf /etc/nginx/nginx.conf
 
           # 설정 파일 문법 검증
-          $testResult = & nginx -t 2>&1
-          if ($LASTEXITCODE -eq 0) {
-            Write-Host "nginx config validation passed."
-            & nginx -s reload
-            Write-Host "nginx reloaded successfully."
-          } else {
-            Write-Host "nginx config validation FAILED:"
-            Write-Host $testResult
-            # 검증 실패 시 백업에서 기존 설정 복원
-            if (Test-Path $nginxConfBackup) {
-              Copy-Item -Path $nginxConfBackup -Destination $nginxConfDest -Force
-              Write-Host "Restored previous nginx config from backup."
-            }
+          if sudo nginx -t; then
+            echo "nginx config validation passed."
+            sudo systemctl reload nginx
+            echo "nginx reloaded successfully."
+          else
+            echo "nginx config validation FAILED. Restoring backup..."
+            sudo cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
             exit 1
-          }
+          fi

@@ -1,17 +1,44 @@
 import "./Form.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
  * 로그인 폼
- * TODO: 백엔드 연결 시 onSubmit에서 POST /api/auth/login { id, password } 호출
  */
 const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
   const navigate = useNavigate();
   const [rememberMe, setRememberMe] = useState(false);
 
+  // 컴포넌트 마운트 시 저장된 아이디 불러오기
+  useEffect(() => {
+    const savedId = localStorage.getItem("rememberedId");
+    if (savedId) {
+      setRememberMe(true);
+      onChange({ target: { name: "id", value: savedId } });
+    }
+  }, []);
+
+  // 아이디 기억하기 체크 상태 변경 시 처리
+  const handleRememberMe = (e) => {
+    const checked = e.target.checked;
+    setRememberMe(checked);
+    if (!checked) {
+      localStorage.removeItem("rememberedId");
+    }
+  };
+
+  // 폼 제출 시 아이디 저장/삭제 처리
+  const handleSubmit = (e) => {
+    if (rememberMe) {
+      localStorage.setItem("rememberedId", formData.id);
+    } else {
+      localStorage.removeItem("rememberedId");
+    }
+    onSubmit(e);
+  };
+
   return (
-    <form onSubmit={onSubmit} className="list-form">
+    <form onSubmit={handleSubmit} className="list-form">
       <input
         type="text"
         name="id"
@@ -36,7 +63,7 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
           <input
             type="checkbox"
             checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
+            onChange={handleRememberMe}
             className="remember-me-checkbox"
           />
           <span>아이디 기억하기</span>

@@ -79,6 +79,16 @@ const Signup = () => {
       setError("모든 항목을 입력해주세요");
       return;
     }
+    // 비밀번호 정책: 영어 소문자 및 숫자 포함 10자 이상
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const isLongEnough = password.length >= 10;
+
+    if (!hasLowercase || !hasNumber || !isLongEnough) {
+      alert("비밀번호는 영어 소문자 및 숫자를 포함하여 10자 이상이어야 합니다.");
+      return;
+    }
+
     if (password !== passwordConfirm) {
       setError("비밀번호가 일치하지 않습니다");
       return;
