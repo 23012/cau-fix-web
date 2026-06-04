@@ -23,9 +23,9 @@ export const STATUS_TABS = ["전체", ...STATUSES];
 export const STATUS_ORDER = {
   "접수전": 0,
   "접수중": 1,
-  "진행중": 2,
-  "완료": 3,
-  "수정중": 4,
+  "수정중": 2,
+  "진행중": 3,
+  "완료": 4,
 };
 
 export const STATUS_COLORS = {

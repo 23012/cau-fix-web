@@ -142,6 +142,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* 카드 */}
       <div className="admin-stat-cards">
         <div className="admin-stat-card blue">
           <span className="admin-stat-label">전체</span>
@@ -161,6 +162,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* 카테고리 별 상세 현황 */}
       <h2 className="admin-section-title">상세 현황</h2>
       <div className="admin-category-cards">
         {categoryStats.map((cat) => (
@@ -175,7 +177,8 @@ const AdminDashboard = () => {
           </div>
         ))}
       </div>
-
+      
+      {/* 카테고리 별 도넛 차트 */}
       <h2 className="admin-section-title">통계 차트</h2>
       <div className="admin-chart-legend">
         <span className="admin-legend-item">

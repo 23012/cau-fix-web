@@ -22,6 +22,7 @@ const AdminComplainList = () => {
   const [sortOrder, setSortOrder] = useState("번호순");
   const itemsPerPage = 10;
 
+  //필터 및 정렬
   const filteredData = useMemo(() => {
     const result = tableData.filter((row) => {
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;
@@ -49,7 +50,7 @@ const AdminComplainList = () => {
       case "최신순": sorted.sort((a, b) => b.id - a.id); break;
       case "오래된순": sorted.sort((a, b) => a.id - b.id); break;
       case "상태순": {
-        const order = { "접수전": 0, "접수중": 1, "진행중": 2, "완료": 3 };
+        const order = { "접수전": 0, "접수중": 1, "수정중": 2, "진행중": 3, "완료": 4 };
         sorted.sort((a, b) => (order[a.status] ?? 99) - (order[b.status] ?? 99));
         break;
       }
@@ -61,13 +62,14 @@ const AdminComplainList = () => {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  //엑셀 다운로드
   const handleExcelDownload = async () => {
     try {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams();
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
-      if (categoryFilter !== '전체 분류') params.append('category', categoryFilter);
+      if (categoryFilter !== '전체') params.append('category', categoryFilter);
       if (statusFilter !== '전체') params.append('status', statusFilter);
       const queryStr = params.toString();
 
@@ -114,7 +116,7 @@ const AdminComplainList = () => {
                 onChange={() => { setStatusFilter("전체"); setCurrentPage(1); }} />
               전체
             </label>
-            {STATUSES.map((s) => (
+            {[...STATUSES, "수정중"].map((s) => (
               <label key={s} className={statusFilter === s ? "active" : ""}>
                 <input type="radio" name="status" value={s}
                   checked={statusFilter === s}
@@ -132,13 +134,14 @@ const AdminComplainList = () => {
             placeholder="제목을 입력하세요"
           />
           
+          {/* 날짜 필터링 및 엑셀 다운로드 */}
           <div className="admin-filters-row">
             <select
               className="admin-select"
               value={categoryFilter}
               onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
             >
-              {[{ category_id: -1, category_name: "전체 분류" }, ...deptCategories].map((d) => (
+              {[{ category_id: -1, category_name: "전체" }, ...deptCategories].map((d) => (
                 <option key={d.category_id} value={d.category_name}>{d.category_name}</option>
               ))}
             </select>
@@ -151,7 +154,8 @@ const AdminComplainList = () => {
           </div>
         </div>
       </div>
-
+      
+      {/* 정렬 */}
       <div className="admin-filters-row">
         <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
           <option value="번호순">번호순</option>
@@ -161,6 +165,7 @@ const AdminComplainList = () => {
         </select>
       </div>
 
+      {/* 필터링 */}
       <div className="admin-table-wrapper">
         <table className="admin-table complain-table">
           <thead>
@@ -196,6 +201,7 @@ const AdminComplainList = () => {
         <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}>다음</button>
       </div>
 
+      {/*민원 상세*/}
       <Detail
         isOpen={!!selectedComplain}
         onClose={() => { setSelectedComplain(null); refetch(); }}
