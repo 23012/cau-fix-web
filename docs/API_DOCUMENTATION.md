@@ -228,11 +228,11 @@ GET /api/categories
 ```json
 {
   "categories": [
-    { "category_id": 1, "category_name": "건축/영선", "dept": "시설팀" },
-    { "category_id": 2, "category_name": "의료장비", "dept": "물류관리팀" },
-    { "category_id": 3, "category_name": "기계/소방", "dept": "시설팀" },
+    { "category_id": 1, "category_name": "영선", "dept": "시설팀" },
+    { "category_id": 2, "category_name": "기계", "dept": "시설팀" },
+    { "category_id": 3, "category_name": "소방", "dept": "시설팀" },
     { "category_id": 4, "category_name": "전기/통신", "dept": "시설팀" },
-    { "category_id": 5, "category_name": "보안", "dept": "총무팀" },
+    { "category_id": 5, "category_name": "의료장비", "dept": "물류관리팀" },
     { "category_id": 6, "category_name": "미화", "dept": "총무팀" }
   ]
 }
@@ -251,8 +251,12 @@ GET /api/categories/with-total
 {
   "categories": [
     { "category_id": 0, "category_name": "전체", "dept": null },
-    { "category_id": 1, "category_name": "건축/영선", "dept": "시설팀" },
-    ...
+    { "category_id": 1, "category_name": "영선", "dept": "시설팀" },
+    { "category_id": 2, "category_name": "기계", "dept": "시설팀" },
+    { "category_id": 3, "category_name": "소방", "dept": "시설팀" },
+    { "category_id": 4, "category_name": "전기/통신", "dept": "시설팀" },
+    { "category_id": 5, "category_name": "의료장비", "dept": "물류관리팀" },
+    { "category_id": 6, "category_name": "미화", "dept": "총무팀" }
   ]
 }
 ```
@@ -610,6 +614,7 @@ POST /api/complaints/:id/edit-request
 > 접수 또는 진행중 상태의 민원만 요청 가능
 > 이미 대기 중인 수정 요청이 있으면 409 에러
 > 요청 시 민원 상태가 R(수정중)로 변경되고, 관리자에게 알림 발송됨
+> 수정중 상태는 민원인에게 알림 가지 않음
 
 **응답**
 ```json
@@ -695,7 +700,7 @@ POST /api/complaints/:id/edit-request/approve
 
 ---
 
-### 수정 요청 거절 (관리자)
+### 수정 요청 반려 (관리자)
 ```
 POST /api/complaints/:id/edit-request/reject
 인증: 필요 (관리자만)
@@ -771,7 +776,7 @@ PUT /api/complaints/:id/edit-request/complete
 
 ---
 
-### 거절 사유 조회
+### 반려 사유 조회
 ```
 GET /api/complaints/:id/edit-request/rejection
 인증: 필요
@@ -788,7 +793,7 @@ GET /api/complaints/:id/edit-request/rejection
 }
 ```
 
-> 거절 이력이 없으면: `{ "rejection": null }`
+> 반려 이력이 없으면: `{ "rejection": null }`
 
 ---
 
@@ -925,7 +930,7 @@ GET /api/notices
 }
 ```
 
-> category 값: `안내`(G), `업데이트`(U), `점검`(F)
+> category 값: `공지`(G), `업데이트`(U), `점검`(F)
 
 ---
 
@@ -952,7 +957,7 @@ POST /api/notices
 }
 ```
 
-> notice_category: `G`(안내), `U`(업데이트), `F`(점검)
+> notice_category: `G`(공지), `U`(업데이트), `F`(점검)
 
 ---
 
@@ -1277,7 +1282,7 @@ PUT /api/members/:id/dept
 }
 ```
 
-> dept 값: `전체` + DB에 등록된 카테고리명 (동적으로 유효성 검사)
+> dept 값: `전체`, `영선`, `기계`, `소방`, `전기/통신`, `의료장비`, `미화` (DB에서 동적으로 유효성 검사)
 > 처리자(E)만 담당 카테고리 변경 가능
 
 **응답**
@@ -1442,11 +1447,13 @@ DELETE /api/members/:id
 | 민원 처리 등록 | ❌ | ✅ | ✅ |
 | 엑셀 다운로드 | ❌ | ✅ | ✅ |
 | 수정 요청 제출 | ❌ | ✅ | ✅ |
-| 수정 요청 조회 | ✅ | ✅ | ✅ |
+| 수정 요청 조회 | ❌ | ✅ | ✅ |
 | 수정 요청 승인/거절 | ❌ | ❌ | ✅ |
 | 수정 요청 완료 | ❌ | ✅ | ✅ |
+| 거절 사유 조회 | ❌ | ✅ | ✅ |
 | 공지사항 조회 | ✅ | ✅ | ✅ |
-| 공지사항 등록/수정/삭제 | ❌ | ✅ | ✅ |
+| 공지사항 등록 | ❌ | ❌ | ✅ |
+| 공지사항 수정/삭제 | ❌ | ❌ | ✅ |
 | 알림 조회 | ✅ | ✅ | ✅ |
 | 푸시 구독/해제 | ✅ | ✅ | ✅ |
 | 내 정보 수정 | ✅ | ✅ | ✅ |
