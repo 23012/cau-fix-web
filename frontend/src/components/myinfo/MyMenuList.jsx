@@ -7,6 +7,8 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
   const [editOpen, setEditOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordConfirmError, setPasswordConfirmError] = useState("");
   const [phone, setPhone] = useState(user?.phone || '');
   const [dept, setDept] = useState(user?.dept || '');
   const { categories } = useCategories();
@@ -23,6 +25,10 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
+    if (password && passwordError) {
+      alert('비밀번호 정책을 확인해주세요.');
+      return;
+    }
     if (!password && !phone.trim() && !dept.trim()) {
       alert('수정할 항목을 입력해주세요.');
       return;
@@ -36,12 +42,45 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
       await onUpdateProfile?.({ password: password || undefined, phone: phone || undefined, dept: dept || undefined });
       setPassword('');
       setPasswordConfirm('');
+      setPasswordError('');
+      setPasswordConfirmError('');
       setEditOpen(false);
       alert('회원 정보 수정이 완료되었습니다.');
     } catch (err) {
       // Header에서 이미 alert 처리
     }
   };
+
+  // 비밀번호 검증: 영어 소문자 + 숫자 포함 10자 이상
+  const validatePassword = (value) => {
+    if (!value.trim()) {
+      setPasswordError("");
+      return;
+    }
+    const hasLowercase = /[a-z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const isLongEnough = value.length >= 10;
+
+    if (!hasLowercase || !hasNumber || !isLongEnough) {
+      setPasswordError("영어 소문자 및 숫자를 포함하여 10자 이상이어야 합니다.");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  // 비밀번호 확인 검증
+  const validatePasswordConfirm = (value) => {
+    if (!value.trim()) {
+      setPasswordConfirmError("");
+      return;
+    }
+    if (value !== password) {
+      setPasswordConfirmError("비밀번호가 일치하지 않습니다.");
+    } else {
+      setPasswordConfirmError("");
+    }
+  };
+
 
   return (
     <div className="myinfo-menu-list">
@@ -57,21 +96,31 @@ const MyMenuList = ({ pushEnabled, onTogglePush, onUpdateProfile, onLogout, user
             <label className="myinfo-edit-label">새 비밀번호</label>
             <input
               type="password"
-              className="myinfo-edit-input"
+              className={`myinfo-edit-input ${passwordError ? "input-error" : ""}`}
               placeholder="새 비밀번호 입력"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onBlur={(e) => validatePassword(e.target.value)}
             />
+            {passwordError ? (
+              <p className="myinfo-validation-error">{passwordError}</p>
+            ) : (
+              <p className="myinfo-policy-text">※ 영어 소문자 및 숫자 포함 10자 이상</p>
+            )}
           </div>
           <div className="myinfo-edit-field">
             <label className="myinfo-edit-label">비밀번호 확인</label>
             <input
               type="password"
-              className="myinfo-edit-input"
+              className={`myinfo-edit-input ${passwordConfirmError ? "input-error" : ""}`}
               placeholder="비밀번호 다시 입력"
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
+              onBlur={(e) => validatePasswordConfirm(e.target.value)}
             />
+            {passwordConfirmError && (
+              <p className="myinfo-validation-error">{passwordConfirmError}</p>
+            )}
           </div>
           <div className="myinfo-edit-field">
             <label className="myinfo-edit-label">전화번호</label>

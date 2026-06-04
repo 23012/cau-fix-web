@@ -129,7 +129,7 @@ const MemberDetailPopup = ({ isOpen, onClose, member, onUpdate, onRefresh }) => 
           const pwLog = logs.find((l) => l.action === "P");
           return pwLog ? (
             <div className="member-detail-row">
-              <span className="member-detail-sub-info">비밀번호 초기화 | 변경자: {pwLog.done_by} / {formatDateTime(pwLog.created_at)}</span>
+              <span className="member-detail-sub-info">비밀번호 변경 | 변경자: {pwLog.done_by} / 변경일자: {formatDateTime(pwLog.created_at)}</span>
             </div>
           ) : null;
         })()}

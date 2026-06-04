@@ -57,6 +57,21 @@ export const ComplainDataProvider = ({ children }) => {
     loadData();
   }, [loadData]);
 
+  // storage 이벤트 (다른 탭에서 로그인/로그아웃 시 반영)
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "token") {
+        if (e.newValue) {
+          loadData();
+        } else {
+          setTableData([]);
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [loadData]);
+
   // 탭 전환/포커스 시 자동 갱신
   useEffect(() => {
     const handleVisibility = () => {

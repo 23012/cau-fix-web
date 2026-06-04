@@ -189,3 +189,23 @@
 .myinfo-success-btn:hover {
   opacity: 0.9;
 }
+
+/* 비밀번호 정책 표시 */
+.myinfo-policy-text {
+  margin: 2px 0 0 2px;
+  font-size: 0.75rem;
+  color: var(--back-color-2);
+  opacity: 0.8;
+}
+
+.myinfo-validation-error {
+  margin: 2px 0 0 2px;
+  font-size: 0.75rem;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.myinfo-edit-input.input-error {
+  border-color: #e53e3e !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.2);
+}
