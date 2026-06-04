@@ -1,13 +1,14 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getNotifications, markAsRead, markAllAsRead } from "../services/notificationService";
 import useComplainData from "./useComplainData";
 
 /**
  * 푸시 알림 데이터를 API에서 로딩하는 훅
+ * 민원 데이터는 Context에서 공유받으므로 중복 API 호출 없음
  */
 const usePush = () => {
   const [pushList, setPushList] = useState([]);
-  const { tableData: complains, refetch: refetchComplains } = useComplainData();
+  const { tableData: complains } = useComplainData();
 
   const loadPush = useCallback(async () => {
     try {
@@ -29,15 +30,12 @@ const usePush = () => {
 
   useEffect(() => { loadPush(); }, [loadPush]);
 
-  // 페이지 포커스 시 자동 갱신
+  // 페이지 포커스 시 알림 목록 갱신 (민원 데이터는 Context Provider가 자동 갱신)
   useEffect(() => {
-    const handleFocus = () => {
-      loadPush();
-      refetchComplains?.();
-    };
+    const handleFocus = () => { loadPush(); };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, [loadPush, refetchComplains]);
+  }, [loadPush]);
 
   const recentPush = pushList;
   const todayPush = recentPush.filter((a) => a.time.toDateString() === new Date().toDateString());

@@ -4,6 +4,7 @@ import './styles/global.css';
 import './styles/responsive.css';
 import './styles/variables.css';
 import { subscribePush } from './utils/pushSubscription';
+import { ComplainDataProvider } from './context/ComplainDataContext';
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
 import ComplainDashboard from "./pages/complain-dashboard/complain-dashboard";
@@ -25,21 +26,23 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/complain-dashboard" element={<ComplainDashboard />} />
-        <Route path="/admin/complains" element={<AdminComplains />} />
-        <Route path="/admin/members" element={<AdminMembers />} />
-        <Route path="/complain-write" element={<ComplainWrite />} />
-        <Route path="/complain-detail" element={<ComplainDetail />} />
-        <Route path="/notice" element={<Notice />} />
-        <Route path="/push-list" element={<PushList />} />
-        <Route path="/myinfo" element={<MyInfo />} />
-      </Routes>
-    </Router>
+    <ComplainDataProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/complain-dashboard" element={<ComplainDashboard />} />
+          <Route path="/admin/complains" element={<AdminComplains />} />
+          <Route path="/admin/members" element={<AdminMembers />} />
+          <Route path="/complain-write" element={<ComplainWrite />} />
+          <Route path="/complain-detail" element={<ComplainDetail />} />
+          <Route path="/notice" element={<Notice />} />
+          <Route path="/push-list" element={<PushList />} />
+          <Route path="/myinfo" element={<MyInfo />} />
+        </Routes>
+      </Router>
+    </ComplainDataProvider>
   );
 }
 
