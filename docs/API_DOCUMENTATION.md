@@ -67,9 +67,11 @@ const token = localStorage.getItem('token');
 1단계: 로그인 / 회원가입
 2단계: 카테고리 목록 조회
 3단계: 민원 목록 / 등록 / 상세
-4단계: 공지사항
-5단계: 알림
-6단계: 내 정보 수정
+4단계: 수정 요청 (처리자 → 관리자 승인)
+5단계: 공지사항
+6단계: 알림 / 웹 푸시
+7단계: 내 정보 수정
+8단계: 관리자 기능 (회원 관리, 카테고리 관리)
 ```
 
 ---
@@ -257,6 +259,69 @@ GET /api/categories/with-total
 
 ---
 
+### 카테고리 등록 (관리자)
+```
+POST /api/categories
+인증: 필요 (관리자만)
+```
+
+**요청 바디**
+```json
+{
+  "category_name": "조경",
+  "dept": "시설팀"
+}
+```
+
+**응답**
+```json
+{
+  "message": "카테고리가 등록되었습니다.",
+  "category": { "category_id": 7, "category_name": "조경", "dept": "시설팀" }
+}
+```
+
+---
+
+### 카테고리 수정 (관리자)
+```
+PUT /api/categories/:id
+인증: 필요 (관리자만)
+```
+
+**요청 바디**
+```json
+{
+  "category_name": "조경/환경",
+  "dept": "시설팀"
+}
+```
+
+**응답**
+```json
+{
+  "message": "카테고리가 수정되었습니다.",
+  "category": { "category_id": 7, "category_name": "조경/환경", "dept": "시설팀" }
+}
+```
+
+---
+
+### 카테고리 삭제 (관리자)
+```
+DELETE /api/categories/:id
+인증: 필요 (관리자만)
+```
+
+**응답**
+```json
+{
+  "message": "카테고리가 삭제되었습니다."
+}
+```
+
+---
+
 ## 3️⃣ 민원 API
 
 ### 민원 목록 조회
@@ -267,7 +332,7 @@ GET /api/complaints
 
 > 역할에 따라 자동으로 필터링됩니다.
 > - 사용자(C): 본인 민원만
-> - 처리자(E): 담당 카테고리 민원만
+> - 처리자(E): 담당 카테고리 민원만 (dept가 '전체'이면 전체 민원)
 > - 관리자(A): 전체 민원
 
 **쿼리 파라미터 (선택)**
@@ -292,11 +357,16 @@ GET /api/complaints
       "status": "접수전",
       "date": "2026-04-20 15:40:06.491771",
       "memberName": "홍길동",
-      "memberDept": "총무팀"
+      "memberDept": "총무팀",
+      "resultPersonId": 5,
+      "resultPerson": "김처리"
     }
   ]
 }
 ```
+
+> `resultPersonId`: 처리 담당자 member_id (미할당 시 null)
+> `resultPerson`: 처리 담당자 이름 (미할당 시 null)
 
 ---
 
@@ -306,11 +376,20 @@ GET /api/complaints/:id
 인증: 필요
 ```
 
+**접근 권한:**
+- 사용자(C): 본인 민원만 조회 가능
+- 처리자(E): 담당 카테고리 민원 + 본인이 처리 담당자/수정 요청자/알림 수신자인 민원
+- 관리자(A): 전체
+
+> 사용자(C)에게는 '수정중(R)' 상태가 노출되지 않고, 이전 상태(접수/진행중)로 표시됩니다.
+
 **응답**
 ```json
 {
   "complain": {
     "id": 1,
+    "complain_by": 2,
+    "category_id": 6,
     "title": "1층 화장실 청소 요청",
     "content": "1층 화장실이 지저분합니다.",
     "category": "미화",
@@ -318,11 +397,17 @@ GET /api/complaints/:id
     "status": "접수전",
     "date": "2026-04-20 15:40:06.491771",
     "memberName": "홍길동",
-    "memberDept": "총무팀"
+    "memberDept": "총무팀",
+    "resultPersonId": 5,
+    "resultPerson": "김처리"
   },
   "process": {
+    "process_id": 1,
+    "process_by": 5,
     "result": "청소 완료하였습니다.",
     "resultPerson": "김처리",
+    "resultDept": "미화",
+    "resultPhone": "010-1111-2222",
     "resultDate": "2026-04-21 10:00:00"
   },
   "images": [
@@ -336,6 +421,10 @@ GET /api/complaints/:id
 
 > `process`가 `null`이면 아직 처리되지 않은 민원입니다.
 > 이미지 URL 접근: `http://localhost/uploads/complain/파일명`
+> process 필드 설명:
+> - `process_by`: 처리자 member_id
+> - `resultDept`: 처리자 담당 카테고리
+> - `resultPhone`: 처리자 연락처
 
 ---
 
@@ -369,14 +458,19 @@ POST /api/complaints
 ```
 
 > 민원 등록 후 이미지가 있으면 `POST /api/uploads/complain`으로 업로드해주세요.
+> 등록 시 해당 카테고리 담당 처리자들에게 알림 + 웹 푸시가 자동 발송됩니다.
 
 ---
 
-### 민원 수정 (접수전만 가능)
+### 민원 수정
 ```
 PUT /api/complaints/:id
 인증: 필요
 ```
+
+**권한:**
+- 사용자(C): 접수전 상태의 본인 민원만 수정 가능
+- 관리자(A): 상태 무관하게 수정 가능
 
 **요청 바디**
 ```json
@@ -390,11 +484,17 @@ PUT /api/complaints/:id
 
 ---
 
-### 민원 삭제 (접수전만 가능)
+### 민원 삭제
 ```
 DELETE /api/complaints/:id
 인증: 필요
 ```
+
+**권한:**
+- 사용자(C): 접수전 상태의 본인 민원만 삭제 가능
+- 관리자(A): 상태 무관하게 삭제 가능
+
+> 실제 데이터는 삭제되지 않고 논리적 삭제(soft delete) 처리됩니다.
 
 **응답**
 ```json
@@ -418,7 +518,11 @@ PUT /api/complaints/:id/state
 }
 ```
 
-> state 값: `B`(접수전), `A`(접수), `P`(진행중), `D`(완료)
+> state 값: `B`(접수전), `A`(접수), `P`(진행중), `D`(완료), `R`(수정중)
+> - 접수(A) 시: 해당 처리자가 자동으로 담당자로 할당됩니다.
+> - 진행(P) 시: 처리 시간이 기록됩니다.
+> - 상태 변경 시 민원인에게 알림 + 웹 푸시가 자동 발송됩니다.
+> - 상태 변경 이력이 `complain_state_history` 테이블에 기록됩니다.
 
 ---
 
@@ -437,6 +541,7 @@ POST /api/complaints/:id/process
 
 > 처리 등록 시 민원 상태가 자동으로 `완료(D)`로 변경됩니다.
 > 민원인에게 완료 알림이 자동 발송됩니다.
+> 이미 접수 시 할당된 process가 있으면 내용만 업데이트됩니다.
 
 ---
 
@@ -448,8 +553,16 @@ GET /api/complaints/export
 
 **쿼리 파라미터 (선택)**
 ```
-?startDate=2026-04-01&endDate=2026-04-30
+?category=미화
+?status=접수전
+?startDate=2026-04-01
+?endDate=2026-04-30
+?category=미화&status=완료&startDate=2026-04-01&endDate=2026-04-30
 ```
+
+> 모든 필터 조합 가능합니다.
+> 엑셀 파일에 이미지 URL 컬럼이 포함됩니다.
+> 처리자(E)는 본인 담당 카테고리 민원만 다운로드됩니다.
 
 **프론트 구현 예시**
 ```javascript
@@ -473,7 +586,213 @@ const handleExcelDownload = async () => {
 
 ---
 
-## 4️⃣ 이미지 업로드 API
+## 4️⃣ 수정 요청 API
+
+> 처리자가 접수/진행중 상태의 민원에 대해 수정을 요청하고, 관리자가 승인/거절하는 워크플로우입니다.
+> 수정 요청 시 민원 상태가 `R(수정중)`로 변경됩니다.
+
+### 수정 요청 제출 (처리자)
+```
+POST /api/complaints/:id/edit-request
+인증: 필요 (처리자/관리자만)
+```
+
+**요청 바디**
+```json
+{
+  "reasonType": "분류 항목 변경",
+  "detail": "전기/통신"
+}
+```
+
+> reasonType 값: `분류 항목 변경`, `처리 담당자 변경`, `기타`
+> detail: 분류 항목 변경 시 새 카테고리명, 기타 시 상세 내용
+> 접수 또는 진행중 상태의 민원만 요청 가능
+> 이미 대기 중인 수정 요청이 있으면 409 에러
+> 요청 시 민원 상태가 R(수정중)로 변경되고, 관리자에게 알림 발송됨
+
+**응답**
+```json
+{
+  "message": "수정 요청이 완료되었습니다.",
+  "editRequest": {
+    "id": 1,
+    "complaint_id": 3,
+    "requester_id": 5,
+    "reason_type": "분류 항목 변경",
+    "detail": "전기/통신",
+    "status": "P",
+    "prev_state": "A",
+    "created_at": "2026-05-01 10:00:00"
+  }
+}
+```
+
+---
+
+### 수정 요청 조회
+```
+GET /api/complaints/:id/edit-request
+인증: 필요
+```
+
+> 해당 민원의 활성(PENDING 또는 APPROVED) 수정 요청을 조회합니다.
+
+**응답**
+```json
+{
+  "editRequest": {
+    "id": 1,
+    "complaintId": 3,
+    "requesterId": 5,
+    "requesterName": "김처리",
+    "reasonType": "분류 항목 변경",
+    "detail": "전기/통신",
+    "status": "P",
+    "prevState": "A",
+    "createdAt": "2026-05-01 10:00:00"
+  }
+}
+```
+
+> 활성 수정 요청이 없으면: `{ "editRequest": null }`
+
+---
+
+### 수정 요청 승인 (관리자)
+```
+POST /api/complaints/:id/edit-request/approve
+인증: 필요 (관리자만)
+```
+
+**사유별 처리 방식:**
+| reasonType | 처리 방식 |
+|-----------|----------|
+| 분류 항목 변경 | 즉시 카테고리 변경 + 접수전(B) 상태 + 기존 처리자 해제 → 완료 |
+| 처리 담당자 변경 | 처리자가 수정 페이지에서 완료해야 함 (completeEdit) |
+| 기타 | 처리자가 수정 페이지에서 완료해야 함 (completeEdit) |
+
+**응답**
+```json
+{
+  "message": "수정 요청이 승인되었습니다.",
+  "editRequest": {
+    "id": 1,
+    "complaintId": 3,
+    "requesterId": 5,
+    "requesterName": "김처리",
+    "reasonType": "분류 항목 변경",
+    "detail": "전기/통신",
+    "status": "A"
+  }
+}
+```
+
+> 분류 항목 변경 승인 시 알림 발송 대상:
+> 1. 수정 요청한 처리자: "수정 요청이 승인되었습니다."
+> 2. 민원인: "처리자에 의해 민원 분류 항목이 변경되었습니다."
+> 3. 변경된 카테고리 담당 처리자들: "새 민원이 접수되었습니다."
+
+---
+
+### 수정 요청 거절 (관리자)
+```
+POST /api/complaints/:id/edit-request/reject
+인증: 필요 (관리자만)
+```
+
+**요청 바디**
+```json
+{
+  "reason": "해당 사유가 적합하지 않습니다."
+}
+```
+
+> reason: 1~500자 필수
+> 거절 시 민원 상태가 이전 상태로 복원됩니다.
+> 처리자 + 다른 관리자에게 반려 알림이 발송됩니다.
+
+**응답**
+```json
+{
+  "message": "수정 요청이 반려되었습니다."
+}
+```
+
+---
+
+### 수정 요청 완료 (처리자)
+```
+PUT /api/complaints/:id/edit-request/complete
+인증: 필요 (처리자/관리자만)
+```
+
+> 관리자 승인 후 처리자가 실제 수정을 완료하는 API입니다.
+
+**요청 바디 (처리 담당자 변경 시)**
+```json
+{
+  "new_processor_id": 7
+}
+```
+
+> 새 처리자로 교체 + 접수(A) 상태로 변경됨
+
+**요청 바디 (기타 - 내용 수정 시)**
+```json
+{
+  "title": "수정된 제목",
+  "content": "수정된 내용",
+  "location": "수정된 장소",
+  "category_id": 3
+}
+```
+
+> 민원 내용 수정 + 이전 상태로 복원됨
+> 모든 필드 선택적 (변경할 필드만 전달)
+
+**응답**
+```json
+{
+  "message": "민원 수정이 완료되었습니다.",
+  "complaint": {
+    "id": 3,
+    "title": "수정된 제목",
+    "status": "접수",
+    "..."
+  }
+}
+```
+
+> 수정 이력(before/after 스냅샷)이 `complaint_edit_history` 테이블에 자동 기록됩니다.
+> 사유별 알림 발송:
+> - 담당자 변경: 기존 처리자, 민원인, 새 처리자에게 알림
+> - 기타: 민원인, 처리자에게 알림
+
+---
+
+### 거절 사유 조회
+```
+GET /api/complaints/:id/edit-request/rejection
+인증: 필요
+```
+
+**응답**
+```json
+{
+  "rejection": {
+    "reason": "해당 사유가 적합하지 않습니다.",
+    "reviewerName": "관리자",
+    "reviewedAt": "2026-05-01 11:00:00"
+  }
+}
+```
+
+> 거절 이력이 없으면: `{ "rejection": null }`
+
+---
+
+## 5️⃣ 이미지 업로드 API
 
 ### 민원 이미지 업로드
 ```
@@ -487,6 +806,8 @@ Content-Type: multipart/form-data
 complain_id: 1
 images: [파일1, 파일2, ...]  // 최대 10장
 ```
+
+> 기존 이미지 + 새로 업로드하는 이미지 합쳐서 최대 10장까지 가능합니다.
 
 **프론트 구현 예시**
 ```javascript
@@ -524,6 +845,15 @@ DELETE /api/uploads/complain/:id
 인증: 필요
 ```
 
+> 본인 민원의 이미지 또는 관리자만 삭제 가능합니다.
+
+**응답**
+```json
+{
+  "message": "이미지가 삭제되었습니다."
+}
+```
+
 ---
 
 ### 처리 이미지 업로드
@@ -539,9 +869,39 @@ process_id: 1
 images: [파일1, 파일2, ...]  // 최대 10장
 ```
 
+**응답**
+```json
+{
+  "message": "이미지가 업로드되었습니다.",
+  "images": [
+    {
+      "process_img_id": 1,
+      "process_img_url": "/uploads/process/process_xxx.jpg",
+      "process_img_order": 1,
+      "process_img_size": 12345
+    }
+  ]
+}
+```
+
 ---
 
-## 5️⃣ 공지사항 API
+### 처리 이미지 삭제
+```
+DELETE /api/uploads/process/:id
+인증: 필요 (처리자/관리자만)
+```
+
+**응답**
+```json
+{
+  "message": "이미지가 삭제되었습니다."
+}
+```
+
+---
+
+## 6️⃣ 공지사항 API
 
 ### 공지사항 목록 조회
 ```
@@ -612,7 +972,7 @@ DELETE /api/notices/:id
 
 ---
 
-## 6️⃣ 알림 API
+## 7️⃣ 알림 API
 
 ### 알림 목록 조회
 ```
@@ -641,6 +1001,7 @@ GET /api/notifications
 
 > 최근 7일치 알림만 반환됩니다.
 > `unreadCount`를 상단 벨 아이콘 뱃지에 표시해주세요.
+> state 값: `접수전`, `접수`, `진행중`, `완료`, `수정중`
 
 ---
 
@@ -665,6 +1026,15 @@ PUT /api/notifications/:id/read
 인증: 필요
 ```
 
+> 본인 알림만 읽음 처리 가능합니다.
+
+**응답**
+```json
+{
+  "message": "읽음 처리되었습니다."
+}
+```
+
 ---
 
 ### 전체 읽음 처리
@@ -673,11 +1043,87 @@ PUT /api/notifications/read-all
 인증: 필요
 ```
 
+**응답**
+```json
+{
+  "message": "전체 읽음 처리되었습니다."
+}
+```
+
 ---
 
-## 7️⃣ 회원 API
+### 푸시 구독 등록
+```
+POST /api/notifications/subscribe
+인증: 필요
+```
 
-### 내 정보 수정 (비밀번호, 전화번호)
+**요청 바디**
+```json
+{
+  "subscription": {
+    "endpoint": "https://fcm.googleapis.com/...",
+    "keys": {
+      "p256dh": "BNc...",
+      "auth": "tB..."
+    }
+  }
+}
+```
+
+**응답**
+```json
+{
+  "message": "푸시 알림이 등록되었습니다."
+}
+```
+
+**프론트 구현 예시**
+```javascript
+// Service Worker 등록 후 푸시 구독
+const registration = await navigator.serviceWorker.ready;
+const subscription = await registration.pushManager.subscribe({
+  userVisibleOnly: true,
+  applicationServerKey: VAPID_PUBLIC_KEY
+});
+
+await fetch('/api/notifications/subscribe', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  },
+  body: JSON.stringify({ subscription })
+});
+```
+
+---
+
+### 푸시 구독 해제
+```
+POST /api/notifications/unsubscribe
+인증: 필요
+```
+
+**요청 바디**
+```json
+{
+  "endpoint": "https://fcm.googleapis.com/..."
+}
+```
+
+**응답**
+```json
+{
+  "message": "푸시 알림이 해제되었습니다."
+}
+```
+
+---
+
+## 8️⃣ 회원 API
+
+### 내 정보 수정 (비밀번호, 전화번호, 부서)
 ```
 PUT /api/members/me
 인증: 필요
@@ -692,11 +1138,30 @@ PUT /api/members/me
 ```json
 {
   "password": "newpass1234!",
-  "phone": "010-9999-8888"
+  "phone": "010-9999-8888",
+  "dept": "미화"
 }
 ```
 
-> 비밀번호 변경 없이 전화번호만 수정할 수도 있어요.
+> 비밀번호, 전화번호, 부서 중 하나 이상 입력 필수.
+> 각각 선택적으로 수정 가능합니다.
+
+**응답**
+```json
+{
+  "message": "내 정보가 수정되었습니다.",
+  "member": {
+    "member_id": 1,
+    "login_id": "hong001",
+    "name": "홍길동",
+    "role": "C",
+    "dept": "미화",
+    "phone": "010-9999-8888",
+    "is_approved": true,
+    "created_at": "2026-04-01 09:00:00"
+  }
+}
+```
 
 ---
 
@@ -725,12 +1190,45 @@ GET /api/members
 인증: 필요 (관리자만)
 ```
 
+**응답**
+```json
+{
+  "members": [
+    {
+      "member_id": 1,
+      "login_id": "hong001",
+      "name": "홍길동",
+      "role": "C",
+      "dept": "총무팀",
+      "phone": "010-1234-5678",
+      "is_approved": true,
+      "created_at": "2026-04-01 09:00:00",
+      "last_login_at": "2026-04-20 10:00:00"
+    }
+  ]
+}
+```
+
 ---
 
 ### 회원 승인 (관리자만)
 ```
 PUT /api/members/:id/approve
 인증: 필요 (관리자만)
+```
+
+**응답**
+```json
+{
+  "message": "승인이 완료되었습니다.",
+  "member": {
+    "member_id": 5,
+    "login_id": "kim001",
+    "name": "김처리",
+    "role": "E",
+    "is_approved": true
+  }
+}
 ```
 
 ---
@@ -750,6 +1248,20 @@ PUT /api/members/:id/role
 
 > role: `C`(사용자), `E`(처리자), `A`(관리자)
 
+**응답**
+```json
+{
+  "message": "권한이 변경되었습니다.",
+  "member": {
+    "member_id": 5,
+    "login_id": "kim001",
+    "name": "김처리",
+    "role": "E",
+    "dept": "미화"
+  }
+}
+```
+
 ---
 
 ### 담당 카테고리 변경 (관리자만)
@@ -765,7 +1277,71 @@ PUT /api/members/:id/dept
 }
 ```
 
-> dept 값: `전체`, `건축/영선`, `의료장비`, `기계/소방`, `전기/통신`, `보안`, `미화`
+> dept 값: `전체` + DB에 등록된 카테고리명 (동적으로 유효성 검사)
+> 처리자(E)만 담당 카테고리 변경 가능
+
+**응답**
+```json
+{
+  "message": "담당 카테고리가 변경되었습니다.",
+  "member": {
+    "member_id": 5,
+    "login_id": "kim001",
+    "name": "김처리",
+    "role": "E",
+    "dept": "전체",
+    "phone": "010-1111-2222",
+    "is_approved": true
+  }
+}
+```
+
+---
+
+### 비밀번호 초기화 (관리자만)
+```
+PUT /api/members/:id/reset-password
+인증: 필요 (관리자만)
+```
+
+> 비밀번호가 해당 회원의 `login_id` 값으로 초기화됩니다.
+
+**응답**
+```json
+{
+  "message": "비밀번호가 초기화되었습니다."
+}
+```
+
+---
+
+### 회원 로그 조회 (관리자만)
+```
+GET /api/members/:id/logs
+인증: 필요 (관리자만)
+```
+
+**응답**
+```json
+{
+  "logs": [
+    {
+      "id": 1,
+      "member_id": 5,
+      "action": "A",
+      "done_by": "admin001",
+      "detail": null,
+      "created_at": "2026-04-20 10:00:00"
+    }
+  ]
+}
+```
+
+> action 값:
+> - `A`: 승인
+> - `R`: 권한 변경 (detail에 "C → E" 형태로 기록)
+> - `P`: 비밀번호 초기화/변경
+> - `D`: 탈퇴
 
 ---
 
@@ -773,6 +1349,23 @@ PUT /api/members/:id/dept
 ```
 DELETE /api/members/:id
 인증: 필요 (관리자만)
+```
+
+**요청 바디**
+```json
+{
+  "password": "admin_password"
+}
+```
+
+> 관리자 본인 비밀번호 확인 후 탈퇴 처리됩니다.
+> 논리적 삭제(soft delete)로 처리되며 데이터는 보존됩니다.
+
+**응답**
+```json
+{
+  "message": "탈퇴 처리가 완료되었습니다."
+}
 ```
 
 ---
@@ -783,14 +1376,20 @@ DELETE /api/members/:id
 | 백엔드 DB | API 응답 (프론트용) |
 |----------|------------------|
 | complain_id | id |
+| complain_by | complain_by |
+| category_id | category_id |
 | complain_title | title |
 | complain_content | content |
 | category_name | category |
-| state (B/A/P/D) | status (접수전/접수/진행중/완료) |
+| state (B/A/P/D/R) | status (접수전/접수/진행중/완료/수정중) |
 | complain_at | date |
 | process_content | result |
+| process_by (member_id) | process_by |
 | process_by_name | resultPerson |
+| process_dept | resultDept |
+| process_phone | resultPhone |
 | process_at | resultDate |
+| is_deleted | is_deleted |
 
 ### 공지사항 필드명
 | 백엔드 DB | API 응답 (프론트용) |
@@ -809,9 +1408,25 @@ DELETE /api/members/:id
 | complain_id | complainId |
 | complain_title | title |
 | push_content | content |
+| state (B/A/P/D/R) | state (접수전/접수/진행중/완료/수정중) |
 | is_read | read |
 | read_at | readAt |
 | push_at | time |
+
+### 수정 요청 필드명
+| 백엔드 DB | API 응답 (프론트용) |
+|----------|------------------|
+| id | id |
+| complaint_id | complaintId |
+| requester_id | requesterId |
+| requester_name (JOIN) | requesterName |
+| reason_type | reasonType |
+| detail | detail |
+| status (P/A/R/C) | status |
+| prev_state | prevState |
+| created_at | createdAt |
+
+> 수정 요청 status 값: `P`(대기중), `A`(승인), `R`(거절), `C`(완료)
 
 ---
 
@@ -822,12 +1437,39 @@ DELETE /api/members/:id
 | 로그인/회원가입 | ✅ | ✅ | ✅ |
 | 민원 등록 | ✅ | ✅ | ✅ |
 | 민원 목록 조회 | 본인만 | 담당 카테고리 | 전체 |
-| 민원 수정/삭제 | 접수전 본인만 | ❌ | ✅ |
+| 민원 수정/삭제 | 접수전 본인만 | ❌ | 상태 무관 ✅ |
 | 민원 상태 변경 | ❌ | ✅ | ✅ |
 | 민원 처리 등록 | ❌ | ✅ | ✅ |
 | 엑셀 다운로드 | ❌ | ✅ | ✅ |
+| 수정 요청 제출 | ❌ | ✅ | ✅ |
+| 수정 요청 조회 | ✅ | ✅ | ✅ |
+| 수정 요청 승인/거절 | ❌ | ❌ | ✅ |
+| 수정 요청 완료 | ❌ | ✅ | ✅ |
 | 공지사항 조회 | ✅ | ✅ | ✅ |
 | 공지사항 등록/수정/삭제 | ❌ | ✅ | ✅ |
 | 알림 조회 | ✅ | ✅ | ✅ |
+| 푸시 구독/해제 | ✅ | ✅ | ✅ |
 | 내 정보 수정 | ✅ | ✅ | ✅ |
-| 회원 관리 | ❌ | ❌ | ✅ |
+| 카테고리 등록/수정/삭제 | ❌ | ❌ | ✅ |
+| 비밀번호 초기화 | ❌ | ❌ | ✅ |
+| 회원 로그 조회 | ❌ | ❌ | ✅ |
+| 회원 승인/권한변경/탈퇴 | ❌ | ❌ | ✅ |
+| 처리 이미지 삭제 | ❌ | ✅ | ✅ |
+| 민원 이미지 삭제 | 본인만 | ❌ | ✅ |
+
+---
+
+## 📌 알림 발송 규칙
+
+| 이벤트 | 알림 대상 | 알림 내용 |
+|--------|----------|----------|
+| 민원 등록 | 담당 카테고리 처리자들 | "새 민원이 접수되었습니다" |
+| 민원 상태 변경 | 민원인 | "○○○이(가) {상태} 처리되었습니다." |
+| 민원 처리 완료 | 민원인 | "○○○이(가) 완료 처리되었습니다." |
+| 수정 요청 제출 | 관리자 전체 | "{처리자명}님이 수정을 요청했습니다." |
+| 수정 요청 승인 (분류 변경) | 처리자, 민원인, 새 담당자들 | 대상별 다른 메시지 |
+| 수정 요청 거절 | 처리자 + 다른 관리자 | "민원 수정 요청이 반려 되었습니다." |
+| 수정 완료 (담당자 변경) | 기존 처리자, 민원인, 새 처리자 | 대상별 다른 메시지 |
+| 수정 완료 (기타) | 민원인, 처리자 | 대상별 다른 메시지 |
+
+> 모든 알림은 DB 저장 + 웹 푸시(Web Push) 동시 발송됩니다.
