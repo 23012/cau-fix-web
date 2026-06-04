@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FolderOpen, X, Search as SearchIcon, Filter as FilterIcon } from "lucide-react";
+import { useState, useRef } from "react";
+import { FolderOpen, X, Search as SearchIcon, Filter as FilterIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import Status from "../common/Status";
 import { STATUS_ORDER } from "../../constants/status";
 import { parseExcelDate } from "../../utils/parseExcelDate";
@@ -8,6 +8,61 @@ import "./MyStorage.css";
 const ITEMS_PER_PAGE = 7;
 const STATUS_TABS = ["전체", "접수중", "진행중", "완료"];
 const SORT_OPTIONS = ["번호순", "최신순", "오래된순", "상태순"];
+const DAYS_OF_WEEK = ["일", "월", "화", "수", "목", "금", "토"];
+
+/* ── 미니 달력 컴포넌트 ── */
+const MiniCalendar = ({ selected, onSelect }) => {
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(selected ? selected.getFullYear() : today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(selected ? selected.getMonth() : today.getMonth());
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewYear(viewYear - 1); setViewMonth(11); }
+    else setViewMonth(viewMonth - 1);
+  };
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewYear(viewYear + 1); setViewMonth(0); }
+    else setViewMonth(viewMonth + 1);
+  };
+
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const isSelected = (d) => {
+    if (!selected || !d) return false;
+    return selected.getFullYear() === viewYear && selected.getMonth() === viewMonth && selected.getDate() === d;
+  };
+
+  return (
+    <div className="ms-calendar">
+      <div className="ms-calendar-header">
+        <button type="button" className="ms-calendar-nav" onClick={prevMonth}><ChevronLeft size={16} /></button>
+        <span className="ms-calendar-title">{viewYear}년 {viewMonth + 1}월</span>
+        <button type="button" className="ms-calendar-nav" onClick={nextMonth}><ChevronRight size={16} /></button>
+      </div>
+      <div className="ms-calendar-weekdays">
+        {DAYS_OF_WEEK.map((d) => <span key={d} className="ms-calendar-wd">{d}</span>)}
+      </div>
+      <div className="ms-calendar-grid">
+        {cells.map((d, i) => (
+          <button
+            key={i}
+            type="button"
+            className={`ms-calendar-cell ${d ? "" : "empty"} ${isSelected(d) ? "selected" : ""}`}
+            disabled={!d}
+            onClick={() => d && onSelect(new Date(viewYear, viewMonth, d))}
+          >
+            {d || ""}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,6 +73,19 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [startDate, setStartDate] = useState({ year: "", month: "", day: "" });
   const [endDate, setEndDate] = useState({ year: "", month: "", day: "" });
+  const [calendarTarget, setCalendarTarget] = useState(null); // "start" | "end" | null
+
+  const filterRef = useRef(null);
+
+  // 팝업 내부 클릭 시 필터 패널 바깥이면 닫기
+  const handlePopupClick = (e) => {
+    e.stopPropagation();
+    // 필터 패널 바깥 클릭 시 닫기
+    if (filterOpen && filterRef.current && !filterRef.current.contains(e.target)) {
+      setFilterOpen(false);
+      setCalendarTarget(null);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -71,16 +139,32 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
   const resetFilter = () => {
     setStartDate({ year: "", month: "", day: "" });
     setEndDate({ year: "", month: "", day: "" });
+    setCalendarTarget(null);
     setCurrentPage(1);
   };
 
+  const startDateObj = (startDate.year && startDate.month && startDate.day)
+    ? new Date(Number(startDate.year), Number(startDate.month) - 1, Number(startDate.day))
+    : null;
+  const endDateObj = (endDate.year && endDate.month && endDate.day)
+    ? new Date(Number(endDate.year), Number(endDate.month) - 1, Number(endDate.day))
+    : null;
+
+  const handleCalendarSelect = (date) => {
+    const obj = { year: String(date.getFullYear()), month: String(date.getMonth() + 1), day: String(date.getDate()) };
+    if (calendarTarget === "start") setStartDate(obj);
+    else if (calendarTarget === "end") setEndDate(obj);
+    setCalendarTarget(null);
+  };
+
   return (
-    <div className="my-storage-overlay" onClick={onClose}>
-      <div className="my-storage-popup" onClick={(e) => e.stopPropagation()}>
+    <div className="my-storage-overlay" onClick={(e) => { e.stopPropagation(); if (filterOpen) { setFilterOpen(false); setCalendarTarget(null); } else { onClose(); } }}>
+      <div className="my-storage-popup" onClick={handlePopupClick}>
         <div className="my-storage-header">
           <FolderOpen size={24} color="#63C3D1" />
           <h2>내 처리함</h2>
           <div className="my-storage-header-actions">
+            {/*검색*/}
             <div className="my-storage-search-container">
               <div className={`my-storage-search-wrapper ${searchOpen ? "open" : ""}`}>
                 <input
@@ -112,37 +196,44 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
 
         {/* 필터/정렬 */}
         <div className="my-storage-controls">
-          <div className="my-storage-filter-wrapper">
-            <button className="my-storage-icon-btn" onClick={() => setFilterOpen(!filterOpen)}>
+          <div className="my-storage-filter-wrapper" ref={filterRef}>
+            <button className="my-storage-icon-btn" onClick={() => { setFilterOpen(!filterOpen); setCalendarTarget(null); }}>
               <FilterIcon size={18} />
             </button>
             {filterOpen && (
               <div className="my-storage-filter-panel" onClick={(e) => e.stopPropagation()}>
                 <h4 className="my-storage-filter-title">기간</h4>
                 <div className="my-storage-filter-dates">
-                  <div className="my-storage-filter-date-row">
-                    <input type="text" placeholder="년" maxLength="4" value={startDate.year} onChange={(e) => setStartDate({ ...startDate, year: e.target.value })} className="my-storage-filter-input" />
-                    <span>/</span>
-                    <input type="text" placeholder="월" maxLength="2" value={startDate.month} onChange={(e) => setStartDate({ ...startDate, month: e.target.value })} className="my-storage-filter-input" />
-                    <span>/</span>
-                    <input type="text" placeholder="일" maxLength="2" value={startDate.day} onChange={(e) => setStartDate({ ...startDate, day: e.target.value })} className="my-storage-filter-input" />
-                  </div>
+                  <button
+                    type="button"
+                    className={`ms-date-btn ${calendarTarget === "start" ? "active" : ""}`}
+                    onClick={() => setCalendarTarget(calendarTarget === "start" ? null : "start")}
+                  >
+                    {startDate.year ? `${startDate.year}/${startDate.month}/${startDate.day}` : "시작일"}
+                  </button>
                   <span className="my-storage-filter-sep">~</span>
-                  <div className="my-storage-filter-date-row">
-                    <input type="text" placeholder="년" maxLength="4" value={endDate.year} onChange={(e) => setEndDate({ ...endDate, year: e.target.value })} className="my-storage-filter-input" />
-                    <span>/</span>
-                    <input type="text" placeholder="월" maxLength="2" value={endDate.month} onChange={(e) => setEndDate({ ...endDate, month: e.target.value })} className="my-storage-filter-input" />
-                    <span>/</span>
-                    <input type="text" placeholder="일" maxLength="2" value={endDate.day} onChange={(e) => setEndDate({ ...endDate, day: e.target.value })} className="my-storage-filter-input" />
-                  </div>
+                  <button
+                    type="button"
+                    className={`ms-date-btn ${calendarTarget === "end" ? "active" : ""}`}
+                    onClick={() => setCalendarTarget(calendarTarget === "end" ? null : "end")}
+                  >
+                    {endDate.year ? `${endDate.year}/${endDate.month}/${endDate.day}` : "종료일"}
+                  </button>
                 </div>
+                {calendarTarget && (
+                  <MiniCalendar
+                    selected={calendarTarget === "start" ? startDateObj : endDateObj}
+                    onSelect={handleCalendarSelect}
+                  />
+                )}
                 <div className="my-storage-filter-actions">
                   <button className="my-storage-filter-reset" onClick={resetFilter}>초기화</button>
-                  <button className="my-storage-filter-apply" onClick={() => { setFilterOpen(false); setCurrentPage(1); }}>적용</button>
+                  <button className="my-storage-filter-apply" onClick={() => { setFilterOpen(false); setCalendarTarget(null); setCurrentPage(1); }}>적용</button>
                 </div>
               </div>
             )}
           </div>
+          {/*민원 상태 구분 메뉴바*/}
           <select className="my-storage-sort" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
             {SORT_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
           </select>

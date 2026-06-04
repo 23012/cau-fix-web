@@ -96,6 +96,7 @@ const ChartSection = ({ data, onFavoriteClick, onDateRangeChange, activeStatusTa
       </div>
 
       <div className="chart-container">
+        {/* 원그래프 */}
         <div className="chart">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -147,7 +148,7 @@ const ChartSection = ({ data, onFavoriteClick, onDateRangeChange, activeStatusTa
       </div>
 
       <hr className="chart-divider" />
-
+      {/* 바 */}
       <div className="legend-bars">
         {chartData.map((item) => {
           const percent = total > 0 ? (item.value / total) * 100 : 0;
@@ -171,7 +172,7 @@ const ChartSection = ({ data, onFavoriteClick, onDateRangeChange, activeStatusTa
           );
         })}
       </div>
-
+      {/* 즐겨찾기 버튼 */}
       <button className={`favorite-btn ${activeStatusTab === "즐겨찾기" ? "favorite-btn--active" : ""}`} onClick={onFavoriteClick}>
         <Star size={20} strokeWidth={2.5} />
         <span>즐겨찾기</span>

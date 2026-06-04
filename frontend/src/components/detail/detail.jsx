@@ -100,7 +100,9 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
 
   const getImagePath = (name) => {
     if (!name) return null;
-    try { return require(`../../assets/images/complain/${name}`); } catch { return null; }
+    // 서버 업로드 경로로 이미지 접근
+    if (name.startsWith('/uploads/') || name.startsWith('http')) return name;
+    return `/uploads/complain/${name}`;
   };
 
   const imagePath = data.image && !imageError ? getImagePath(data.image) : null;

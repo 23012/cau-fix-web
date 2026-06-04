@@ -38,12 +38,14 @@ const Complain = () => {
   const [fromStorage, setFromStorage] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  //새로고침
   const handleRefresh = async () => {
     setRefreshing(true);
     await refetch();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
+  //민원 테이블에서 행 클릭 시 상세 페이지로 이동
   const handleRowClick = (row) => {
     if (window.innerWidth <= 768) {
       navigate("/complain-detail", { state: { data: row } });
@@ -58,6 +60,7 @@ const Complain = () => {
       <div className="mobile-header">
         <div className="mobile-title-row">
           <h1 className="mobile-title">내 민원</h1>
+          {/*처리자 부서 표시*/}
           {user?.role === "처리자" && user?.dept && (
             <span className="mobile-dept-badge">{user.dept}</span>
           )}
@@ -71,6 +74,7 @@ const Complain = () => {
       </div>
 
       <div className="main">
+        {/*원그래프*/}
         <ChartSection
           data={chartBaseData}
           selectedYear={selectedYear}
@@ -88,7 +92,7 @@ const Complain = () => {
             });
           }}
         />
-
+        {/*테이블*/}
         <ComplainTable
           user={user}
           currentData={currentData}
@@ -106,15 +110,16 @@ const Complain = () => {
           onRowClick={handleRowClick}
         />
       </div>
-
       <div className="fab">
+        {/*처리자 - 내 처리함*/}
         {user?.role === "처리자" ? (
           <button className="fab-btn" onClick={() => setMyStorageOpen(true)}><FolderOpen /></button>
         ) : (
           <button className="fab-btn" onClick={() => setComplainFormOpen(true)}><Plus /></button>
-        )}
+        )} {/*사용자 - 민원 등록*/}
       </div>
 
+      {/*사용자 - 민원 등록*/}
       <ComplainForm isOpen={complainFormOpen} onClose={() => setComplainFormOpen(false)} onSubmit={async (formData) => {
         const cat = categories.find((c) => c.category_name === formData.category);
         const result = await createComplaint({
@@ -130,6 +135,7 @@ const Complain = () => {
         window.location.reload();
       }} />
 
+      {/*처리자 - 내 처리함*/}
       <MyStorage
         isOpen={myStorageOpen}
         onClose={() => setMyStorageOpen(false)}
@@ -137,6 +143,7 @@ const Complain = () => {
         onSelect={(row) => { setFromStorage(true); setSelectedComplain(row); }}
       />
 
+      {/*민원 상세*/}
       <Detail
         isOpen={!!selectedComplain}
         onClose={() => { setSelectedComplain(null); refetch(); }}

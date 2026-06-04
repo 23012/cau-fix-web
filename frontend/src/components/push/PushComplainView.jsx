@@ -51,11 +51,8 @@ const PushComplainView = ({ data, onBack, onRefresh, rejectionReason }) => {
 
   const getImagePath = (imageName) => {
     if (!imageName) return null;
-    try {
-      return require(`../../assets/images/complain/${imageName}`);
-    } catch {
-      return null;
-    }
+    if (imageName.startsWith('/uploads/') || imageName.startsWith('http')) return imageName;
+    return `/uploads/complain/${imageName}`;
   };
 
   const imagePath = data.image && !imageError ? getImagePath(data.image) : null;
