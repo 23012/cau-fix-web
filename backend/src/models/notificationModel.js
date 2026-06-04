@@ -84,7 +84,7 @@ const notificationModel = {
 
   // 처리자/관리자 알림 생성
   createForManagers: async ({ complain_id, manager_ids, state, complain_title, custom_content }) => {
-    const push_content = custom_content || `새 민원이 접수되었습니다 `;
+    const push_content = custom_content || `새 민원이 접수되었습니다`;
     const promises = manager_ids.map((manager_id) =>
       pool.query(
         `INSERT INTO push_notification (complain_id, member_id, state, push_content)
