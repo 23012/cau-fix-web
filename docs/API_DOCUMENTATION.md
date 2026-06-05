@@ -28,6 +28,14 @@ localStorage.setItem('user', JSON.stringify(response.member));
 const token = localStorage.getItem('token');
 ```
 
+#### 백엔드(JWT 토큰) 로그인 유지 토큰 만료 기간
+> 체크 시 : 14일 
+> 미체크 시 : 8시간
+
+#### 프론트엔드 (login.js) 페이지
+> 활성화 : 앱 재진입 시 토큰 검증 후 자동으로 대시보드 이동
+=> 비활성화 : 앱 재진입 시 토큰/유저 정보 삭제 -> 로그인 페이지 표시
+
 ---
 
 ## 📌 공통 응답 형식
@@ -173,6 +181,7 @@ POST /api/auth/login
 
 > 로그인 성공 시 `token`과 `member`를 localStorage에 저장해주세요.
 > `password_reset`이 `true`이면 관리자가 비밀번호를 초기화한 상태이므로, 비밀번호 변경을 유도해주세요.
+
 
 **오류 케이스**
 ```json
