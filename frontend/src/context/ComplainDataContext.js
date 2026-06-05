@@ -44,8 +44,10 @@ export const ComplainDataProvider = ({ children }) => {
         resultDept: row.resultDept || null,
         resultPhone: row.resultPhone || null,
       }));
+      console.log('[ComplainData] loaded', parsed.length, 'complaints');
       setTableData(parsed);
     } catch (error) {
+      console.error('[ComplainData] load failed:', error);
       // 데이터 로드 실패 시 빈 목록 유지
     } finally {
       setLoading(false);

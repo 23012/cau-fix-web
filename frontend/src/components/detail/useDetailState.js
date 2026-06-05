@@ -258,9 +258,21 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
     }
   };
 
-  // canAccept: API에서 내려온 값 (담당 카테고리 일치 여부)
-  // apiDetail이 아직 로드되지 않으면 data의 canAccept를 사용, 그마저도 없으면 false
-  const canAccept = apiDetail?.canAccept ?? data?.canAccept ?? false;
+  // canAccept: API에서 내려온 값 (담당 부서 일치 여부)
+  // apiDetail 로드 완료 시 API 값 사용, 미로드 시 로컬에서 판단
+  const canAccept = (() => {
+    if (apiDetail && 'canAccept' in apiDetail) return apiDetail.canAccept;
+    if (data && 'canAccept' in data) return data.canAccept;
+    // API 미로드 & data에도 없을 때: 처리자면 로컬에서 카테고리 담당 부서 비교
+    if (!isEditor && user?.dept) {
+      // detailData.dept = 카테고리 담당 부서 (cc.dept)
+      const categoryDept = detailData?.dept || displayData?.dept;
+      if (categoryDept) {
+        return user.dept === '전체' || user.dept === categoryDept;
+      }
+    }
+    return !isEditor; // 처리자면 기본 true (자기 목록에서 접근한 경우)
+  })();
 
   return {
     // 데이터

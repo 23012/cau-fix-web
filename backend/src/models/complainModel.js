@@ -12,7 +12,7 @@ const formatComplain = (row) => ({
   location: row.location,
   status: stateMap[row.state] || row.state,
   category: row.category_name,
-  dept: row.dept,
+  dept: row.category_name,
   memberName: row.member_name,
   memberDept: row.member_dept,
   date: row.complain_at,
@@ -169,7 +169,7 @@ const complainModel = {
        JOIN member m ON c.complain_by = m.member_id
        LEFT JOIN complaint_process cp ON c.complain_id = cp.complain_id
        LEFT JOIN member pm ON cp.process_by = pm.member_id
-       WHERE cc.category_name = $1 AND c.is_deleted = FALSE
+       WHERE (cc.category_name = $1 OR cc.dept = $1) AND c.is_deleted = FALSE
        ORDER BY c.complain_at DESC`,
       [dept]
     );

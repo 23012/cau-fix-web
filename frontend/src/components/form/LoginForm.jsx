@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 /**
  * 로그인 폼
  */
-const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
+const LoginForm = ({ formData, error, loading, onChange, onSubmit, autoLogin, onAutoLoginChange }) => {
   const navigate = useNavigate();
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -59,7 +59,7 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
         disabled={loading}
         className="input"
       />
-      {/*아이디 기억하기*/}
+      {/*아이디 기억하기 & 로그인 유지*/}
       <div className="remember-me">
         <label className="remember-me-label">
           <input
@@ -69,6 +69,15 @@ const LoginForm = ({ formData, error, loading, onChange, onSubmit }) => {
             className="remember-me-checkbox"
           />
           <span>아이디 기억하기</span>
+        </label>
+        <label className="remember-me-label">
+          <input
+            type="checkbox"
+            checked={autoLogin}
+            onChange={onAutoLoginChange}
+            className="remember-me-checkbox"
+          />
+          <span>로그인 유지</span>
         </label>
       </div>
       

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Background from "../../components/common/Background";
 import Logo from "../../components/form/Logo";
 import LoginForm from "../../components/form/LoginForm";
-import { login } from "../../services/authService";
+import { login, getMe } from "../../services/authService";
 import { normalizeRole } from "../../constants/roles";
 import { subscribePush } from "../../utils/pushSubscription";
 import { useComplainDataContext } from "../../context/ComplainDataContext";
@@ -17,6 +17,56 @@ const Login = () => {
   const [formData, setFormData] = useState({ id: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingToken, setCheckingToken] = useState(true);
+  const [autoLogin, setAutoLogin] = useState(() => {
+    return localStorage.getItem("autoLogin") === "true";
+  });
+
+  // 자동로그인: "로그인 유지"가 활성화된 경우에만 토큰 검증 후 자동 이동
+  useEffect(() => {
+    const tryAutoLogin = async () => {
+      const token = localStorage.getItem("token");
+      const isAutoLogin = localStorage.getItem("autoLogin") === "true";
+
+      if (!token || !isAutoLogin) {
+        // 자동로그인 비활성화 상태면 토큰 정리
+        if (!isAutoLogin) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        }
+        setCheckingToken(false);
+        return;
+      }
+
+      try {
+        const result = await getMe();
+        // 토큰이 유효하면 localStorage의 user 정보를 최신으로 갱신
+        localStorage.setItem("user", JSON.stringify({
+          ...result.member,
+          role: normalizeRole(result.member.role),
+        }));
+        await refetch();
+        navigate("/complain-dashboard", { replace: true });
+      } catch {
+        // 토큰이 만료되었거나 유효하지 않으면 삭제
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setCheckingToken(false);
+      }
+    };
+
+    tryAutoLogin();
+  }, [navigate, refetch]);
+
+  const handleAutoLoginChange = (e) => {
+    const checked = e.target.checked;
+    setAutoLogin(checked);
+    if (checked) {
+      localStorage.setItem("autoLogin", "true");
+    } else {
+      localStorage.removeItem("autoLogin");
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +84,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const result = await login(formData.id, formData.password);
+      const result = await login(formData.id, formData.password, autoLogin);
       localStorage.setItem("token", result.token);
       localStorage.setItem("user", JSON.stringify({
         ...result.member,
@@ -67,6 +117,11 @@ const Login = () => {
     }
   };
 
+  // 자동로그인 확인 중에는 빈 화면 표시 (깜빡임 방지)
+  if (checkingToken) {
+    return null;
+  }
+
   return (
     <div className="page-container-center">
       <Background image={hospitalBg} />
@@ -78,6 +133,8 @@ const Login = () => {
           loading={loading}
           onChange={handleChange}
           onSubmit={handleSubmit}
+          autoLogin={autoLogin}
+          onAutoLoginChange={handleAutoLoginChange}
         />
       </div>
     </div>

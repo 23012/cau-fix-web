@@ -58,6 +58,8 @@ const complainController = {
       const startDate = req.query.startDate?.trim();
       const endDate = req.query.endDate?.trim();
 
+      console.log('[getAll] user:', { role, member_id, dept });
+
       const hasFilter = category || status || startDate || endDate;
 
       let complaints;
@@ -75,9 +77,10 @@ const complainController = {
         }
       }
 
+      console.log('[getAll] result count:', complaints?.length, 'items:', JSON.stringify(complaints?.map(c => ({ id: c.id, category: c.category }))));
       return res.status(200).json({ complaints });
     } catch (err) {
-      console.error(err);
+      console.error('[getAll] ERROR:', err);
       return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }
   },
@@ -209,7 +212,7 @@ const complainController = {
       if (role === 'C' && complain.complain_by !== member_id) {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
-      if (role === 'E' && complain.category !== dept && dept !== '전체') {
+      if (role === 'E' && complain.dept !== dept && dept !== '전체') {
         // 해당 민원의 처리 담당자이거나 수정 요청자이거나 알림을 받은 사람이면 접근 허용
         const pool = require('../config/db');
         const processCheck = await pool.query(
@@ -260,10 +263,10 @@ const complainController = {
       }
 
       // 처리자(E)인 경우 해당 민원을 접수할 수 있는지 여부 판단
-      // 자신의 담당 카테고리와 민원 카테고리가 일치해야 접수 가능
+      // 자신의 담당 부서와 민원 카테고리의 담당 부서가 일치해야 접수 가능
       let canAccept = false;
       if (role === 'E') {
-        canAccept = (dept === '전체' || complain.category === dept);
+        canAccept = (dept === '전체' || complain.dept === dept);
       } else if (role === 'A') {
         canAccept = true;
       }
@@ -354,7 +357,7 @@ const complainController = {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
 
-      if (role === 'E' && complain.category !== dept && dept !== '전체') {
+      if (role === 'E' && complain.dept !== dept && dept !== '전체') {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
@@ -362,7 +365,7 @@ const complainController = {
 
       const updated = await complainModel.updateState(id, state);
 
-      // 접수(A) 시 complaint_process에 담당자 할당
+      // 접수중(A) 시 complaint_process에 담당자 할당
       if (state === 'A') {
         const existing = await complainModel.findProcess(id);
         if (!existing) {
@@ -370,7 +373,7 @@ const complainController = {
         }
       }
 
-      // 진행(P) 시 처리 시간 업데이트
+      // 진행중(P) 시 처리 시간 업데이트
       if (state === 'P') {
         const existing = await complainModel.findProcess(id);
         if (existing) {
@@ -420,7 +423,7 @@ const complainController = {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
 
-      if (role === 'E' && complain.category !== dept && dept !== '전체') {
+      if (role === 'E' && complain.dept !== dept && dept !== '전체') {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 

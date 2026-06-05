@@ -85,7 +85,9 @@ const Header = () => {
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
+      localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("autoLogin");
       navigate("/login");
     }
   };

@@ -13,12 +13,13 @@ export async function checkDuplicateId(loginId) {
  * 로그인
  * @param {string} loginId - 아이디
  * @param {string} password - 비밀번호
+ * @param {boolean} autoLogin - 로그인 유지 여부
  * @returns {Promise<{message: string, token: string, member: Object}>}
  */
-export async function login(loginId, password) {
+export async function login(loginId, password, autoLogin = false) {
   return apiClient('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ login_id: loginId, password }),
+    body: JSON.stringify({ login_id: loginId, password, auto_login: autoLogin }),
   });
 }
 
@@ -41,4 +42,12 @@ export async function register(formData) {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+/**
+ * 내 정보 조회 (토큰 유효성 확인용)
+ * @returns {Promise<{member: Object}>}
+ */
+export async function getMe() {
+  return apiClient('/auth/me');
 }

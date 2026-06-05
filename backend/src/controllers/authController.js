@@ -76,7 +76,7 @@ const authController = {
   // 로그인
   login: async (req, res) => {
     try {
-      const { login_id, password } = req.body;
+      const { login_id, password, auto_login } = req.body;
 
       if (!login_id || !password) {
         return res.status(400).json({ message: '아이디와 비밀번호를 입력해주세요.' });
@@ -111,7 +111,7 @@ const authController = {
           dept: member.dept,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '8h' }
+        { expiresIn: auto_login ? '14d' : '8h' }
       );
 
       return res.status(200).json({
