@@ -33,6 +33,7 @@ const PushList = () => {
       const complain = {
         ...result.complain,
         status: normalizeStatus(result.complain.status),
+        canAccept: result.canAccept ?? false,
       };
       navigate("/complain-detail", { state: { data: complain, showProgress: true, rejectionReason } });
     } catch {

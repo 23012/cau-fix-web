@@ -2,9 +2,9 @@
  * 처리자용 하단 액션 버튼 영역
  * - 접수하기 / 진행하기 / 처리 내용 작성
  */
-const DetailActionButtons = ({ isEditor, fromStorage, status, onAccept, onProgress, onProcessWrite }) => {
-  // 처리자 + 접수전: 접수하기 버튼
-  if (!isEditor && status === "접수전") {
+const DetailActionButtons = ({ isEditor, fromStorage, status, canAccept = false, onAccept, onProgress, onProcessWrite }) => {
+  // 처리자 + 접수전 + 담당 카테고리 일치: 접수하기 버튼
+  if (!isEditor && status === "접수전" && canAccept) {
     return (
       <div className="detail-accept-area">
         <button className="detail-accept-btn" onClick={onAccept}>

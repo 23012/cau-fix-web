@@ -24,6 +24,7 @@ export default function useComplainDetail(complainId) {
         process: result.process || null,
         images: result.images || [],
         processImages: result.processImages || [],
+        canAccept: result.canAccept ?? false,
       });
     } catch (err) {
       setError(err.message || "상세 정보를 불러올 수 없습니다");

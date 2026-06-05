@@ -258,9 +258,13 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
     }
   };
 
+  // canAccept: API에서 내려온 값 (담당 카테고리 일치 여부)
+  // apiDetail이 아직 로드되지 않으면 data의 canAccept를 사용, 그마저도 없으면 false
+  const canAccept = apiDetail?.canAccept ?? data?.canAccept ?? false;
+
   return {
     // 데이터
-    categories, detailData, user, isEditor, displayData, imagePath,
+    categories, detailData, user, isEditor, displayData, imagePath, canAccept,
     editRequest, approving, refetch, refetchEditRequest,
 
     // 탭 / 메뉴

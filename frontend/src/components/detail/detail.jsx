@@ -118,6 +118,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         isEditor={state.isEditor}
         fromStorage={fromStorage}
         status={state.displayData?.status}
+        canAccept={state.canAccept}
         onAccept={state.handleAccept}
         onProgress={state.handleProgress}
         onProcessWrite={() => { state.setProcessContent(""); state.setShowProcessForm(true); }}

@@ -259,7 +259,16 @@ const complainController = {
         processImages = await complainModel.findProcessImages(process.process_id);
       }
 
-      return res.status(200).json({ complain, process: process || null, images, processImages });
+      // 처리자(E)인 경우 해당 민원을 접수할 수 있는지 여부 판단
+      // 자신의 담당 카테고리와 민원 카테고리가 일치해야 접수 가능
+      let canAccept = false;
+      if (role === 'E') {
+        canAccept = (dept === '전체' || complain.category === dept);
+      } else if (role === 'A') {
+        canAccept = true;
+      }
+
+      return res.status(200).json({ complain, process: process || null, images, processImages, canAccept });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
