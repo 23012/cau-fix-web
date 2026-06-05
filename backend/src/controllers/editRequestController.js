@@ -201,10 +201,10 @@ const editRequestController = {
           const complain = await complainModel.findById(id);
           const complainTitle = complain?.title || '';
 
-          // 1. 수정 요청한 처리자: "수정 요청이 승인 완료되었습니다."
+          // 1. 수정 요청한 처리자: "수정 요청이 승인 되었습니다."
           await pool2.query(
             `INSERT INTO push_notification (complain_id, member_id, state, push_content) VALUES ($1, $2, $3, $4)`,
-            [id, editRequest.requesterId, 'B', `수정 요청이 승인되었습니다.`]
+            [id, editRequest.requesterId, 'B', `수정 요청이 승인 되었습니다.`]
           );
 
           // 2. 사용자: "처리자에 의해 민원 분류 항목이 변경되었습니다."
@@ -235,7 +235,7 @@ const editRequestController = {
           const allTargets = [editRequest.requesterId, ...(complain?.complain_by ? [complain.complain_by] : []), ...newProcessorIds];
           webPushService.sendToMembers(allTargets, {
             title: complainTitle,
-            body: `민원 수정이 완료 되었습니다.`,
+            body: `수정 요청이 승인 되었습니다.`,
             data: { complainId: id },
           }).catch(() => {});
         } catch (notifErr) {
@@ -429,10 +429,10 @@ const editRequestController = {
         const stateCode = updatedComplain?.status ? require('../models/complainModel').stateReverseMap[updatedComplain.status] || 'A' : 'A';
 
         if (editRequest.reason_type === '처리 담당자 변경') {
-          // 수정 요청한 처리자: "수정 요청이 승인 완료되었습니다."
+          // 수정 요청한 처리자: "수정 요청이 승인 되었습니다."
           await pool4.query(
             `INSERT INTO push_notification (complain_id, member_id, state, push_content) VALUES ($1, $2, $3, $4)`,
-            [id, editRequest.requester_id, stateCode, `수정 요청이 승인 완료되었습니다.`]
+            [id, editRequest.requester_id, stateCode, `수정 요청이 승인 되었습니다.`]
           );
           // 민원인: "처리자에 의해 담당자가 변경되었습니다."
           if (updatedComplain?.complain_by && updatedComplain.complain_by !== editRequest.requester_id) {
@@ -451,6 +451,7 @@ const editRequestController = {
           const allTargets = [editRequest.requester_id, updatedComplain?.complain_by, new_processor_id].filter(Boolean);
           webPushService.sendToMembers(allTargets, { title: complainTitle, body: `민원 수정이 완료 되었습니다.`, data: { complainId: id } }).catch(() => {});
 
+          //기타
         } else if (editRequest.reason_type === '기타') {
           // 사용자: "처리자에 의해 민원이 수정되었습니다."
           if (updatedComplain?.complain_by) {
@@ -459,11 +460,11 @@ const editRequestController = {
               [id, updatedComplain.complain_by, stateCode, `처리자에 의해 민원이 수정되었습니다.`]
             );
           }
-          // 수정 요청한 처리자: "수정 요청이 승인 완료되었습니다."
+          // 수정 요청한 처리자: "수정 요청이 승인 되었습니다."
           if (editRequest.requester_id !== updatedComplain?.complain_by) {
             await pool4.query(
               `INSERT INTO push_notification (complain_id, member_id, state, push_content) VALUES ($1, $2, $3, $4)`,
-              [id, editRequest.requester_id, stateCode, `수정 요청이 승인 완료되었습니다.`]
+              [id, editRequest.requester_id, stateCode, `수정 요청이 승인 되었습니다.`]
             );
           }
           const allTargets = [updatedComplain?.complain_by, editRequest.requester_id].filter(Boolean);
