@@ -365,6 +365,7 @@
 
 .table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -397,23 +398,23 @@
 
 /* 컬럼 너비 — col-fav 클래스로 통합 */
 .col-fav {
-  width: 90px;
+  width: 40px;
   text-align: center;
   cursor: pointer;
   padding-left: 24px;
 }
 
- .col-category {
-    width: 80px;
-  }
+.col-title {
+  width: 100px;
+}
 
 .col-handler {
-  width: 100px;
+  width: 90px;
 }
 
 .table th:last-child,
 .table td:last-child {
-  width: 100px;
+  width: 90px;
 }
 
 .title {

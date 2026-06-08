@@ -42,7 +42,7 @@ const ComplainTable = ({
               <tr>
                 <th className="col-fav"></th>
                 <th>번호</th>
-                <th>제목</th>
+                <th className = "col-title">제목</th>
                 {(user?.role === "사용자" || user?.role === "처리자") && <th className="col-handler">처리자</th>}
                 <th>상태</th>
               </tr>
