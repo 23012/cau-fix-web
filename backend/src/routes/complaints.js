@@ -9,7 +9,7 @@ router.post('/', authMiddleware, complainController.create);
 // 민원 목록 조회 (역할별 + 필터링)
 router.get('/', authMiddleware, complainController.getAll);
 
-// 민원 엑셀 다운로드 (관리자/처리자)
+// 민원 엑셀 다운로드 (관리자)
 router.get('/export', authMiddleware, complainController.exportExcel);
 
 // 민원 상세 조회
@@ -40,7 +40,7 @@ router.post('/:id/edit-request/approve', authMiddleware, editRequestController.a
 // 수정 요청 거절 (관리자)
 router.post('/:id/edit-request/reject', authMiddleware, editRequestController.reject);
 
-// 수정 요청 완료 (처리자 - 담당자변경/기타)
+// 수정 요청 완료 (관리자)
 router.put('/:id/edit-request/complete', authMiddleware, editRequestController.completeEdit);
 
 // 거절 사유 조회

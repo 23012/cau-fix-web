@@ -85,12 +85,12 @@ const complainController = {
     }
   },
 
-  // 민원 엑셀 다운로드 (관리자/처리자)
+  // 민원 엑셀 다운로드 (관리자만)
   exportExcel: async (req, res) => {
     try {
       const { role, member_id, dept } = req.user;
 
-      if (role === 'C') {
+      if (role !== 'A') {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
@@ -107,11 +107,7 @@ const complainController = {
           role, member_id, dept, category, status, startDate, endDate,
         });
       } else {
-        if (role === 'E') {
-          complaints = await complainModel.findByDept(dept);
-        } else {
-          complaints = await complainModel.findAll();
-        }
+        complaints = await complainModel.findAll();
       }
 
       for (const complain of complaints) {

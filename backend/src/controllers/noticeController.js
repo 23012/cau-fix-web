@@ -1,12 +1,12 @@
 const noticeModel = require('../models/noticeModel');
 
 const noticeController = {
-  // 공지사항 등록 (처리자/관리자)
+  // 공지사항 등록 (관리자만)
   create: async (req, res) => {
     try {
       const { role, member_id } = req.user;
 
-      if (role === 'C') {
+      if (role !== 'A') {
         return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
@@ -63,12 +63,16 @@ const noticeController = {
     }
   },
 
-  // 공지사항 수정 (작성자만)
+  // 공지사항 수정 (관리자만)
   update: async (req, res) => {
     try {
       const { id } = req.params;
       const { member_id, role } = req.user;
       const { notice_title, notice_category, notice_content } = req.body;
+
+      if (role !== 'A') {
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+      }
 
       if (!notice_title || !notice_category || !notice_content) {
         return res.status(400).json({ message: '필수 항목을 입력해주세요.' });
@@ -84,11 +88,6 @@ const noticeController = {
         return res.status(404).json({ message: '공지사항을 찾을 수 없습니다.' });
       }
 
-      // 작성자 또는 관리자만 수정 가능
-      if (notice.notice_by !== member_id && role !== 'A') {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
-      }
-
       const updated = await noticeModel.update(id, {
         notice_title,
         notice_category,
@@ -102,20 +101,19 @@ const noticeController = {
     }
   },
 
-  // 공지사항 삭제 (작성자/관리자)
+  // 공지사항 삭제 (관리자만)
   delete: async (req, res) => {
     try {
       const { id } = req.params;
       const { member_id, role } = req.user;
 
+      if (role !== 'A') {
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+      }
+
       const notice = await noticeModel.findById(id);
       if (!notice) {
         return res.status(404).json({ message: '공지사항을 찾을 수 없습니다.' });
-      }
-
-      // 작성자 또는 관리자만 삭제 가능
-      if (notice.notice_by !== member_id && role !== 'A') {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
       await noticeModel.softDelete(id);

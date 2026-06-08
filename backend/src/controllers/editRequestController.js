@@ -264,7 +264,7 @@ const editRequestController = {
         return res.status(403).json({ message: '관리자만 거절할 수 있습니다.' });
       }
 
-      if (!reason || reason.trim().length === 0 || reason.trim().length > 500) {
+      if (!reason || reason.trim().length === 0 || reason.trim().length > 50) {
         return res.status(400).json({ message: '반려 사유를 입력해주세요. (1~50자)' });
       }
 
@@ -341,8 +341,8 @@ const editRequestController = {
       const { role, member_id } = req.user;
       const { title, content, location, category_id, new_processor_id } = req.body;
 
-      if (role === 'C') {
-        return res.status(403).json({ message: '수정 권한이 없습니다.' });
+      if (role !== 'A') {
+        return res.status(403).json({ message: '관리자만 수정을 완료할 수 있습니다.' });
       }
 
       const { EDIT_REQUEST_STATUS } = require('../models/editRequestModel');

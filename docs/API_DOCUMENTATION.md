@@ -1,6 +1,4 @@
-# 시설팀 민원 앱 API 문서
-
-> 백엔드 API 연동 가이드입니다. 순서대로 연동해주세요!
+# 시설팀 민원 앱 API DOCUMENTATION
 
 ---
 
@@ -32,7 +30,7 @@ const token = localStorage.getItem('token');
 > - 체크 시 : 14일 
 > - 미체크 시 : 8시간
 
-#### 프론트엔드 (login.js) 페이지
+#### 프론트엔드 (login.js) 페이지 로그인 유지
 > - 활성화 : 앱 재진입 시 토큰 검증 후 자동으로 대시보드 이동
 > - 비활성화 : 앱 재진입 시 토큰/유저 정보 삭제 -> 로그인 페이지 표시
 
@@ -158,9 +156,12 @@ POST /api/auth/login
 ```json
 {
   "login_id": "hong001",
-  "password": "test1234!"
+  "password": "test1234!",
+  "auto_login": true
 }
 ```
+
+> `auto_login`: 선택 항목. `true`이면 토큰 만료 14일, `false`이거나 미전송 시 8시간
 
 **응답**
 ```json
@@ -275,69 +276,6 @@ GET /api/categories/with-total
 
 ---
 
-### 카테고리 등록 (관리자)
-```
-POST /api/categories
-인증: 필요 (관리자만)
-```
-
-**요청 바디**
-```json
-{
-  "category_name": "조경",
-  "dept": "시설팀"
-}
-```
-
-**응답**
-```json
-{
-  "message": "카테고리가 등록되었습니다.",
-  "category": { "category_id": 7, "category_name": "조경", "dept": "시설팀" }
-}
-```
-
----
-
-### 카테고리 수정 (관리자)
-```
-PUT /api/categories/:id
-인증: 필요 (관리자만)
-```
-
-**요청 바디**
-```json
-{
-  "category_name": "조경/환경",
-  "dept": "시설팀"
-}
-```
-
-**응답**
-```json
-{
-  "message": "카테고리가 수정되었습니다.",
-  "category": { "category_id": 7, "category_name": "조경/환경", "dept": "시설팀" }
-}
-```
-
----
-
-### 카테고리 삭제 (관리자)
-```
-DELETE /api/categories/:id
-인증: 필요 (관리자만)
-```
-
-**응답**
-```json
-{
-  "message": "카테고리가 삭제되었습니다."
-}
-```
-
----
-
 ## 3️⃣ 민원 API
 
 ### 민원 목록 조회
@@ -431,12 +369,14 @@ GET /api/complaints/:id
   ],
   "processImages": [
     { "id": 1, "url": "/uploads/process/process_xxx.jpg", "order": 1, "size": 12345 }
-  ]
+  ],
+  "canAccept": true
 }
 ```
 
 > `process`가 `null`이면 아직 처리되지 않은 민원입니다.
 > 이미지 URL 접근: `http://localhost/uploads/complain/파일명`
+> `canAccept`: 현재 로그인한 사용자가 이 민원을 접수(상태 변경)할 수 있는지 여부 (처리자는 담당 카테고리 일치 시 true, 관리자는 항상 true, 사용자는 항상 false)
 > process 필드 설명:
 > - `process_by`: 처리자 member_id
 > - `resultDept`: 처리자 담당 카테고리
@@ -561,10 +501,10 @@ POST /api/complaints/:id/process
 
 ---
 
-### 민원 엑셀 다운로드 (처리자/관리자)
+### 민원 엑셀 다운로드 (관리자)
 ```
 GET /api/complaints/export
-인증: 필요 (처리자/관리자만)
+인증: 필요 (관리자만)
 ```
 
 **쿼리 파라미터 (선택)**
@@ -578,7 +518,6 @@ GET /api/complaints/export
 
 > 모든 필터 조합 가능합니다.
 > 엑셀 파일에 이미지 URL 컬럼이 포함됩니다.
-> 처리자(E)는 본인 담당 카테고리 민원만 다운로드됩니다.
 
 **프론트 구현 예시**
 ```javascript
@@ -647,7 +586,7 @@ POST /api/complaints/:id/edit-request
 
 ---
 
-### 수정 요청 조회
+### 수정 요청 조회 (처리자, 관리자)
 ```
 GET /api/complaints/:id/edit-request
 인증: 필요
@@ -682,14 +621,41 @@ POST /api/complaints/:id/edit-request/approve
 인증: 필요 (관리자만)
 ```
 
-**사유별 처리 방식:**
-| reasonType | 처리 방식 |
-|-----------|----------|
-| 분류 항목 변경 | 즉시 카테고리 변경 + 접수전(B) 상태 + 기존 처리자 해제 → 완료 |
-| 처리 담당자 변경 | 처리자가 수정 페이지에서 완료해야 함 (completeEdit) |
-| 기타 | 처리자가 수정 페이지에서 완료해야 함 (completeEdit) |
+> 관리자가 수정 요청을 승인하고 사유에 따라 처리를 완료합니다.
 
-**응답**
+**사유별 처리 방식:**
+
+#### 1. 분류 항목 변경
+승인 시 즉시 처리가 완료됩니다. (별도 complete API 호출 불필요)
+- 카테고리 변경 + 접수전(B) 상태 + 기존 처리자 해제
+
+#### 2. 처리 담당자 변경
+승인 후 `PUT /api/complaints/:id/edit-request/complete` 호출이 필요합니다.
+
+**complete 요청 바디:**
+```json
+{
+  "new_processor_id": 7
+}
+```
+> 새 처리자로 교체 + 접수(A) 상태로 변경됨
+
+#### 3. 기타 (내용 수정)
+승인 후 `PUT /api/complaints/:id/edit-request/complete` 호출이 필요합니다.
+
+**complete 요청 바디:**
+```json
+{
+  "title": "수정된 제목",
+  "content": "수정된 내용",
+  "location": "수정된 장소",
+  "category_id": 3
+}
+```
+> 민원 내용 수정 + 이전 상태로 복원됨
+> 모든 필드 선택적 (변경할 필드만 전달)
+
+**승인 응답**
 ```json
 {
   "message": "수정 요청이 승인되었습니다.",
@@ -705,10 +671,24 @@ POST /api/complaints/:id/edit-request/approve
 }
 ```
 
-> 분류 항목 변경 승인 시 알림 발송 대상:
-> 1. 수정 요청한 처리자: "수정 요청이 승인되었습니다."
-> 2. 민원인: "처리자에 의해 민원 분류 항목이 변경되었습니다."
-> 3. 변경된 카테고리 담당 처리자들: "새 민원이 접수되었습니다."
+**complete 응답**
+```json
+{
+  "message": "민원 수정이 완료되었습니다.",
+  "complaint": {
+    "id": 3,
+    "title": "수정된 제목",
+    "status": "접수",
+    "..."
+  }
+}
+```
+
+> 수정 이력(before/after 스냅샷)이 `complaint_edit_history` 테이블에 자동 기록됩니다.
+> **알림 발송:**
+> - 분류 항목 변경: 처리자("승인됨"), 민원인("분류 항목 변경됨"), 새 카테고리 담당자들("새 민원 접수")
+> - 담당자 변경: 기존 처리자, 민원인, 새 처리자에게 알림
+> - 기타: 민원인, 처리자에게 알림
 
 ---
 
@@ -725,7 +705,7 @@ POST /api/complaints/:id/edit-request/reject
 }
 ```
 
-> reason: 1~500자 필수
+> reason: 1~50자 필수
 > 거절 시 민원 상태가 이전 상태로 복원됩니다.
 > 처리자 + 다른 관리자에게 반려 알림이 발송됩니다.
 
@@ -735,56 +715,6 @@ POST /api/complaints/:id/edit-request/reject
   "message": "수정 요청이 반려되었습니다."
 }
 ```
-
----
-
-### 수정 요청 완료 (처리자)
-```
-PUT /api/complaints/:id/edit-request/complete
-인증: 필요 (처리자/관리자만)
-```
-
-> 관리자 승인 후 처리자가 실제 수정을 완료하는 API입니다.
-
-**요청 바디 (처리 담당자 변경 시)**
-```json
-{
-  "new_processor_id": 7
-}
-```
-
-> 새 처리자로 교체 + 접수(A) 상태로 변경됨
-
-**요청 바디 (기타 - 내용 수정 시)**
-```json
-{
-  "title": "수정된 제목",
-  "content": "수정된 내용",
-  "location": "수정된 장소",
-  "category_id": 3
-}
-```
-
-> 민원 내용 수정 + 이전 상태로 복원됨
-> 모든 필드 선택적 (변경할 필드만 전달)
-
-**응답**
-```json
-{
-  "message": "민원 수정이 완료되었습니다.",
-  "complaint": {
-    "id": 3,
-    "title": "수정된 제목",
-    "status": "접수",
-    "..."
-  }
-}
-```
-
-> 수정 이력(before/after 스냅샷)이 `complaint_edit_history` 테이블에 자동 기록됩니다.
-> 사유별 알림 발송:
-> - 담당자 변경: 기존 처리자, 민원인, 새 처리자에게 알림
-> - 기타: 민원인, 처리자에게 알림
 
 ---
 
@@ -954,10 +884,10 @@ GET /api/notices/:id
 
 ---
 
-### 공지사항 등록 (처리자/관리자)
+### 공지사항 등록 (관리자)
 ```
 POST /api/notices
-인증: 필요 (처리자/관리자만)
+인증: 필요 (관리자만)
 ```
 
 **요청 바디**
@@ -973,18 +903,18 @@ POST /api/notices
 
 ---
 
-### 공지사항 수정 (작성자/관리자)
+### 공지사항 수정 (관리자)
 ```
 PUT /api/notices/:id
-인증: 필요
+인증: 필요 (관리자만)
 ```
 
 ---
 
-### 공지사항 삭제 (작성자/관리자)
+### 공지사항 삭제 (관리자)
 ```
 DELETE /api/notices/:id
-인증: 필요
+인증: 필요 (관리자만)
 ```
 
 ---
@@ -1228,7 +1158,7 @@ GET /api/members
 
 ---
 
-### 회원 승인 (관리자만)
+### 회원 승인 (관리자)
 ```
 PUT /api/members/:id/approve
 인증: 필요 (관리자만)
@@ -1250,7 +1180,7 @@ PUT /api/members/:id/approve
 
 ---
 
-### 권한 변경 (관리자만)
+### 권한 변경 (관리자)
 ```
 PUT /api/members/:id/role
 인증: 필요 (관리자만)
@@ -1281,7 +1211,7 @@ PUT /api/members/:id/role
 
 ---
 
-### 담당 카테고리 변경 (관리자만)
+### 담당 카테고리 변경 (관리자)
 ```
 PUT /api/members/:id/dept
 인증: 필요 (관리자만)
@@ -1315,7 +1245,7 @@ PUT /api/members/:id/dept
 
 ---
 
-### 비밀번호 초기화 (관리자만)
+### 비밀번호 초기화 (관리자)
 ```
 PUT /api/members/:id/reset-password
 인증: 필요 (관리자만)
@@ -1332,7 +1262,7 @@ PUT /api/members/:id/reset-password
 
 ---
 
-### 회원 로그 조회 (관리자만)
+### 회원 로그 조회 (관리자)
 ```
 GET /api/members/:id/logs
 인증: 필요 (관리자만)
@@ -1362,7 +1292,7 @@ GET /api/members/:id/logs
 
 ---
 
-### 회원 탈퇴 처리 (관리자만)
+### 회원 탈퇴 처리 (관리자)
 ```
 DELETE /api/members/:id
 인증: 필요 (관리자만)
@@ -1460,8 +1390,7 @@ DELETE /api/members/:id
 | 엑셀 다운로드 | ❌ | ❌ | ✅ |
 | 수정 요청 제출 | ❌ | ✅ | ✅ |
 | 수정 요청 조회 | ❌ | ✅ | ✅ |
-| 수정 요청 승인/거절 | ❌ | ❌ | ✅ |
-| 수정 요청 완료 | ❌ | ✅ | ✅ |
+| 수정 요청 승인/거절/완료 | ❌ | ❌ | ✅ |
 | 거절 사유 조회 | ❌ | ✅ | ✅ |
 | 공지사항 조회 | ✅ | ✅ | ✅ |
 | 공지사항 등록 | ❌ | ❌ | ✅ |
@@ -1469,11 +1398,10 @@ DELETE /api/members/:id
 | 알림 조회 | ✅ | ✅ | ✅ |
 | 푸시 구독/해제 | ✅ | ✅ | ✅ |
 | 내 정보 수정 | ✅ | ✅ | ✅ |
-| 카테고리 등록/수정/삭제 | ❌ | ❌ | ✅ |
 | 비밀번호 초기화 | ❌ | ❌ | ✅ |
 | 회원 로그 조회 | ❌ | ❌ | ✅ |
 | 회원 승인/권한변경/탈퇴 | ❌ | ❌ | ✅ |
-| 처리 이미지 삭제 | ❌ | ✅ | ✅ |
+| 처리 이미지 삭제 | ❌ | 본인만 | ✅ |
 | 민원 이미지 삭제 | 본인만 | ❌ | ✅ |
 
 ---
