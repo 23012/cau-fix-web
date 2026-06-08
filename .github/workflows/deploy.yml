@@ -43,6 +43,8 @@ jobs:
           if [ -z "${{ secrets.DB_USER }}" ]; then missing="$missing DB_USER"; fi
           if [ -z "${{ secrets.DB_PASSWORD }}" ]; then missing="$missing DB_PASSWORD"; fi
           if [ -z "${{ secrets.JWT_SECRET }}" ]; then missing="$missing JWT_SECRET"; fi
+          if [ -z "${{ secrets.VAPID_PUBLIC_KEY }}" ]; then missing="$missing VAPID_PUBLIC_KEY"; fi
+          if [ -z "${{ secrets.VAPID_PRIVATE_KEY }}" ]; then missing="$missing VAPID_PRIVATE_KEY"; fi
           if [ -n "$missing" ]; then
             echo "::error::Missing secrets:$missing"
             exit 1
@@ -56,11 +58,23 @@ jobs:
 
       - name: 환경변수 파일 생성
         run: |
+          DB_HOST="${{ secrets.DB_HOST }}"; [ -z "$DB_HOST" ] && DB_HOST="localhost"
+          DB_PORT="${{ secrets.DB_PORT }}"; [ -z "$DB_PORT" ] && DB_PORT="5432"
+          ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}"
           cat > $DEPLOY_PATH/.env << EOF
           DB_NAME=${{ secrets.DB_NAME }}
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_PORT=$DB_PORT
+          DATABASE_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@$DB_HOST:$DB_PORT/${{ secrets.DB_NAME }}
+          NODE_ENV=production
+          PORT=4000
+          TZ=Asia/Seoul
+          ALLOWED_ORIGINS=$ALLOWED_ORIGINS
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          VAPID_SUBJECT=mailto:admin@caufix.com
+          VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}
           EOF
           echo ".env file created successfully."
 

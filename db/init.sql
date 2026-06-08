@@ -338,11 +338,18 @@ INSERT INTO complain_category (category_name, dept) VALUES
   ('의료장비', '물류관리팀'),
   ('미화', '총무팀');
 
--- 관리자 계정 (비밀번호: admin1234!) -- 수정 필요
+-- 관리자 계정 부트스트랩
+-- 보안상 비밀번호를 소스에 두지 않습니다. 아래 placeholder 해시로는 로그인할 수 없으며,
+-- 배포 후 강한 비밀번호의 bcrypt 해시로 직접 교체해야 합니다.
+--
+-- 1) 해시 생성:
+--    node -e "console.log(require('bcrypt').hashSync(process.argv[1], 10))" '강한비밀번호'
+-- 2) 생성된 해시로 갱신:
+--    UPDATE member SET password = '<생성된_해시>' WHERE login_id = 'superadmin';
 INSERT INTO member (login_id, password, name, role, dept, phone, is_approved)
 VALUES (
   'superadmin',
-  '$2b$10$k1.UtJ/OdgXrijhI/Qyp4OpLvBLKe76NUuu16CtfeV2WFkwkOePl6',
+  '!!REPLACE_WITH_BCRYPT_HASH!!',
   '슈퍼관리자',
   'A',
   '시설관리팀',
