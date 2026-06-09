@@ -5,39 +5,34 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Property 3: apiClient 토큰 자동 첨부', () => {
-  it('localStorage에 token이 있으면 Authorization 헤더에 포함된다', async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.string({ minLength: 1 }),
-        async (token) => {
-          localStorage.setItem('token', token);
-          let capturedHeaders = {};
-          global.fetch = jest.fn((url, options) => {
-            capturedHeaders = options.headers;
-            return Promise.resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            });
-          });
-          await apiClient('/test');
-          expect(capturedHeaders.Authorization).toBe(`Bearer ${token}`);
-        }
-      )
-    );
-  });
-
-  it('localStorage에 token이 없으면 Authorization 헤더가 없다', async () => {
-    let capturedHeaders = {};
+describe('Property 3: apiClient cookie 기반 인증 전환', () => {
+  it('fetch 요청에 credentials: include를 설정한다', async () => {
+    let capturedOptions = null;
     global.fetch = jest.fn((url, options) => {
-      capturedHeaders = options.headers;
+      capturedOptions = options;
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({}),
       });
     });
+
     await apiClient('/test');
-    expect(capturedHeaders.Authorization).toBeUndefined();
+    expect(capturedOptions.credentials).toBe('include');
+  });
+
+  it('Authorization 헤더를 자동으로 추가하지 않는다', async () => {
+    localStorage.setItem('token', 'legacy-token');
+    let capturedOptions = null;
+    global.fetch = jest.fn((url, options) => {
+      capturedOptions = options;
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+    });
+
+    await apiClient('/test');
+    expect(capturedOptions.headers.Authorization).toBeUndefined();
   });
 });
 

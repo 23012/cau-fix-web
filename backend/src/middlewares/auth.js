@@ -2,14 +2,29 @@ const jwt = require('jsonwebtoken');
 const memberModel = require('../models/memberModel');
 require('dotenv').config();
 
-module.exports = async (req, res, next) => {
-  const auth = req.headers.authorization;
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required.');
+}
 
-  if (!auth || !auth.startsWith('Bearer ')) {
+const getCookieValue = (cookieHeader, name) => {
+  if (!cookieHeader) return null;
+  const cookies = cookieHeader.split(';').map((cookie) => cookie.trim());
+  const matched = cookies.find((cookie) => cookie.startsWith(`${name}=`));
+  if (!matched) return null;
+  return matched.split('=')[1];
+};
+
+module.exports = async (req, res, next) => {
+  const cookieHeader = req.headers.cookie || '';
+  const cookieToken = getCookieValue(cookieHeader, 'token');
+  const auth = req.headers.authorization;
+  const bearerToken = auth && auth.startsWith('Bearer ') ? auth.split(' ')[1] : null;
+  const token = cookieToken || bearerToken;
+
+  if (!token) {
     return res.status(401).json({ message: '토큰이 없습니다.' });
   }
-
-  const token = auth.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

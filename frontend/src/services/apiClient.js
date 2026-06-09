@@ -12,16 +12,9 @@ async function apiClient(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
   const config = {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...options,
   };
-
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  }
 
   const response = await fetch(url, config);
 

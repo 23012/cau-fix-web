@@ -7,6 +7,7 @@ import PushPopup from "../push/PushPopup";
 import { normalizeRole } from "../../constants/roles";
 import { subscribePush, unsubscribePush } from "../../utils/pushSubscription";
 import { updateMyProfile } from "../../services/memberService";
+import { logout } from "../../services/authService";
 import logo from "../../assets/images/logo.svg";
 import "./Header.css";
 
@@ -83,13 +84,21 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [myinfoOpen, pushOpen, mobileDashboardMenuOpen]);
 
-  const handleLogout = () => {
-    if (window.confirm("로그아웃 하시겠습니까?")) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("autoLogin");
-      navigate("/login");
+  const handleLogout = async () => {
+    if (!window.confirm("로그아웃 하시겠습니까?")) {
+      return;
     }
+
+    try {
+      await logout();
+    } catch (err) {
+      console.warn('Logout failed, clearing local state anyway.', err);
+    }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("autoLogin");
+    navigate("/login");
   };
 
   const handleTogglePush = async () => {

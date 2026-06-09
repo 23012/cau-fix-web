@@ -51,3 +51,13 @@ export async function register(formData) {
 export async function getMe() {
   return apiClient('/auth/me');
 }
+
+/**
+ * 로그아웃
+ * @returns {Promise<{message: string}>}
+ */
+export async function logout() {
+  return apiClient('/auth/logout', {
+    method: 'POST',
+  });
+}

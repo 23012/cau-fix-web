@@ -48,10 +48,9 @@ export async function uploadComplainImages(complainId, files) {
   formData.append('complain_id', complainId);
   files.forEach((file) => formData.append('images', file));
 
-  const token = localStorage.getItem('token');
   const response = await fetch('/api/uploads/complain', {
     method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: 'include',
     body: formData,
   });
 
@@ -125,10 +124,9 @@ export async function uploadProcessImages(processId, files) {
   formData.append('process_id', processId);
   files.forEach((file) => formData.append('images', file));
 
-  const token = localStorage.getItem('token');
   const response = await fetch('/api/uploads/process', {
     method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: 'include',
     body: formData,
   });
 
