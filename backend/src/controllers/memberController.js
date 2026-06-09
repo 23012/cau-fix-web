@@ -209,14 +209,21 @@ const memberController = {
     }
   },
 
-  // 프로필 조회 (처리자 정보 - 민원 상세에서 사용)
+  // 프로필 조회 (처리자/신고자 정보 - 민원 상세에서 사용)
   getProfile: async (req, res) => {
     try {
       const { id } = req.params;
+      const { role, member_id } = req.user;
 
       const member = await memberModel.findById(id);
       if (!member) {
         return res.status(404).json({ message: '회원을 찾을 수 없습니다.' });
+      }
+
+      // 일반 사용자(C)는 본인 또는 담당 처리자/관리자(E/A) 프로필만 조회 가능
+      // (다른 일반 사용자의 개인 연락처 무단 수집 방지)
+      if (role === 'C' && member.member_id !== member_id && !['E', 'A'].includes(member.role)) {
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
       return res.status(200).json({
