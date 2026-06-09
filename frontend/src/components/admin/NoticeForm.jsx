@@ -1,7 +1,23 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { ChevronRight } from "lucide-react";
+import DOMPurify from "dompurify";
 import FormPopup from "../form/FormPopup";
 import { NOTICE_CATEGORIES } from "../../constants/noticeCategories";
+
+// 검증된 라이브러리(DOMPurify) 기반 살균 — 정규식 방식은 우회 가능하여 교체
+const SANITIZE_OPTIONS = {
+  ALLOWED_TAGS: [
+    "p", "br", "div", "span", "b", "strong", "i", "em", "u", "s",
+    "ul", "ol", "li", "a", "h1", "h2", "h3", "h4", "blockquote",
+    "pre", "code", "img",
+  ],
+  ALLOWED_ATTR: ["href", "target", "rel", "src", "alt", "width", "height", "style"],
+};
+
+const sanitizeHtml = (html) => {
+  if (!html || typeof html !== "string") return "";
+  return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+};
 
 const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   const [formData, setFormData] = useState({ title: "", category: "" });
@@ -13,7 +29,7 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
     if (isOpen && editData) {
       setFormData({ title: editData.title || "", category: editData.category || "" });
       if (contentRef.current) {
-        contentRef.current.innerHTML = editData.content || "";
+        contentRef.current.innerHTML = sanitizeHtml(editData.content || "");
       }
     } else if (!isOpen) {
       setFormData({ title: "", category: "" });
@@ -78,7 +94,8 @@ const NoticeForm = ({ isOpen, onClose, onSubmit, editData }) => {
   const handleSubmit = () => {
     if (!formData.title.trim()) { alert("제목을 입력해주세요."); return; }
     if (!formData.category) { alert("카테고리를 선택해주세요."); return; }
-    const content = contentRef.current?.innerHTML || "";
+    const rawContent = contentRef.current?.innerHTML || "";
+    const content = sanitizeHtml(rawContent);
     if (!content.trim() || content === "<br>") { alert("내용을 입력해주세요."); return; }
     onSubmit?.({ ...formData, content, date: dateStr, ...(editData ? { id: editData.id } : {}) });
   };

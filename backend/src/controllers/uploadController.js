@@ -1,19 +1,63 @@
 const path = require('path');
 const fs = require('fs');
 const pool = require('../config/db');
+const complainModel = require('../models/complainModel');
+
+const uploadsRoot = path.resolve(__dirname, '../../uploads');
+
+// 업로드 거부 시 디스크에 임시 저장된 파일 정리
+const cleanupFiles = (files) => {
+  if (!files) return;
+  files.forEach((file) => {
+    try {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    } catch (e) {
+      console.error('임시 파일 삭제 실패:', e);
+    }
+  });
+};
+
+const resolveUploadFilePath = (uploadUrl) => {
+  if (!uploadUrl || typeof uploadUrl !== 'string') {
+    throw new Error('Invalid upload URL');
+  }
+
+  const relativePath = uploadUrl.replace(/^\/+/, '').replace(/\\/g, '/');
+  const safePath = path.normalize(relativePath);
+
+  const resolved = path.resolve(uploadsRoot, safePath);
+  if (!resolved.startsWith(`${uploadsRoot}${path.sep}`) && resolved !== uploadsRoot) {
+    throw new Error('Invalid upload path');
+  }
+
+  return resolved;
+};
 
 const uploadController = {
   // 민원 이미지 업로드
   uploadComplainImages: async (req, res) => {
     try {
       const { complain_id } = req.body;
+      const { role, member_id } = req.user;
 
       if (!complain_id) {
+        cleanupFiles(req.files);
         return res.status(400).json({ message: '민원 ID가 필요합니다.' });
       }
 
       if (!req.files || req.files.length === 0) {
         return res.status(400).json({ message: '업로드할 이미지가 없습니다.' });
+      }
+
+      // 민원 존재 및 소유권 확인 (작성자 본인 또는 관리자만 첨부 가능)
+      const complain = await complainModel.findById(complain_id);
+      if (!complain) {
+        cleanupFiles(req.files);
+        return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
+      }
+      if (role !== 'A' && complain.complain_by !== member_id) {
+        cleanupFiles(req.files);
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
       // 기존 이미지 수 확인 (최대 10장)
@@ -65,13 +109,41 @@ const uploadController = {
   uploadProcessImages: async (req, res) => {
     try {
       const { process_id } = req.body;
+      const { role, member_id, dept } = req.user;
 
       if (!process_id) {
+        cleanupFiles(req.files);
         return res.status(400).json({ message: '처리 ID가 필요합니다.' });
+      }
+
+      // 일반 사용자(C)는 처리 이미지 업로드 불가
+      if (role === 'C') {
+        cleanupFiles(req.files);
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
       if (!req.files || req.files.length === 0) {
         return res.status(400).json({ message: '업로드할 이미지가 없습니다.' });
+      }
+
+      // 처리 건 존재 및 담당 권한 확인
+      // 관리자(A)는 전체 허용, 처리자(E)는 담당 부서 일치 또는 담당자 본인만 허용
+      const procResult = await pool.query(
+        `SELECT cp.process_by, cc.category_name AS dept
+         FROM complaint_process cp
+         JOIN complain c ON cp.complain_id = c.complain_id
+         JOIN complain_category cc ON c.category_id = cc.category_id
+         WHERE cp.process_id = $1`,
+        [process_id]
+      );
+      const proc = procResult.rows[0];
+      if (!proc) {
+        cleanupFiles(req.files);
+        return res.status(404).json({ message: '처리 정보를 찾을 수 없습니다.' });
+      }
+      if (role === 'E' && dept !== '전체' && proc.dept !== dept && proc.process_by !== member_id) {
+        cleanupFiles(req.files);
+        return res.status(403).json({ message: '접근 권한이 없습니다.' });
       }
 
       // 기존 이미지 수 확인 (최대 10장)
@@ -143,7 +215,14 @@ const uploadController = {
       }
 
       // 서버 파일 삭제
-      const filePath = path.join(__dirname, '../../', image.complain_img_url);
+      let filePath;
+      try {
+        filePath = resolveUploadFilePath(image.complain_img_url);
+      } catch (resolveErr) {
+        console.error('Invalid upload path:', resolveErr);
+        return res.status(400).json({ message: '잘못된 파일 경로입니다.' });
+      }
+
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
@@ -180,7 +259,14 @@ const uploadController = {
       }
 
       // 서버 파일 삭제
-      const filePath = path.join(__dirname, '../../', image.process_img_url);
+      let filePath;
+      try {
+        filePath = resolveUploadFilePath(image.process_img_url);
+      } catch (resolveErr) {
+        console.error('Invalid upload path:', resolveErr);
+        return res.status(400).json({ message: '잘못된 파일 경로입니다.' });
+      }
+
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }

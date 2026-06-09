@@ -19,8 +19,8 @@ import ComplainWrite from "./pages/complain-write/complain-write";
 function App() {
   // 이미 알림 권한이 granted인 경우 자동 구독 (재방문 시)
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && 'Notification' in window && Notification.permission === 'granted') {
+    const user = localStorage.getItem('user');
+    if (user && 'Notification' in window && Notification.permission === 'granted') {
       subscribePush().catch(() => {});
     }
   }, []);

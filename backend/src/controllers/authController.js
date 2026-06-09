@@ -114,6 +114,14 @@ const authController = {
         { expiresIn: auto_login ? '14d' : '8h' }
       );
 
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+        path: '/',
+        maxAge: auto_login ? 14 * 24 * 60 * 60 * 1000 : 8 * 60 * 60 * 1000,
+      });
+
       return res.status(200).json({
         message: '로그인 성공',
         token,
@@ -149,6 +157,12 @@ const authController = {
 
   // 로그아웃
   logout: async (req, res) => {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+      path: '/',
+    });
     return res.status(200).json({ message: '로그아웃 되었습니다.' });
   },
 };

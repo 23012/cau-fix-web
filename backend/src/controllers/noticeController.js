@@ -1,4 +1,43 @@
 const noticeModel = require('../models/noticeModel');
+const sanitizeHtmlLib = require('sanitize-html');
+
+// 검증된 라이브러리 기반 HTML 살균 (정규식 방식은 우회 가능하여 교체)
+// 공지 에디터가 생성하는 서식 태그 + 붙여넣기 base64 이미지를 허용하되,
+// script/이벤트 핸들러/javascript: 등 위험 요소는 제거한다.
+const sanitizeHtml = (html) => {
+  if (!html || typeof html !== 'string') return '';
+  return sanitizeHtmlLib(html, {
+    allowedTags: [
+      'p', 'br', 'div', 'span', 'b', 'strong', 'i', 'em', 'u', 's',
+      'ul', 'ol', 'li', 'a', 'h1', 'h2', 'h3', 'h4', 'blockquote',
+      'pre', 'code', 'img',
+    ],
+    allowedAttributes: {
+      a: ['href', 'target', 'rel'],
+      img: ['src', 'alt', 'width', 'height', 'style'],
+      span: ['style'],
+      div: ['style'],
+      p: ['style'],
+    },
+    allowedStyles: {
+      '*': {
+        'max-width': [/^[\d.]+(px|em|rem|%)$/],
+        'width': [/^[\d.]+(px|em|rem|%)$/],
+        'border-radius': [/^[\d.]+(px|em|rem|%)$/],
+        'margin': [/^[\d.\s]+(px|em|rem|%)?$/],
+        'text-align': [/^(left|right|center|justify)$/],
+        'font-weight': [/^(normal|bold|\d{3})$/],
+        'font-style': [/^(normal|italic)$/],
+        'text-decoration': [/^(none|underline|line-through)$/],
+      },
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesByTag: { img: ['http', 'https', 'data'] },
+    transformTags: {
+      a: sanitizeHtmlLib.simpleTransform('a', { rel: 'noopener noreferrer', target: '_blank' }),
+    },
+  });
+};
 
 const noticeController = {
   // 공지사항 등록 (관리자만)
@@ -25,7 +64,7 @@ const noticeController = {
         notice_by: member_id,
         notice_title,
         notice_category,
-        notice_content,
+        notice_content: sanitizeHtml(notice_content),
       });
 
       return res.status(201).json({ message: '공지사항이 등록되었습니다.', notice });
@@ -39,7 +78,11 @@ const noticeController = {
   getAll: async (req, res) => {
     try {
       const notices = await noticeModel.findAll();
-      return res.status(200).json({ notices });
+      const sanitizedNotices = notices.map((notice) => ({
+        ...notice,
+        notice_content: sanitizeHtml(notice.notice_content),
+      }));
+      return res.status(200).json({ notices: sanitizedNotices });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
@@ -56,6 +99,7 @@ const noticeController = {
         return res.status(404).json({ message: '공지사항을 찾을 수 없습니다.' });
       }
 
+      notice.notice_content = sanitizeHtml(notice.notice_content);
       return res.status(200).json({ notice });
     } catch (err) {
       console.error(err);
@@ -91,7 +135,7 @@ const noticeController = {
       const updated = await noticeModel.update(id, {
         notice_title,
         notice_category,
-        notice_content,
+        notice_content: sanitizeHtml(notice_content),
       });
 
       return res.status(200).json({ message: '공지사항이 수정되었습니다.', notice: updated });

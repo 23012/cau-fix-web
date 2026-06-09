@@ -65,7 +65,6 @@ const AdminComplainList = () => {
   //엑셀 다운로드
   const handleExcelDownload = async () => {
     try {
-      const token = localStorage.getItem('token');
       const params = new URLSearchParams();
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
@@ -74,7 +73,7 @@ const AdminComplainList = () => {
       const queryStr = params.toString();
 
       const response = await fetch(`/api/complaints/export${queryStr ? `?${queryStr}` : ''}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
 
       if (!response.ok) {

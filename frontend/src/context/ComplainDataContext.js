@@ -13,14 +13,6 @@ export const ComplainDataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    // 로그인 전이면 호출하지 않음
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setTableData([]);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       const result = await getComplaints();
@@ -62,7 +54,7 @@ export const ComplainDataProvider = ({ children }) => {
   // storage 이벤트 (다른 탭에서 로그인/로그아웃 시 반영)
   useEffect(() => {
     const handleStorage = (e) => {
-      if (e.key === "token") {
+      if (e.key === "user") {
         if (e.newValue) {
           loadData();
         } else {

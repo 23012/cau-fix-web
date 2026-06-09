@@ -25,22 +25,17 @@ const Login = () => {
   // 자동로그인: "로그인 유지"가 활성화된 경우에만 토큰 검증 후 자동 이동
   useEffect(() => {
     const tryAutoLogin = async () => {
-      const token = localStorage.getItem("token");
       const isAutoLogin = localStorage.getItem("autoLogin") === "true";
 
-      if (!token || !isAutoLogin) {
-        // 자동로그인 비활성화 상태면 토큰 정리
-        if (!isAutoLogin) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-        }
+      if (!isAutoLogin) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setCheckingToken(false);
         return;
       }
 
       try {
         const result = await getMe();
-        // 토큰이 유효하면 localStorage의 user 정보를 최신으로 갱신
         localStorage.setItem("user", JSON.stringify({
           ...result.member,
           role: normalizeRole(result.member.role),
@@ -48,7 +43,6 @@ const Login = () => {
         await refetch();
         navigate("/complain-dashboard", { replace: true });
       } catch {
-        // 토큰이 만료되었거나 유효하지 않으면 삭제
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setCheckingToken(false);
@@ -85,7 +79,7 @@ const Login = () => {
     setLoading(true);
     try {
       const result = await login(formData.id, formData.password, autoLogin);
-      localStorage.setItem("token", result.token);
+      localStorage.removeItem("token");
       localStorage.setItem("user", JSON.stringify({
         ...result.member,
         role: normalizeRole(result.member.role),
