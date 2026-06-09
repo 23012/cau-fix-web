@@ -1,6 +1,22 @@
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import DOMPurify from "dompurify";
 import { parseExcelDate } from "../../utils/parseExcelDate";
 import "./NoticeDetail.css";
+
+// 검증된 라이브러리(DOMPurify) 기반 살균 — 정규식 방식은 우회 가능하여 교체
+const SANITIZE_OPTIONS = {
+  ALLOWED_TAGS: [
+    "p", "br", "div", "span", "b", "strong", "i", "em", "u", "s",
+    "ul", "ol", "li", "a", "h1", "h2", "h3", "h4", "blockquote",
+    "pre", "code", "img",
+  ],
+  ALLOWED_ATTR: ["href", "target", "rel", "src", "alt", "width", "height", "style"],
+};
+
+const sanitizeHtml = (html) => {
+  if (!html || typeof html !== "string") return "";
+  return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+};
 
 const NoticeDetail = ({ data, onBack, onEdit, onDelete, currentUser }) => {
   if (!data) return null;
@@ -25,7 +41,7 @@ const NoticeDetailInner = ({ data, onBack, onEdit, onDelete, isAuthor }) => {
       <div className="notice-detail-divider" />
 
       <div className="notice-detail-content">
-        <div dangerouslySetInnerHTML={{ __html: data.content || "내용이 없습니다." }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(data.content) || "내용이 없습니다." }} />
       </div>
 
       <div className="notice-detail-divider" />
