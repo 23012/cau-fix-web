@@ -16,24 +16,58 @@ const uploadRouter = require('./routes/uploads');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const requiredEnv = ['JWT_SECRET', 'DATABASE_URL'];
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnv.join(', ')}`);
+  process.exit(1);
+}
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : ['http://localhost:3000'];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy: This origin is not allowed.'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.disable('x-powered-by');
+// nginx 리버스 프록시 1대 뒤에서 동작 → 실제 클라이언트 IP(X-Forwarded-For) 신뢰
+// (rate limiter가 IP별로 올바르게 동작하도록 필요)
+app.set('trust proxy', 1);
 // API 응답 캐시 비활성화 (304 방지)
 app.set('etag', false);
 
 // 미들웨어
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet());
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   }
   next();
 });
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50kb' }));
+app.use(express.urlencoded({ extended: true, limit: '50kb' }));
 
 // 정적 파일 서빙 (이미지 접근용)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+  dotfiles: 'deny',
+  index: false,
+  maxAge: 0,
+  setHeaders: (res) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  },
+}));
 
 // 라우터
 app.use('/api/auth', authRouter);
