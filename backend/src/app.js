@@ -56,7 +56,16 @@ app.use((req, res, next) => {
 });
 app.use(cors(corsOptions));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json({ limit: '50kb' }));
+
+// 본문 크기 제한: 기본 50kb로 DoS 표면을 최소화하되,
+// 공지(notices)는 본문에 base64 이미지가 포함될 수 있어 더 큰 한도 적용
+// (nginx client_max_body_size 10m 보다 작게 8mb)
+const jsonSmall = express.json({ limit: '50kb' });
+const jsonLarge = express.json({ limit: '8mb' });
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/notices')) return jsonLarge(req, res, next);
+  return jsonSmall(req, res, next);
+});
 app.use(express.urlencoded({ extended: true, limit: '50kb' }));
 
 // 정적 파일 서빙 (이미지 접근용)
