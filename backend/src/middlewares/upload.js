@@ -9,6 +9,18 @@ const ensureDir = (dir) => {
   }
 };
 
+const allowedMimeTypes = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+};
+
+const getSafeFilename = (prefix, mimetype) => {
+  const ext = allowedMimeTypes[mimetype] || '.bin';
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}${ext}`;
+};
+
 // 민원 이미지 스토리지
 const complainStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -17,9 +29,7 @@ const complainStorage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const filename = `complain_${Date.now()}_${Math.random().toString(36).substr(2, 9)}${ext}`;
-    cb(null, filename);
+    cb(null, getSafeFilename('complain', file.mimetype));
   },
 });
 
@@ -31,16 +41,13 @@ const processStorage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const filename = `process_${Date.now()}_${Math.random().toString(36).substr(2, 9)}${ext}`;
-    cb(null, filename);
+    cb(null, getSafeFilename('process', file.mimetype));
   },
 });
 
 // 이미지 파일만 허용
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  if (allowedTypes.includes(file.mimetype)) {
+  if (allowedMimeTypes[file.mimetype]) {
     cb(null, true);
   } else {
     cb(new Error('이미지 파일만 업로드 가능합니다. (jpg, png, gif, webp)'), false);
