@@ -68,7 +68,7 @@ jobs:
           DB_PORT=$DB_PORT
           DATABASE_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@$DB_HOST:$DB_PORT/${{ secrets.DB_NAME }}
           NODE_ENV=production
-          PORT=4000
+          PORT=3000
           TZ=Asia/Seoul
           ALLOWED_ORIGINS=$ALLOWED_ORIGINS
           JWT_SECRET=${{ secrets.JWT_SECRET }}
