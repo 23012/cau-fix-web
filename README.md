@@ -5,32 +5,6 @@
 
 ---
 
-# 💡 Technical Highlights
-
-## 1. 상태 머신 기반 도메인 로직 설계
-
-- 단순 CRUD를 넘어 민원의 생명주기를 **접수전 → 접수 → 진행중 → 완료** 상태 전이로 모델링
-- 처리자의 수정 요청 → 관리자 승인/반려 → 상태 복원까지 이어지는 **멀티 스텝 워크플로우** 직접 설계
-- 모든 상태 변경을 이력 테이블에 기록해 **감사 추적(Audit Trail)** 가능하도록 구현
-
-## 2. 보안 다층 방어 (Defense in Depth)
-
-- XSS · CSRF · Brute Force · SQL Injection · 파일 업로드 공격 등 **6가지 위협 시나리오별 대응책** 구현
-- 백엔드(sanitize-html) + 프론트(DOMPurify) **이중 레이어 XSS 방어** 적용
-- Parameterized Query, Rate Limiter, SameSite 쿠키 등 라이브러리 의존 없이 **원리 기반으로 선택·조합**
-
-## 3. Zero-downtime CI/CD 파이프라인 구축
-
-- GitHub Actions Self-hosted Runner로 **Push to main 시 전체 배포 자동화**
-- PM2 `reload` 명령으로 프로세스 재시작 없이 **무중단 배포** 실현
-- Nginx 설정 변경 시 `nginx -t` 검증 실패하면 **백업 자동 복원**되도록 안전장치 구성
-
-## 4. JWT 설계 트레이드오프 인식 및 해결
-
-- JWT에 role을 담을 경우 **관리자가 권한을 변경해도 토큰 만료 전까지 반영되지 않는 문제** 인지
-- 토큰 검증 시 DB를 재조회해 **항상 최신 role을 적용**하는 방식으로 보안 일관성 확보
-- 성능(캐싱) vs 보안(실시간 반영) 트레이드오프를 **의식적으로 판단**한 설계 결정
-
 ## 🛠 기술 스택
 
 | 영역 | 기술 |
