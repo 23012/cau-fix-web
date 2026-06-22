@@ -16,7 +16,7 @@ const AdminComplainList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedComplain, setSelectedComplain] = useState(null);
-  const [categoryFilter, setCategoryFilter] = useState("전체 분류");
+  const [categoryFilter, setCategoryFilter] = useState("전체");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortOrder, setSortOrder] = useState("번호순");
@@ -26,7 +26,7 @@ const AdminComplainList = () => {
   const filteredData = useMemo(() => {
     const result = tableData.filter((row) => {
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;
-      if (categoryFilter !== "전체 분류" && row.category !== categoryFilter) return false;
+      if (categoryFilter !== "전체" && row.category !== categoryFilter) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (!row.title.toLowerCase().includes(q) && !row.content?.toLowerCase().includes(q)) return false;
