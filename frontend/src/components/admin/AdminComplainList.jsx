@@ -140,7 +140,7 @@ const AdminComplainList = () => {
               value={categoryFilter}
               onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
             >
-              {[{ category_id: -1, category_name: "전체" }, ...deptCategories].map((d) => (
+              {deptCategories.map((d) => (
                 <option key={d.category_id} value={d.category_name}>{d.category_name}</option>
               ))}
             </select>
