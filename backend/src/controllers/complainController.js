@@ -1,9 +1,44 @@
+const fs = require('fs');
+const path = require('path');
 const complainModel = require('../models/complainModel');
 const { stateReverseMap } = require('../models/complainModel');
 const notificationModel = require('../models/notificationModel');
 const memberModel = require('../models/memberModel');
 const webPushService = require('../services/webPush');
 const ExcelJS = require('exceljs');
+
+// 업로드 파일이 저장된 디스크 루트 (이미지 임베드용)
+const uploadsRoot = path.resolve(__dirname, '../../uploads');
+
+// 공개 도메인 (엑셀 절대 URL 링크용) - ALLOWED_ORIGINS 첫 값 재사용
+const getPublicBaseUrl = () => {
+  const origins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return (origins[0] || 'http://localhost:3000').replace(/\/$/, '');
+};
+
+// 상대경로(/uploads/...)를 클릭 가능한 절대 URL로 변환
+const toAbsoluteUrl = (url) => {
+  if (!url) return url;
+  if (/^https?:\/\//i.test(url)) return url; // 이미 절대 URL이면 그대로
+  return `${getPublicBaseUrl()}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
+// 디스크상의 이미지 파일 경로 + 확장자 (ExcelJS 임베드용). 실패 시 null
+const resolveImageFile = (url) => {
+  if (!url || /^https?:\/\//i.test(url)) return null; // 외부 URL은 임베드 대상 아님
+  const rel = url.replace(/^\/?uploads\//, ''); // '/uploads/complain/x.jpg' -> 'complain/x.jpg'
+  const filePath = path.resolve(uploadsRoot, rel);
+  // 경로 이탈 방지 (uploadsRoot 밖이면 거부)
+  if (!filePath.startsWith(uploadsRoot)) return null;
+  if (!fs.existsSync(filePath)) return null;
+  const ext = path.extname(filePath).slice(1).toLowerCase();
+  const extMap = { jpg: 'jpeg', jpeg: 'jpeg', png: 'png', gif: 'gif' };
+  if (!extMap[ext]) return null; // ExcelJS 미지원 확장자
+  return { filePath, extension: extMap[ext] };
+};
 
 const complainController = {
   // 민원 등록 (사용자)
@@ -132,7 +167,8 @@ const complainController = {
         { header: '신고자', key: 'memberName', width: 12 },
         { header: '신고자 부서', key: 'memberDept', width: 15 },
         { header: '접수 시간', key: 'date', width: 22 },
-        { header: '이미지', key: 'imageUrls', width: 50 },
+        { header: '대표 이미지', key: 'thumbnail', width: 18 },
+        { header: '이미지(링크)', key: 'imageUrls', width: 50 },
       ];
 
       worksheet.getRow(1).eachCell((cell) => {
@@ -142,11 +178,14 @@ const complainController = {
         cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
       });
 
+      // 대표 이미지 컬럼 인덱스(0-based): 위 columns 배열 순서 기준 9번째
+      const THUMBNAIL_COL = 9;
+
       complaints.forEach((c) => {
         const row = worksheet.addRow({
           id: c.id, category: c.category, title: c.title, content: c.content,
           location: c.location, status: c.status, memberName: c.memberName || '-',
-          memberDept: c.memberDept || '-', date: c.date, imageUrls: '',
+          memberDept: c.memberDept || '-', date: c.date, thumbnail: '', imageUrls: '',
         });
 
         const statusCell = row.getCell('status');
@@ -156,13 +195,40 @@ const complainController = {
           statusCell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
         }
 
+        // 대표 이미지: 첫 번째 사진을 디스크에서 읽어 셀에 임베드
+        const thumbInfo = c.imageList && c.imageList.length > 0
+          ? resolveImageFile(c.imageList[0])
+          : null;
+        if (thumbInfo) {
+          try {
+            const imageId = workbook.addImage({
+              filename: thumbInfo.filePath,
+              extension: thumbInfo.extension,
+            });
+            row.height = 80; // 썸네일이 보이도록 행 높이 확보
+            worksheet.addImage(imageId, {
+              tl: { col: THUMBNAIL_COL + 0.1, row: row.number - 1 + 0.1 },
+              ext: { width: 100, height: 100 },
+              editAs: 'oneCell',
+            });
+          } catch (e) {
+            row.getCell('thumbnail').value = '(이미지 로드 실패)';
+          }
+        } else {
+          row.getCell('thumbnail').value = c.imageList && c.imageList.length > 0 ? '(파일 없음)' : '-';
+        }
+
+        // 이미지 링크: 클릭 가능한 절대 URL로 변환
         const imageUrlCell = row.getCell('imageUrls');
         if (c.imageList && c.imageList.length > 0) {
           if (c.imageList.length === 1) {
-            imageUrlCell.value = { text: c.imageList[0], hyperlink: c.imageList[0] };
+            const abs = toAbsoluteUrl(c.imageList[0]);
+            imageUrlCell.value = { text: abs, hyperlink: abs };
             imageUrlCell.font = { color: { argb: 'FF0000FF' }, underline: true };
           } else {
-            imageUrlCell.value = c.imageList.map((url, i) => `[이미지${i + 1}] ${url}`).join('\n');
+            imageUrlCell.value = c.imageList
+              .map((url, i) => `[이미지${i + 1}] ${toAbsoluteUrl(url)}`)
+              .join('\n');
             imageUrlCell.font = { color: { argb: 'FF0000FF' }, underline: true };
           }
         } else {
