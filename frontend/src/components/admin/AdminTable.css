@@ -236,13 +236,13 @@
 .admin-table.complain-table th:nth-child(1),
 .admin-table.complain-table td:nth-child(1) { width: 80px; }
 .admin-table.complain-table th:nth-child(2),
-.admin-table.complain-table td:nth-child(2) { width: 130px; white-space: nowrap; }
+.admin-table.complain-table td:nth-child(2) { width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-table.complain-table th:nth-child(3),
-.admin-table.complain-table td:nth-child(3) { width: 160px; white-space: nowrap; }
+.admin-table.complain-table td:nth-child(3) { width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-table.complain-table th:nth-child(4),
 .admin-table.complain-table td:nth-child(4) { width: 140px; }
 .admin-table.complain-table th:nth-child(5),
-.admin-table.complain-table td:nth-child(5) { width: 160px; white-space: nowrap; }
+.admin-table.complain-table td:nth-child(5) { width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-table.complain-table th:nth-child(9),
 .admin-table.complain-table td:nth-child(9) { width: 110px; }
 
