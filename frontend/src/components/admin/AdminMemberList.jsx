@@ -40,7 +40,7 @@ const AdminMemberList = () => {
         name: row.name || "",
         dept: row.dept || "",
         phone: row.phone || "",
-        status: getMemberStatus(row.is_approved, false),
+        status: getMemberStatus(row.is_approved, row.is_deleted),
         createdAt: row.created_at || "",
         lastLogin: row.last_login_at || "",
       }));
@@ -187,7 +187,7 @@ const AdminMemberList = () => {
                 ...prev,
                 role: normalizeRole(fresh.role || ""),
                 dept: fresh.dept || "",
-                status: getMemberStatus(fresh.is_approved, false),
+                status: getMemberStatus(fresh.is_approved, fresh.is_deleted),
               }));
             }
           }

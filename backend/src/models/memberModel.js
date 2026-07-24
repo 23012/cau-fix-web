@@ -21,12 +21,11 @@ const memberModel = {
     return result.rows[0];
   },
 
-  // 회원 목록 조회 (관리자)
+  // 회원 목록 조회 (관리자) — 탈퇴 회원 포함 (상태 표시용 is_deleted/deleted_at 반환)
   findAll: async () => {
     const result = await pool.query(
-      `SELECT member_id, login_id, name, role, dept, phone, is_approved, created_at, last_login_at
+      `SELECT member_id, login_id, name, role, dept, phone, is_approved, is_deleted, deleted_at, created_at, last_login_at
        FROM member
-       WHERE is_deleted = FALSE
        ORDER BY created_at DESC`
     );
     return result.rows;
