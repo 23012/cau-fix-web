@@ -2,15 +2,27 @@ import apiClient from '../services/apiClient';
 
 /**
  * 푸시 알림 구독 등록
- * 로그인 후 호출하여 브라우저 푸시를 활성화합니다.
+ *
+ * @param {{ interactive?: boolean }} [opts]
+ *   interactive=false(기본): 이미 권한이 'granted'인 경우에만 조용히 구독한다.
+ *     자동 호출(앱 로드/로그인 직후)용. iOS는 사용자 제스처 밖의 권한요청을
+ *     무시하거나 '거부'로 굳혀버리므로, 자동 호출에서는 requestPermission을 하지 않는다.
+ *   interactive=true: 사용자가 '알림 켜기'를 직접 탭했을 때만 사용. 이때만 권한을 요청한다.
  */
-export async function subscribePush() {
+export async function subscribePush({ interactive = false } = {}) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
     return false;
   }
 
   try {
-    const permission = await Notification.requestPermission();
+    let permission = Notification.permission;
+    if (permission === 'default') {
+      // 미결정 상태: 사용자가 직접 탭한 경우(interactive)에만 권한 요청
+      if (!interactive) {
+        return false;
+      }
+      permission = await Notification.requestPermission();
+    }
     if (permission !== 'granted') {
       return false;
     }

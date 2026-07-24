@@ -107,7 +107,7 @@ const Header = () => {
     localStorage.setItem("pushEnabled", next.toString());
     try {
       if (next) {
-        await subscribePush();
+        await subscribePush({ interactive: true });
       } else {
         await unsubscribePush();
       }

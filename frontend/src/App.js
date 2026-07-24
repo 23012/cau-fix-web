@@ -4,6 +4,7 @@ import './styles/global.css';
 import './styles/responsive.css';
 import './styles/variables.css';
 import { subscribePush } from './utils/pushSubscription';
+import PushPrompt from './components/common/PushPrompt';
 import { ComplainDataProvider } from './context/ComplainDataContext';
 import Login from "./pages/login/login";
 import Signup from "./pages/signup/signup";
@@ -28,6 +29,7 @@ function App() {
   return (
     <ComplainDataProvider>
       <Router>
+        <PushPrompt />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
