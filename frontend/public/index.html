@@ -16,19 +16,7 @@
   <body>
     <noscript>JavaScript를 활성화해주세요.</noscript>
     <div id="root"></div>
-    <script>
-      // Service Worker 등록
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('%PUBLIC_URL%/service-worker.js')
-            .then((registration) => {
-              console.log('SW registered:', registration);
-            })
-            .catch((error) => {
-              console.log('SW registration failed:', error);
-            });
-        });
-      }
-    </script>
+    <!-- 서비스 워커 등록은 src/index.js(번들 JS)에서 처리한다.
+         CSP(script-src 'self')가 인라인 스크립트를 차단하므로 여기에 인라인으로 두면 안 된다. -->
   </body>
 </html>
