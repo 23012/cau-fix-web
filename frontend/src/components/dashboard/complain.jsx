@@ -8,6 +8,7 @@ import { createComplaint, uploadComplainImages, getComplaints } from "../../serv
 import { normalizeStatus } from "../../constants/status";
 import Search from "../common/search";
 import ComplainForm from "../form/ComplainForm";
+import ConfirmPopup from "../detail/ConfirmPopup";
 import Detail from "../detail/detail";
 import MyStorage from "./MyStorage";
 import ChartSection from "./ChartSection";
@@ -37,6 +38,7 @@ const Complain = () => {
   const [selectedComplain, setSelectedComplain] = useState(null);
   const [fromStorage, setFromStorage] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   //새로고침
   const handleRefresh = async () => {
@@ -131,9 +133,18 @@ const Complain = () => {
         if (formData.images?.length > 0 && result.complain?.id) {
           await uploadComplainImages(result.complain.id, formData.images.map((img) => img.file));
         }
-        alert("민원이 등록되었습니다.");
-        window.location.reload();
+        // native alert + 즉시 reload 조합은 PWA(standalone)에서 알림이 안 뜨고
+        // 새로고침만 되어버린다. 목록을 갱신한 뒤 앱 팝업으로 완료를 안내한다.
+        await refetch();
+        setSubmitSuccess(true);
       }} />
+
+      {/*민원 등록 완료 안내*/}
+      <ConfirmPopup
+        isOpen={submitSuccess}
+        message="민원이 등록되었습니다."
+        onConfirm={() => setSubmitSuccess(false)}
+      />
 
       {/*처리자 - 내 처리함*/}
       <MyStorage

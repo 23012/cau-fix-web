@@ -164,6 +164,7 @@ const complainController = {
         { header: '내용', key: 'content', width: 40 },
         { header: '장소', key: 'location', width: 20 },
         { header: '상태', key: 'status', width: 10 },
+        { header: '처리내용', key: 'result', width: 40 },
         { header: '신고자', key: 'memberName', width: 12 },
         { header: '신고자 부서', key: 'memberDept', width: 15 },
         { header: '접수 시간', key: 'date', width: 22 },
@@ -178,13 +179,15 @@ const complainController = {
         cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
       });
 
-      // 대표 이미지 컬럼 인덱스(0-based): 위 columns 배열 순서 기준 9번째
-      const THUMBNAIL_COL = 9;
+      // 대표 이미지 컬럼 인덱스(0-based): 위 columns 배열 순서 기준 10번째
+      // (상태 뒤에 '처리내용' 컬럼이 추가되어 이미지 컬럼이 한 칸 밀림)
+      const THUMBNAIL_COL = 10;
 
       complaints.forEach((c) => {
         const row = worksheet.addRow({
           id: c.id, category: c.category, title: c.title, content: c.content,
-          location: c.location, status: c.status, memberName: c.memberName || '-',
+          location: c.location, status: c.status, result: c.result || '',
+          memberName: c.memberName || '-',
           memberDept: c.memberDept || '-', date: c.date, thumbnail: '', imageUrls: '',
         });
 

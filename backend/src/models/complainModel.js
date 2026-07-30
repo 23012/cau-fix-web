@@ -20,6 +20,7 @@ const formatComplain = (row) => ({
   deleted_at: row.deleted_at,
   resultPersonId: row.process_by || null,
   resultPerson: row.process_by_name || null,
+  result: row.process_content || null,
 });
 
 const complainModel = {
@@ -101,7 +102,7 @@ const complainModel = {
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
               m.name AS member_name, m.dept AS member_dept,
-              cp.process_by, pm.name AS process_by_name
+              cp.process_by, pm.name AS process_by_name, cp.process_content
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id
@@ -181,7 +182,7 @@ const complainModel = {
     const result = await pool.query(
       `SELECT c.*, cc.category_name, cc.dept,
               m.name AS member_name, m.dept AS member_dept,
-              cp.process_by, pm.name AS process_by_name
+              cp.process_by, pm.name AS process_by_name, cp.process_content
        FROM complain c
        JOIN complain_category cc ON c.category_id = cc.category_id
        JOIN member m ON c.complain_by = m.member_id

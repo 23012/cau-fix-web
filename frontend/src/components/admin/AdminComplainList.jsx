@@ -19,7 +19,7 @@ const AdminComplainList = () => {
   const [categoryFilter, setCategoryFilter] = useState("전체");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [sortOrder, setSortOrder] = useState("번호순");
+  const [sortOrder, setSortOrder] = useState("최신순");
   const itemsPerPage = 10;
 
   //필터 및 정렬

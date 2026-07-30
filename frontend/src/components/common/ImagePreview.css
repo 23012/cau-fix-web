@@ -16,8 +16,9 @@
   position: relative;
   max-width: 90vw;
   max-height: 85vh;
-  border-radius: 12px;
-  overflow: hidden;
+  /* border-radius + overflow:hidden 조합은 큰 원본 이미지를 별도 오프스크린
+     버퍼로 클리핑하게 만들어 일부 기기에서 화면 깜빡임을 유발한다.
+     둥근 모서리는 아래 이미지에 직접 적용하므로 여기선 클립하지 않는다. */
 }
 
 .image-preview-close {
@@ -47,4 +48,11 @@
   max-height: 85vh;
   object-fit: contain;
   border-radius: 12px;
+  /* 이미지를 독립 GPU 레이어로 승격해 합성 깜빡임을 줄인다. */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* HDR(게인맵) 사진의 밝기 부스트를 억제해 HDR↔SDR 전환 깜빡임을 막는다.
+     (미지원 브라우저는 무시 — no-op) */
+  dynamic-range-limit: standard;
 }

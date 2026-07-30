@@ -24,7 +24,7 @@ const AdminMemberList = () => {
   const [members, setMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("전체");
-  const [sortOrder, setSortOrder] = useState("번호순");
+  const [sortOrder, setSortOrder] = useState("최신순");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMember, setSelectedMember] = useState(null);
   const itemsPerPage = 15;
@@ -32,8 +32,11 @@ const AdminMemberList = () => {
   const loadData = async () => {
     try {
       const result = await getMembers();
-      const parsed = (result.members || []).map((row, idx) => ({
-        no: idx + 1,
+      const list = result.members || [];
+      // API가 created_at DESC(최신 가입자 먼저)로 주므로, 뒤에서부터 번호를 매겨
+      // 가장 먼저 가입한 회원이 1번이 되도록 한다(번호=가입 순서).
+      const parsed = list.map((row, idx) => ({
+        no: list.length - idx,
         member_id: row.member_id,
         id: row.login_id || "",
         role: normalizeRole(row.role || ""),
@@ -69,9 +72,15 @@ const AdminMemberList = () => {
     });
 
     switch (sortOrder) {
-      case "번호순": result.sort((a, b) => a.no - b.no); break;
-      case "최신순": result.sort((a, b) => b.no - a.no); break;
-      default: result.sort((a, b) => a.no - b.no);
+      case "번호순": result.sort((a, b) => a.no - b.no); break;   // 가입 순(오래된 → 최신)
+      case "최신순": result.sort((a, b) => b.no - a.no); break;   // 최근 가입자 먼저
+      case "오래된순": result.sort((a, b) => a.no - b.no); break; // 번호순과 동일(가입 순)
+      case "상태순": {
+        const order = { "대기": 0, "승인": 1, "탈퇴": 2 };
+        result.sort((a, b) => (order[a.status] ?? 99) - (order[b.status] ?? 99));
+        break;
+      }
+      default: result.sort((a, b) => b.no - a.no);
     }
     return result;
   }, [members, statusFilter, searchQuery, sortOrder]);
