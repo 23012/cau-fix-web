@@ -54,8 +54,8 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// 최대 10장, 장당 10MB
-const limits = { fileSize: 10 * 1024 * 1024 };
+// 최대 10장, 장당 25MB (아이폰 고해상도 사진이 15MB를 넘는 경우가 있어 상향)
+const limits = { fileSize: 25 * 1024 * 1024 };
 
 const uploadComplain = multer({ storage: complainStorage, fileFilter, limits });
 const uploadProcess = multer({ storage: processStorage, fileFilter, limits });
