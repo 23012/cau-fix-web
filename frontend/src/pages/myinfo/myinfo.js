@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
-import MyProfileCard from '../../components/myinfo/MyProfileCard';
+import AccountSwitcher from '../../components/myinfo/AccountSwitcher';
 import MyMenuList from '../../components/myinfo/MyMenuList';
 import { updateMyProfile } from '../../services/memberService';
 import { logout } from '../../services/authService';
@@ -57,8 +57,8 @@ const MyInfo = () => {
       <Header />
       <div className="page-content">
         <div className="myinfo-page">
-          {/* 상단 회원 정보 카드 */}
-          <MyProfileCard name={user?.name} dept={user?.dept} />
+          {/* 상단 회원 정보 카드 (클릭 시 계정 전환 팝업) */}
+          <AccountSwitcher currentUser={user} />
           {/* 회원 정보 수정 & push 알림 설정 */}
           <MyMenuList
             pushEnabled={pushEnabled}

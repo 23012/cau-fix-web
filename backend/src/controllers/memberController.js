@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const memberModel = require('../models/memberModel');
 const memberLogModel = require('../models/memberLogModel');
 const categoryModel = require('../models/categoryModel');
+const accountSwitchModel = require('../models/accountSwitchModel');
 
 const memberController = {
   // 회원 목록 조회 (관리자)
@@ -140,6 +141,13 @@ const memberController = {
       // 비밀번호 변경 시 본인 아이디로 로그 기록 (초기화 상태 해제용)
       if (password) {
         await memberLogModel.create({ member_id, action: 'P', done_by: req.user.login_id });
+        // 저장된 전환 계정 무효화 → 다음 전환 시 재등록 유도
+        // (계정전환 부가기능 오류가 비밀번호 변경 자체를 실패시키지 않도록 격리)
+        try {
+          await accountSwitchModel.revokeByMember(member_id);
+        } catch (e) {
+          console.error('account_link revoke skip:', e.message);
+        }
       }
 
       return res.status(200).json({ message: '내 정보가 수정되었습니다.', member: updated });
@@ -166,6 +174,13 @@ const memberController = {
       const hashedPassword = await bcrypt.hash(member.login_id, 10);
       await memberModel.resetPassword(id, hashedPassword);
       await memberLogModel.create({ member_id: id, action: 'P', done_by: req.user.login_id || 'admin' });
+      // 저장된 전환 계정 무효화 → 다음 전환 시 재등록 유도
+      // (계정전환 부가기능 오류가 비밀번호 초기화 자체를 실패시키지 않도록 격리)
+      try {
+        await accountSwitchModel.revokeByMember(id);
+      } catch (e) {
+        console.error('account_link revoke skip:', e.message);
+      }
       //비밀번호 초기화 => db 데이터 
       return res.status(200).json({ message: '비밀번호가 초기화되었습니다.' });
     } catch (err) {

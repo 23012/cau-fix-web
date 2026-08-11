@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, ClipboardList, Bell, User, Users, LogOut, MessageSquareWarning } from "lucide-react";
-import MyProfileCard from "../myinfo/MyProfileCard";
+import AccountSwitcher from "../myinfo/AccountSwitcher";
 import MyMenuList from "../myinfo/MyMenuList";
 import PushPopup from "../push/PushPopup";
 import { normalizeRole } from "../../constants/roles";
@@ -195,7 +195,7 @@ const Header = () => {
               </button>
               {myinfoOpen && (
                 <div className="header__myinfo-popup" ref={popupRef}>
-                  <MyProfileCard name={user?.name} dept={user?.dept} />
+                  <AccountSwitcher currentUser={user} />
                   <MyMenuList pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onUpdateProfile={async ({ password, phone, dept }) => {
                     try {
                       await updateMyProfile({ password, phone, dept });
