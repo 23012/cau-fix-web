@@ -27,7 +27,7 @@ const Complain = () => {
     user, sortOrder, setSortOrder,
     selectedYear, selectedMonth,
     activeStatusTab, currentPage, setCurrentPage,
-    favorites, totalPages, currentData,
+    favorites, totalPages, currentData, itemsPerPage, totalCount,
     chartBaseData,
     handleSearchChange, handleYearChange, handleMonthChange,
     handleFilterApply, handleStatusTabChange, toggleFavorite,
@@ -104,6 +104,8 @@ const Complain = () => {
           setSortOrder={setSortOrder}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          totalCount={totalCount}
           totalPages={totalPages}
           onSearchChange={handleSearchChange}
           onStatusTabChange={handleStatusTabChange}

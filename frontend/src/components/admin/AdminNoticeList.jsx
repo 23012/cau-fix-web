@@ -83,7 +83,6 @@ const AdminNoticeList = ({ onSelect, onWrite }) => {
       {/*정렬*/}
       <div className="admin-filters-row">
         <select className="admin-select" value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}>
-          <option value="번호순">번호순</option>
           <option value="최신순">최신순</option>
           <option value="오래된순">오래된순</option>
         </select>

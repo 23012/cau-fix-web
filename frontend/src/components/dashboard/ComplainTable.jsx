@@ -6,7 +6,7 @@ import { STATUS_TABS } from "../../constants/status";
 
 const ComplainTable = ({
   user, currentData, favorites, activeStatusTab,
-  sortOrder, setSortOrder, currentPage, setCurrentPage, totalPages,
+  sortOrder, setSortOrder, currentPage, setCurrentPage, itemsPerPage = 10, totalCount = 0, totalPages,
   onSearchChange, onStatusTabChange, onToggleFavorite, onRowClick,
 }) => {
 
@@ -27,7 +27,6 @@ const ComplainTable = ({
       <div className="table-controls">
         <div className="controls">
           <select className="dropdown sort-dropdown" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-            <option value="번호순">번호순</option>
             <option value="최신순">최신순</option>
             <option value="오래된순">오래된순</option>
             <option value="상태순">상태순</option>
@@ -41,7 +40,7 @@ const ComplainTable = ({
             <thead>
               <tr>
                 <th className="col-fav"></th>
-                <th>번호</th>
+                <th className="col-no">번호</th>
                 <th className = "col-title">제목</th>
                 {(user?.role === "사용자" || user?.role === "처리자") && <th className="col-handler">처리자</th>}
                 <th>상태</th>
@@ -53,7 +52,7 @@ const ComplainTable = ({
                   <td className="col-fav" onClick={(e) => { e.stopPropagation(); onToggleFavorite(row.id); }}>
                     <Star size={18} className={`fav-icon ${favorites.includes(row.id) ? "fav-active" : ""}`} fill={favorites.includes(row.id) ? "#FFD23F" : "none"} color={favorites.includes(row.id) ? "#FFD23F" : "#ccc"} />
                   </td>
-                  <td className = "count">{currentData.length - index}</td>
+                  <td className="count col-no">{totalCount - ((currentPage - 1) * itemsPerPage + index)}</td>
                   <td className="title">{row.title}</td>
                   {(user?.role === "사용자" || user?.role === "처리자") && <td className="col-handler">{row.resultPerson || "-"}</td>}
                   <td><Status status={row.status} /></td>

@@ -28,19 +28,17 @@ const useComplainFilter = (tableData) => {
   }, []);
 
   const sortData = (data) => {
+    // 날짜 문자열("2026-08-10 03:59:56")·엑셀 시리얼 모두 안전하게 타임스탬프로 변환.
+    // (기존 parseFloat은 문자열에서 연도만 뽑혀 정렬이 안 됐음)
+    const toTime = (d) => {
+      const dt = parseExcelDate(d);
+      return dt ? dt.getTime() : 0;
+    };
     const sorted = [...data];
     switch (sortOrder) {
       case "번호순": return sorted.sort((a, b) => a.id - b.id);
-      case "최신순": return sorted.sort((a, b) => {
-        const dA = typeof a.date === "number" ? a.date : parseFloat(a.date);
-        const dB = typeof b.date === "number" ? b.date : parseFloat(b.date);
-        return dB - dA;
-      });
-      case "오래된순": return sorted.sort((a, b) => {
-        const dA = typeof a.date === "number" ? a.date : parseFloat(a.date);
-        const dB = typeof b.date === "number" ? b.date : parseFloat(b.date);
-        return dA - dB;
-      });
+      case "최신순": return sorted.sort((a, b) => toTime(b.date) - toTime(a.date));
+      case "오래된순": return sorted.sort((a, b) => toTime(a.date) - toTime(b.date));
       case "상태순": return sorted.sort((a, b) => (STATUS_ORDER[a.status] ?? 999) - (STATUS_ORDER[b.status] ?? 999));
       default: return sorted;
     }
@@ -118,7 +116,7 @@ const useComplainFilter = (tableData) => {
     user, sortOrder, setSortOrder,
     selectedYear, selectedMonth,
     activeStatusTab, currentPage, setCurrentPage,
-    favorites, totalPages, currentData,
+    favorites, totalPages, currentData, itemsPerPage, totalCount: statusFilteredData.length,
     chartBaseData, statusFilteredData,
     handleSearchChange, handleYearChange, handleMonthChange,
     handleFilterApply, handleStatusTabChange, toggleFavorite,

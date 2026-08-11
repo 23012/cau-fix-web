@@ -354,7 +354,9 @@
 
 .table-scroll {
   overflow-y: auto;
-  height: 550px;
+  /* 고정 height는 10행(페이지 크기)을 다 못 담아 마지막 행이 잘렸음.
+     min-height로 바꿔 카드 높이는 유지하되 10행이 모두 보이게 한다. */
+  min-height: 550px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -404,8 +406,13 @@
   padding-left: 24px;
 }
 
+.col-no {
+  width: 70px;
+  text-align: center;
+}
+
 .col-title {
-  width: 100px;
+  width: auto;
 }
 
 .col-handler {
@@ -658,6 +665,11 @@
   .col-fav {
     width: 50px;
     padding: 8px 2px 8px 16px;
+  }
+
+  /* 모바일은 화면이 좁아 번호를 더 좁게 → 제목 공간 확보 */
+  .col-no {
+    width: 44px;
   }
 
   .table {

@@ -7,7 +7,7 @@ import "./MyStorage.css";
 
 const ITEMS_PER_PAGE = 7;
 const STATUS_TABS = ["전체", "접수중", "진행중", "완료"];
-const SORT_OPTIONS = ["번호순", "최신순", "오래된순", "상태순"];
+const SORT_OPTIONS = ["최신순", "오래된순", "상태순"];
 const DAYS_OF_WEEK = ["일", "월", "화", "수", "목", "금", "토"];
 
 /* ── 미니 달력 컴포넌트 ── */
@@ -116,11 +116,15 @@ const MyStorage = ({ isOpen, onClose, data, onSelect }) => {
     return true;
   });
 
-  // 정렬
+  // 정렬 (날짜 문자열·엑셀 시리얼 모두 타임스탬프로 변환해 정렬)
+  const toTime = (d) => {
+    const dt = parseExcelDate(d);
+    return dt ? dt.getTime() : 0;
+  };
   const sorted = [...filtered].sort((a, b) => {
     switch (sortOrder) {
-      case "최신순": return (typeof b.date === "number" ? b.date : 0) - (typeof a.date === "number" ? a.date : 0);
-      case "오래된순": return (typeof a.date === "number" ? a.date : 0) - (typeof b.date === "number" ? b.date : 0);
+      case "최신순": return toTime(b.date) - toTime(a.date);
+      case "오래된순": return toTime(a.date) - toTime(b.date);
       case "상태순": return (STATUS_ORDER[a.status] ?? 999) - (STATUS_ORDER[b.status] ?? 999);
       default: return a.id - b.id;
     }
