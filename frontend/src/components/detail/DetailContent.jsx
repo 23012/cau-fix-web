@@ -8,7 +8,7 @@ const DetailContent = ({
   setShowReporterProfile, formatDate, apiImages,
   // menu props
   isEditor, fromStorage, user,
-  onStatusChange, onDelete, onEdit, onAddFolder, onAlreadyMine, onHasOtherPerson,
+  onStatusChange, onDelete, onEdit, onCancelAccept, onAddFolder, onAlreadyMine, onHasOtherPerson,
 }) => {
   const scrollRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -30,6 +30,11 @@ const DetailContent = ({
     if (!el) return;
     setShowRightArrow(el.scrollWidth > el.clientWidth);
   };
+
+  // 완료 민원은 관리자에게만 ⋮ 메뉴(삭제) 노출, 그 외 상태는 기존대로
+  const isAdmin = user?.role === "관리자" || user?.role === "admin" || user?.role === "A";
+  const showMenuBtn = (isEditor || fromStorage) && (data.status !== "완료" || isAdmin);
+
   return (
     <>
       <div className="detail-header">
@@ -38,12 +43,12 @@ const DetailContent = ({
         </div>
         <div className="detail-header-right">
           <Status status={data.status} />
-          {(isEditor || fromStorage) && (
+          {showMenuBtn && (
             <button className="detail-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
               <MoreVertical size={20} />
             </button>
           )}
-          {menuOpen && (isEditor || fromStorage) && (
+          {menuOpen && showMenuBtn && (
             <DetailMenu
               isEditor={isEditor}
               fromStorage={fromStorage}
@@ -52,6 +57,7 @@ const DetailContent = ({
               onStatusChange={onStatusChange}
               onDelete={onDelete}
               onEdit={onEdit}
+              onCancelAccept={onCancelAccept}
               onAddFolder={onAddFolder}
               onAlreadyMine={onAlreadyMine}
               onHasOtherPerson={onHasOtherPerson}
@@ -73,7 +79,7 @@ const DetailContent = ({
 
       <div className="detail-row">
         <div className="detail-label">부서</div>
-        <div className="detail-value">{data.memberDept || "-"}</div>
+        <div className="detail-value">{data.memberDept || data.dept || "-"}</div>
       </div>
 
       <div className="detail-row">
@@ -113,8 +119,9 @@ const DetailContent = ({
                     src={img.url}
                     alt={`민원 사진 ${i + 1}`}
                     className="detail-image-thumb"
+                    decoding="async"
                     onClick={() => setPreviewImage(img.url)}
-                    onLoad={checkOverflow}
+                    onLoad={(e) => { e.target.classList.add("loaded"); checkOverflow(); }}
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                 ))}

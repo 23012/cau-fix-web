@@ -24,8 +24,11 @@ router.delete('/:id', authMiddleware, complainController.delete);
 // 민원 상태 변경 (처리자/관리자)
 router.put('/:id/state', authMiddleware, complainController.updateState);
 
-// 민원 처리 등록 (처리자/관리자)
+// 민원 처리 등록/완료 (배정된 담당 처리자)
 router.post('/:id/process', authMiddleware, complainController.createProcess);
+
+// 처리 내용 저장/수정 (배정된 담당 처리자, 상태 유지)
+router.put('/:id/process', authMiddleware, complainController.saveProcess);
 
 // 수정 요청 제출 (처리자)
 const editRequestController = require('../controllers/editRequestController');

@@ -126,13 +126,11 @@ const uploadController = {
         return res.status(400).json({ message: '업로드할 이미지가 없습니다.' });
       }
 
-      // 처리 건 존재 및 담당 권한 확인
-      // 관리자(A)는 전체 허용, 처리자(E)는 담당 부서 일치 또는 담당자 본인만 허용
+      // 처리 건 존재 + 담당자 + 민원 상태 확인
       const procResult = await pool.query(
-        `SELECT cp.process_by, cc.category_name AS dept
+        `SELECT cp.process_by, c.state
          FROM complaint_process cp
          JOIN complain c ON cp.complain_id = c.complain_id
-         JOIN complain_category cc ON c.category_id = cc.category_id
          WHERE cp.process_id = $1`,
         [process_id]
       );
@@ -141,9 +139,15 @@ const uploadController = {
         cleanupFiles(req.files);
         return res.status(404).json({ message: '처리 정보를 찾을 수 없습니다.' });
       }
-      if (role === 'E' && dept !== '전체' && proc.dept !== dept && proc.process_by !== member_id) {
+      // 완료된 민원은 처리 이미지 변경 불가
+      if (proc.state === 'D') {
         cleanupFiles(req.files);
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+        return res.status(400).json({ message: '완료된 민원의 처리 이미지는 변경할 수 없습니다.' });
+      }
+      // 배정된 담당 처리자 본인만 허용 (관리자·다른 처리자 불가)
+      if (!(role === 'E' && proc.process_by === member_id)) {
+        cleanupFiles(req.files);
+        return res.status(403).json({ message: '배정된 담당 처리자만 처리할 수 있습니다.' });
       }
 
       // 기존 이미지 수 확인 (최대 10장)
@@ -241,21 +245,28 @@ const uploadController = {
   deleteProcessImage: async (req, res) => {
     try {
       const { id } = req.params;
-      const { role } = req.user;
-
-      // 처리자/관리자만 삭제 가능
-      if (role === 'C') {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
-      }
+      const { role, member_id } = req.user;
 
       const result = await pool.query(
-        'SELECT * FROM process_img WHERE process_img_id = $1',
+        `SELECT pi.process_img_url, cp.process_by, c.state
+         FROM process_img pi
+         JOIN complaint_process cp ON pi.process_id = cp.process_id
+         JOIN complain c ON cp.complain_id = c.complain_id
+         WHERE pi.process_img_id = $1`,
         [id]
       );
 
       const image = result.rows[0];
       if (!image) {
         return res.status(404).json({ message: '이미지를 찾을 수 없습니다.' });
+      }
+      // 완료된 민원은 처리 이미지 삭제 불가
+      if (image.state === 'D') {
+        return res.status(400).json({ message: '완료된 민원의 처리 이미지는 삭제할 수 없습니다.' });
+      }
+      // 배정된 담당 처리자 본인만 삭제 가능
+      if (!(role === 'E' && image.process_by === member_id)) {
+        return res.status(403).json({ message: '배정된 담당 처리자만 삭제할 수 있습니다.' });
       }
 
       // 서버 파일 삭제

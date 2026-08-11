@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import useCategories from "../../hooks/useCategories";
 import useComplainDetail from "../../hooks/useComplainDetail";
 import useEditRequest from "../../hooks/useEditRequest";
 import useImageUpload from "../../hooks/useImageUpload";
-import { updateComplaint, deleteComplaint, updateComplaintState, createProcess, uploadProcessImages, deleteComplainImage } from "../../services/complainService";
+import { updateComplaint, deleteComplaint, updateComplaintState, createProcess, saveProcess, uploadProcessImages, deleteComplainImage, deleteProcessImage } from "../../services/complainService";
 import { getMemberProfile } from "../../services/memberService";
 import { STATUS_LABEL_TO_CODE } from "../../constants/status";
 
@@ -29,6 +29,17 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
   const [imageError, setImageError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // 새 민원을 열거나 다른 민원으로 바뀌면 화면 상태 초기화
+  // (Detail은 마운트된 채 isOpen만 토글되므로 수동 리셋 필요 —
+  //  안 하면 이전에 보던 '처리 내용' 탭/이미지에러가 다음 민원까지 남는다)
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab("content");
+      setImageError(false);
+      setMenuOpen(false);
+    }
+  }, [isOpen, data?.id]);
+
   // 수정 요청 모달
   const [editRequestModalOpen, setEditRequestModalOpen] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
@@ -39,6 +50,8 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
   const [editData, setEditData] = useState({});
   const [showCategory, setShowCategory] = useState(false);
   const [existingImages, setExistingImages] = useState([]);
+  const [existingProcessImages, setExistingProcessImages] = useState([]); // 처리 내용 수정 시 기존 처리 이미지
+  const [removedProcessImageIds, setRemovedProcessImageIds] = useState([]); // 삭제 표시된 기존 처리 이미지 (저장 시 실제 삭제)
   const { images: editImages, fileInputRef, previewImage, setPreviewImage, handleImageAdd, handleImageRemove, resetImages } = useImageUpload();
 
   // 프로필 팝업
@@ -66,6 +79,7 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
   const [processContent, setProcessContent] = useState("");
   const [showProcessSuccess, setShowProcessSuccess] = useState(false);
   const [processLoading, setProcessLoading] = useState(false);
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
 
   // --- displayData 계산 ---
   const displayData = data ? {
@@ -163,6 +177,51 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
     }
   };
 
+  // --- 처리 내용 저장/수정 핸들러 (완료하지 않고 저장, 진행중 유지) ---
+  const handleProcessSave = async (processImages) => {
+    setShowProcessForm(false);
+    setProcessLoading(true);
+    try {
+      const result = await saveProcess(data.id, processContent);
+      if (processImages?.length > 0 && result.process?.process_id) {
+        const files = processImages.map((img) => img.file).filter(Boolean);
+        if (files.length > 0) {
+          await uploadProcessImages(result.process.process_id, files);
+        }
+      }
+      // 삭제 표시된 기존 처리 이미지를 이 시점에 실제 삭제 (취소 시엔 삭제 안 됨)
+      for (const imgId of removedProcessImageIds) {
+        await deleteProcessImage(imgId).catch(() => {});
+      }
+      setRemovedProcessImageIds([]);
+      await refetch();
+      onUpdate?.({ ...data, result: processContent });
+      setProcessLoading(false);
+      alert("처리 내용이 저장되었습니다.");
+      setActiveTab("result");
+    } catch (err) {
+      setProcessLoading(false);
+      alert(err.message || "저장 중 오류가 발생했습니다.");
+    }
+  };
+
+  // --- 처리 완료 확정 (확인 팝업에서 완료 시, 저장된 내용으로 완료) ---
+  const handleProcessComplete = async () => {
+    setShowCompleteConfirm(false);
+    setProcessLoading(true);
+    try {
+      await createProcess(data.id, displayData?.result || processContent || "");
+      await refetch();
+      onUpdate?.({ ...data, status: "완료", result: displayData?.result || processContent, resultPerson: user?.name, resultPersonId: user?.member_id, resultDate: new Date() });
+      setProcessLoading(false);
+      alert("처리가 완료되었습니다.");
+      setActiveTab("result");
+    } catch (err) {
+      setProcessLoading(false);
+      alert(err.message || "완료 처리 중 오류가 발생했습니다.");
+    }
+  };
+
   // --- 삭제 핸들러 ---
   const handleDelete = async () => {
     try {
@@ -197,6 +256,19 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
       alert("진행중으로 변경되었습니다.");
     } catch (err) {
       alert(err.message || "상태 변경 중 오류가 발생했습니다.");
+    }
+  };
+
+  // --- 접수취소 핸들러 (접수전으로 원상복귀) ---
+  const handleCancelAccept = async () => {
+    if (!window.confirm("이 민원의 접수를 취소하고 '접수전' 상태로 되돌리시겠습니까?\n담당자 배정이 해제됩니다.")) return;
+    try {
+      await updateComplaintState(data.id, 'B');
+      await refetch();
+      onUpdate?.({ ...data, status: "접수전", resultPerson: null, resultPersonId: null, resultDate: null });
+      alert("접수가 취소되어 접수전 상태로 되돌렸습니다.");
+    } catch (err) {
+      alert(err.message || "접수 취소 중 오류가 발생했습니다.");
     }
   };
 
@@ -258,6 +330,12 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
     }
   };
 
+  // --- 기존 처리 이미지 삭제 "표시" (실제 삭제는 [저장] 시점에 반영, 취소하면 삭제 안 됨) ---
+  const handleDeleteExistingProcessImage = (imgId) => {
+    setExistingProcessImages((prev) => prev.filter((i) => i.id !== imgId));
+    setRemovedProcessImageIds((prev) => (prev.includes(imgId) ? prev : [...prev, imgId]));
+  };
+
   // canAccept: API에서 내려온 값 (담당 부서 일치 여부)
   // apiDetail 로드 완료 시 API 값 사용, 미로드 시 로컬에서 판단
   const canAccept = (() => {
@@ -285,6 +363,7 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
     // 수정 모드
     editMode, setEditMode, editData, setEditData, showCategory, setShowCategory,
     existingImages, editImages, fileInputRef, previewImage, setPreviewImage,
+    existingProcessImages, setExistingProcessImages, setRemovedProcessImageIds,
     handleImageAdd, handleImageRemove,
 
     // 수정 요청
@@ -312,12 +391,13 @@ const useDetailState = ({ isOpen, data, onUpdate, onClose }) => {
     // 처리 내용
     showProcessForm, setShowProcessForm, processContent, setProcessContent,
     showProcessSuccess, setShowProcessSuccess, processLoading,
+    showCompleteConfirm, setShowCompleteConfirm,
 
     // 핸들러
-    handleEdit, handleEditSubmit, handleStatusNext, handleProcessSubmit,
-    handleDelete, handleAccept, handleProgress,
+    handleEdit, handleEditSubmit, handleStatusNext, handleProcessSubmit, handleProcessSave, handleProcessComplete,
+    handleDelete, handleAccept, handleProgress, handleCancelAccept,
     handleShowProcessorProfile, handleShowReporterProfile,
-    handleApproveEditRequest, handleDeleteExistingImage,
+    handleApproveEditRequest, handleDeleteExistingImage, handleDeleteExistingProcessImage,
   };
 };
 

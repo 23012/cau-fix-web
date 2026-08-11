@@ -68,8 +68,9 @@ const DetailResult = ({ data, formatDate, onShowProfile, processImages = [], set
                       src={img.url}
                       alt={`처리 사진 ${i + 1}`}
                       className="detail-image-thumb"
+                      decoding="async"
                       onClick={() => setPreviewImage?.(img.url)}
-                      onLoad={checkOverflow}
+                      onLoad={(e) => { e.target.classList.add("loaded"); checkOverflow(); }}
                       onError={(e) => { e.target.style.display = 'none'; }}
                     />
                   ))}

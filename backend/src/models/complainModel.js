@@ -319,6 +319,19 @@ const complainModel = {
     return result.rows[0];
   },
 
+  // 처리 배정 삭제 (접수취소 시 접수전으로 되돌릴 때 담당자/처리 행 제거)
+  deleteProcess: async (complain_id) => {
+    const proc = await pool.query(
+      'SELECT process_id FROM complaint_process WHERE complain_id = $1',
+      [complain_id]
+    );
+    if (!proc.rows[0]) return;
+    const processId = proc.rows[0].process_id;
+    // 처리 이미지 먼저 삭제 (FK 보호) 후 처리 행 삭제
+    await pool.query('DELETE FROM process_img WHERE process_id = $1', [processId]);
+    await pool.query('DELETE FROM complaint_process WHERE complain_id = $1', [complain_id]);
+  },
+
   // 처리 조회
   findProcess: async (complain_id) => {
     const result = await pool.query(

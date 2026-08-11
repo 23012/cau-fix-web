@@ -35,7 +35,9 @@ const DetailPopups = ({
 
   // 처리 내용
   showProcessForm, setShowProcessForm, processContent, setProcessContent,
-  handleProcessSubmit,
+  handleProcessSubmit, handleProcessSave,
+  showCompleteConfirm, setShowCompleteConfirm, handleProcessComplete,
+  existingProcessImages, handleDeleteExistingProcessImage,
   showProcessSuccess, setShowProcessSuccess,
   processLoading,
 
@@ -89,7 +91,17 @@ const DetailPopups = ({
       <ConfirmPopup isOpen={showHasOtherPerson} message={<>이미 담당자({data.resultPerson})가 배정되어 있어<br />내 폴더에 추가할 수 없습니다.</>} onConfirm={() => setShowHasOtherPerson(false)} />
 
       {/* 처리 내용 작성 */}
-      <ProcessForm isOpen={showProcessForm} content={processContent} setContent={setProcessContent} onCancel={() => setShowProcessForm(false)} onSubmit={handleProcessSubmit} />
+      <ProcessForm isOpen={showProcessForm} content={processContent} setContent={setProcessContent} onCancel={() => setShowProcessForm(false)} onSubmit={handleProcessSubmit} onSave={handleProcessSave} existingImages={existingProcessImages} onDeleteExisting={handleDeleteExistingProcessImage} />
+
+      {/* 처리 완료 확인 (완료 시 수정/삭제 불가 안내) */}
+      <ConfirmPopup
+        isOpen={showCompleteConfirm}
+        message={<>완료를 누르면 수정, 삭제가 불가합니다.<br />완료하시겠습니까?</>}
+        cancelLabel="취소"
+        onCancel={() => setShowCompleteConfirm(false)}
+        confirmLabel="완료"
+        onConfirm={handleProcessComplete}
+      />
       <ConfirmPopup isOpen={showProcessSuccess} message="처리가 완료되었습니다." onConfirm={() => setShowProcessSuccess(false)} />
       <LoadingPopup isOpen={processLoading} message="처리 등록 중입니다..." />
 

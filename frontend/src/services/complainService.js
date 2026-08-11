@@ -114,6 +114,18 @@ export async function createProcess(id, processContent) {
 }
 
 /**
+ * 처리 내용 저장/수정 (배정된 담당 처리자, 상태 유지)
+ * @param {number} id - 민원 ID
+ * @param {string} processContent - 처리 내용
+ */
+export async function saveProcess(id, processContent) {
+  return apiClient(`/complaints/${id}/process`, {
+    method: 'PUT',
+    body: JSON.stringify({ process_content: processContent }),
+  });
+}
+
+/**
  * 처리 이미지 업로드
  * @param {number} processId - 처리 ID
  * @param {File[]} files - 이미지 파일 배열
@@ -146,6 +158,16 @@ export async function uploadProcessImages(processId, files) {
  */
 export async function deleteComplainImage(imageId) {
   return apiClient(`/uploads/complain/${imageId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * 처리 이미지 삭제
+ * @param {number} imageId - 처리 이미지 ID
+ */
+export async function deleteProcessImage(imageId) {
+  return apiClient(`/uploads/process/${imageId}`, {
     method: 'DELETE',
   });
 }

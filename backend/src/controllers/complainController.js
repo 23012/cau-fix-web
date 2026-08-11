@@ -354,6 +354,11 @@ const complainController = {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
 
+      // 완료된 민원은 누구도(관리자 포함) 수정 불가
+      if (complain.status === '완료') {
+        return res.status(400).json({ message: '완료된 민원은 수정할 수 없습니다.' });
+      }
+
       if (req.user.role !== 'A') {
         if (complain.complain_by !== req.user.member_id) {
           return res.status(403).json({ message: '접근 권한이 없습니다.' });
@@ -384,6 +389,7 @@ const complainController = {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
 
+      // 완료된 민원도 관리자는 삭제 가능(정리용, soft delete). 비관리자는 접수전 본인만.
       if (req.user.role !== 'A') {
         if (complain.complain_by !== req.user.member_id) {
           return res.status(403).json({ message: '접근 권한이 없습니다.' });
@@ -438,6 +444,11 @@ const complainController = {
         }
       }
 
+      // 접수취소: 접수전(B)으로 되돌릴 때 담당자 배정(처리 행) 제거 → 완전한 원상복귀
+      if (state === 'B') {
+        await complainModel.deleteProcess(id);
+      }
+
       // 진행중(P) 시 처리 시간 업데이트
       if (state === 'P') {
         const existing = await complainModel.findProcess(id);
@@ -476,9 +487,6 @@ const complainController = {
       const { process_content } = req.body;
       const { role, member_id, dept } = req.user;
 
-      if (role === 'C') {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
-      }
       if (!process_content) {
         return res.status(400).json({ message: '처리 내용을 입력해주세요.' });
       }
@@ -487,20 +495,18 @@ const complainController = {
       if (!complain) {
         return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
       }
-
-      if (role === 'E' && complain.dept !== dept && dept !== '전체') {
-        return res.status(403).json({ message: '접근 권한이 없습니다.' });
+      // 완료된 민원의 처리 내용은 변경/재완료 불가
+      if (complain.status === '완료') {
+        return res.status(400).json({ message: '완료된 민원의 처리 내용은 변경할 수 없습니다.' });
       }
 
+      // 배정된 담당 처리자 본인만 완료 처리 가능
       const existing = await complainModel.findProcess(id);
-      let process;
-      if (existing) {
-        // 이미 접수 시 할당된 process가 있으면 내용만 업데이트
-        process = await complainModel.updateProcessContent(id, process_content);
-      } else {
-        await complainModel.assignProcess({ complain_id: id, process_by: member_id });
-        process = await complainModel.updateProcessContent(id, process_content);
+      if (!(role === 'E' && existing && existing.process_by === member_id)) {
+        return res.status(403).json({ message: '배정된 담당 처리자만 처리할 수 있습니다.' });
       }
+
+      const process = await complainModel.updateProcessContent(id, process_content);
 
       const prevState = stateReverseMap[complain.status];
       await complainModel.updateState(id, 'D');
@@ -514,6 +520,40 @@ const complainController = {
       });
 
       return res.status(201).json({ message: '처리가 완료되었습니다.', process });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+  },
+
+  // 처리 내용 저장/수정 (배정된 담당 처리자만, 상태 유지, 완료면 거부)
+  saveProcess: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { process_content } = req.body;
+      const { role, member_id } = req.user;
+
+      if (!process_content) {
+        return res.status(400).json({ message: '처리 내용을 입력해주세요.' });
+      }
+
+      const complain = await complainModel.findById(id);
+      if (!complain) {
+        return res.status(404).json({ message: '민원을 찾을 수 없습니다.' });
+      }
+      // 완료된 민원의 처리 내용은 수정 불가
+      if (complain.status === '완료') {
+        return res.status(400).json({ message: '완료된 민원의 처리 내용은 수정할 수 없습니다.' });
+      }
+
+      // 배정된 담당 처리자 본인만 수정 가능
+      const existing = await complainModel.findProcess(id);
+      if (!(role === 'E' && existing && existing.process_by === member_id)) {
+        return res.status(403).json({ message: '배정된 담당 처리자만 수정할 수 있습니다.' });
+      }
+
+      const process = await complainModel.updateProcessContent(id, process_content);
+      return res.status(200).json({ message: '처리 내용이 저장되었습니다.', process });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: '서버 오류가 발생했습니다.' });

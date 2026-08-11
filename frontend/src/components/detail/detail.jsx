@@ -86,6 +86,7 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
           onStatusChange={() => state.setShowStatusChange(true)}
           onDelete={() => state.setShowDeleteConfirm(true)}
           onEdit={state.isEditor ? state.handleEdit : () => state.setEditRequestModalOpen(true)}
+          onCancelAccept={state.handleCancelAccept}
           onAddFolder={() => state.setShowAddFolder(true)}
           onAlreadyMine={() => state.setShowAlreadyMine(true)}
           onHasOtherPerson={() => state.setShowHasOtherPerson(true)}
@@ -119,9 +120,12 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         fromStorage={fromStorage}
         status={state.displayData?.status}
         canAccept={state.canAccept}
+        activeTab={state.activeTab}
         onAccept={state.handleAccept}
         onProgress={state.handleProgress}
-        onProcessWrite={() => { state.setProcessContent(""); state.setShowProcessForm(true); }}
+        onProcessWrite={() => { state.setProcessContent(state.displayData?.result || ""); state.setExistingProcessImages(state.detailData?.processImages || []); state.setRemovedProcessImageIds([]); state.setShowProcessForm(true); }}
+        hasResult={!!state.displayData?.result}
+        onComplete={() => state.setShowCompleteConfirm(true)}
       />
 
       {/* 모든 팝업/모달 */}
@@ -164,6 +168,12 @@ const Detail = ({ isOpen, onClose, data, onUpdate, showProgress = false, fromSto
         processContent={state.processContent}
         setProcessContent={state.setProcessContent}
         handleProcessSubmit={state.handleProcessSubmit}
+        handleProcessSave={state.handleProcessSave}
+        showCompleteConfirm={state.showCompleteConfirm}
+        setShowCompleteConfirm={state.setShowCompleteConfirm}
+        handleProcessComplete={state.handleProcessComplete}
+        existingProcessImages={state.existingProcessImages}
+        handleDeleteExistingProcessImage={state.handleDeleteExistingProcessImage}
         showProcessSuccess={state.showProcessSuccess}
         setShowProcessSuccess={state.setShowProcessSuccess}
         processLoading={state.processLoading}
