@@ -270,8 +270,9 @@
     font-weight: 1000;
   }
 
+  /* 탭과 필터가 한 줄에서 넘쳐 잘리지 않도록 세로로 쌓음 */
   .admin-filters {
-    flex-direction: row;
+    flex-direction: column;
     align-items: stretch;
     gap: 12px;
     padding-bottom: 16px;
@@ -291,21 +292,67 @@
     display: flex;
   }
 
+  .admin-filters-left {
+    width: 100%;
+  }
+
+  /* 상태 탭: 배경은 탭 개수만큼만, 화면을 넘칠 때만 가로 스크롤 */
+  .admin-tabs {
+    width: fit-content;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 분류 + 기간 + Excel 을 한 줄에 (칸을 좁혀서라도) */
   .admin-filters-right {
     flex-direction: row;
-    align-items: flex-end;
-    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
     padding-top: 0;
     padding-bottom: 0;
     border-top: none;
   }
 
+  /* 래퍼 div를 풀어 select/날짜/~/날짜/Excel 이 같은 줄에 오도록 */
+  .admin-filters-right .admin-filters-row {
+    display: contents;
+  }
+  .admin-filters-right .admin-select {
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .admin-filters-right .admin-date {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 6px 4px;
+    font-size: 12px;
+  }
+  .admin-filters-right .admin-filters-row > span {
+    flex: 0 0 auto;
+  }
+  .admin-filters-right .admin-excel-btn {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  /* (정렬 등) 그 밖의 단독 필터 줄 */
   .admin-filters-row {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 8px;
     width: 100%;
+    flex-wrap: wrap;
   }
 
 
