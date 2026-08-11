@@ -27,9 +27,12 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
   : ['http://localhost:3000'];
 
+const isProd = process.env.NODE_ENV === 'production';
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // 개발(NODE_ENV!==production)에서는 로컬 접속 주소가 다양하므로 모든 origin 허용.
+    // 운영에서는 기존처럼 allowedOrigins 화이트리스트만 허용(동작 변화 없음).
+    if (!origin || !isProd || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('CORS policy: This origin is not allowed.'));
