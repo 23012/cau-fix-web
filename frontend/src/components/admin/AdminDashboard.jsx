@@ -50,9 +50,10 @@ const AdminDashboard = () => {
   }, []);
 
   const filteredData = useMemo(() => {
-    const rangeStart = startDate ? new Date(startDate) : null;
-    const rangeEnd = endDate ? new Date(endDate) : null;
-    if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+    // 날짜만 있는 문자열은 new Date()에서 UTC 자정으로 파싱되어 KST(+9)에서 오전 9시가
+    // 기준이 되는 문제가 있다. T00:00:00 / T23:59:59를 붙여 로컬시간(자정)으로 파싱.
+    const rangeStart = startDate ? new Date(`${startDate}T00:00:00`) : null;
+    const rangeEnd = endDate ? new Date(`${endDate}T23:59:59.999`) : null;
 
     return tableData.filter((row) => {
       if (statusFilter !== "전체" && row.status !== statusFilter) return false;

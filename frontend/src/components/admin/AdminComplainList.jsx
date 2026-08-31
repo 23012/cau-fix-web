@@ -34,12 +34,9 @@ const AdminComplainList = () => {
       if (startDate || endDate) {
         const d = parseExcelDate(row.date);
         if (!d) return false;
-        if (startDate && d < new Date(startDate)) return false;
-        if (endDate) {
-          const end = new Date(endDate);
-          end.setHours(23, 59, 59);
-          if (d > end) return false;
-        }
+        // 날짜만 있는 문자열은 UTC 자정으로 파싱되므로(KST에서 오전 9시) 로컬시간으로 파싱
+        if (startDate && d < new Date(`${startDate}T00:00:00`)) return false;
+        if (endDate && d > new Date(`${endDate}T23:59:59.999`)) return false;
       }
       return true;
     });
